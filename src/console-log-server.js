@@ -60,55 +60,76 @@ const handleMiddlewareErrors = (err, req, res, next) => {
 
 const unknownContentType = (req) => Buffer.isBuffer(req.body)
 
-const app = express()
-app.use(logRequestStartAndEnd)
-app.use(saveRawBody)
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(xmlParser())
-app.use(bodyParser.text())
-app.use(bodyParser.raw({type: () => true}))
-app.use(handleMiddlewareErrors)
+const create = () => {
+  const app = express()
 
-app.all('*', (req, res) => {
-  const renderParams = (obj) => prettyjson.render(obj, {defaultIndentation: 2}, 2)
-  const headers = req.headers
+  app.use(logRequestStartAndEnd)
+  app.use(saveRawBody)
+  app.use(bodyParser.json())
+  app.use(bodyParser.urlencoded({ extended: false }))
+  app.use(xmlParser())
+  app.use(bodyParser.text())
+  app.use(bodyParser.raw({type: () => true}))
+  app.use(handleMiddlewareErrors)
 
-  console.log(chalk.magenta('headers' + ':'))
-  console.log(renderParams(headers))
+  app.all('*', (req, res) => {
+    const renderParams = (obj) => prettyjson.render(obj, {defaultIndentation: 2}, 2)
+    const headers = req.headers
 
-  if (_.isEmpty(req.query)) {
-    console.log(chalk.magenta('query: (empty)'))
-  } else {
-    console.log(chalk.magenta('query:'))
-    console.log(renderParams(req.query))
-  }
+    console.log(chalk.magenta('headers' + ':'))
+    console.log(renderParams(headers))
 
-  if (_.isEmpty(req.body)) {
-    console.log(chalk.magenta('body: (empty)'))
-  } else if (unknownContentType(req)) {
-    console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string since content-type '${headers['content-type']}' is not supported. Forgot to set it correctly?)`))
-    console.log(chalk.white(req.body.toString()))
-  } else if (headers['content-type'] && headers['content-type'].indexOf('json') !== -1) {
-    console.log(chalk.magenta('body (json): '))
-    console.log(chalk.green(neatJSON(req.body, {
-      wrap: 40,
-      aligned: true,
-      afterComma: 1,
-      afterColon1: 1,
-      afterColonN: 1
-    })))
-  } else if (headers['content-type'] && headers['content-type'].indexOf('xml') !== -1) {
-    console.log(chalk.magenta('body (xml): '))
-    console.log(chalk.green(pd.xml(req.rawBody)))
-  } else {
-    console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
-    console.log(chalk.white(req.body))
-  }
-  res.status(200).end()
-})
+    if (_.isEmpty(req.query)) {
+      console.log(chalk.magenta('query: (empty)'))
+    } else {
+      console.log(chalk.magenta('query:'))
+      console.log(renderParams(req.query))
+    }
 
-const port = _.toNumber(process.env.PORT || 3000)
-const hostname = process.env.HOSTNAME || 'localhost'
-app.listen(port, hostname, () =>
-  console.log(`console-log-server listening on http://${hostname}:${port}`))
+    if (_.isEmpty(req.body)) {
+      console.log(chalk.magenta('body: (empty)'))
+    } else if (unknownContentType(req)) {
+      console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string since content-type '${headers['content-type']}' is not supported. Forgot to set it correctly?)`))
+      console.log(chalk.white(req.body.toString()))
+    } else if (headers['content-type'] && headers['content-type'].indexOf('json') !== -1) {
+      console.log(chalk.magenta('body (json): '))
+      console.log(chalk.green(neatJSON(req.body, {
+        wrap: 40,
+        aligned: true,
+        afterComma: 1,
+        afterColon1: 1,
+        afterColonN: 1
+      })))
+    } else if (headers['content-type'] && headers['content-type'].indexOf('xml') !== -1) {
+      console.log(chalk.magenta('body (xml): '))
+      console.log(chalk.green(pd.xml(req.rawBody)))
+    } else {
+      console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
+      console.log(chalk.white(req.body))
+    }
+    res.status(200).end()
+  })
+  server.app = app
+}
+
+const start = (cb = () => true) => {
+  const port = _.toNumber(process.env.PORT || 3000)
+  const hostname = process.env.HOSTNAME || 'localhost'
+  server.app.listen(port, hostname, () => {
+    console.log(`console-log-server listening on http://${hostname}:${port}`)
+    cb(null)
+  })
+}
+
+const server = {
+  app: null,
+  create,
+  start
+}
+
+if (!module.parent) {
+  create()
+  start()
+}
+
+export default server
