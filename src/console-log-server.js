@@ -109,5 +109,6 @@ app.all('*', (req, res) => {
 })
 
 const port = _.toNumber(process.env.PORT || 3000)
-app.listen(port)
-console.log('Listening at http://localhost:' + port)
+const hostname = process.env.HOSTNAME || 'localhost'
+app.listen(port, hostname, () =>
+  console.log(`console-log-server listening on http://${hostname}:${port}`))
