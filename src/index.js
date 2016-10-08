@@ -113,7 +113,7 @@ const create = () => {
 }
 
 const start = (opts = {}, cb = () => true) => {
-  opts = _.defaults(opts, {port: 3000, hostname: 'localhost'})
+  opts = _.defaults({port: 3000, hostname: 'localhost'}, opts)
   server.app.listen(opts.port, opts.hostname, () => {
     console.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
     cb(null)

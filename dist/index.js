@@ -153,7 +153,7 @@ var start = function start() {
     return true;
   };
 
-  opts = _fp2.default.defaults(opts, { port: 3000, hostname: 'localhost' });
+  opts = _fp2.default.defaults({ port: 3000, hostname: 'localhost' }, opts);
   server.app.listen(opts.port, opts.hostname, function () {
     console.log('console-log-server listening on http://' + opts.hostname + ':' + opts.port);
     cb(null);

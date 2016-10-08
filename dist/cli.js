@@ -11,19 +11,21 @@ var _2 = _interopRequireDefault(_);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var cli = (0, _meow2.default)('\n  Usage\n    $ console-log-server\n\n  Options\n    --port, -p  Port Number\n    --hostname, -H Host name\n\n  Examples\n    $ console-log-server -p 3000\n', {
+var unknownParameters = false;
+
+var cli = (0, _meow2.default)('\n  Usage\n    $ console-log-server\n\n  Options\n    --port, -p  Port Number\n    --hostname, -h Host name\n    --version\n    --help\n  Examples\n    $ console-log-server -p 3000\n', {
   alias: {
     p: 'port',
     h: 'hostname'
+  },
+  unknown: function unknown() {
+    unknownParameters = true;
   }
 });
-/*
-{
-    input: ['unicorns'],
-    flags: {rainbow: true},
-    ...
-}
-*/
 
-_2.default.create();
-_2.default.start(cli.flags);
+if (unknownParameters) {
+  cli.showHelp();
+} else {
+  _2.default.create();
+  _2.default.start(cli.flags);
+}

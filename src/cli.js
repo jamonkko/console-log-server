@@ -2,29 +2,30 @@
 import meow from 'meow'
 import server from './'
 
+let unknownParameters = false
+
 const cli = meow(`
   Usage
     $ console-log-server
 
   Options
     --port, -p  Port Number
-    --hostname, -H Host name
-
+    --hostname, -h Host name
+    --version
+    --help
   Examples
     $ console-log-server -p 3000
 `, {
   alias: {
     p: 'port',
     h: 'hostname'
-  }
+  },
+  unknown: () => { unknownParameters = true }
 })
-/*
-{
-    input: ['unicorns'],
-    flags: {rainbow: true},
-    ...
-}
-*/
 
-server.create()
-server.start(cli.flags)
+if (unknownParameters) {
+  cli.showHelp()
+} else {
+  server.create()
+  server.start(cli.flags)
+}
