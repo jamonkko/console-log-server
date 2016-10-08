@@ -1,7 +1,13 @@
+/*!
+ * @license
+ * console-log-server v0.0.1 (https://github.com/jamonkko/console-log-server#readme)
+ * Copyright 2016 Jarkko Mönkkönen <jamonkko@gmail.com>
+ * Licensed under MIT
+ */
 import express from 'express'
 import bodyParser from 'body-parser'
 import chalk from 'chalk'
-import { neatJSON } from './vendor/neat-json'
+import { neatJSON } from '../vendor/neat-json'
 import prettyjson from 'prettyjson'
 import { pd } from 'pretty-data'
 import _ from 'lodash'
