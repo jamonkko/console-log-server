@@ -81,10 +81,10 @@ app.all('*', (req, res) => {
   if (_.isEmpty(req.body)) {
     console.log(chalk.magenta('body: (empty)'))
   } else if (unknownContentType(req)) {
-    console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string since content-type ${headers['content-type']} is not supported. Forgot to set it correctly?)`))
+    console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string since content-type '${headers['content-type']}' is not supported. Forgot to set it correctly?)`))
     console.log(chalk.white(req.body.toString()))
   } else if (headers['content-type'] && headers['content-type'].indexOf('json') !== -1) {
-    console.log(chalk.magenta('body: '))
+    console.log(chalk.magenta('body (json): '))
     console.log(chalk.green(neatJSON(req.body, {
       wrap: 40,
       aligned: true,
@@ -93,10 +93,10 @@ app.all('*', (req, res) => {
       afterColonN: 1
     })))
   } else if (headers['content-type'] && headers['content-type'].indexOf('xml') !== -1) {
-    console.log(chalk.magenta('body: '))
+    console.log(chalk.magenta('body (xml): '))
     console.log(chalk.green(pd.xml(req.rawBody)))
   } else {
-    console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is ${headers['content-type']}. Forgot to set it correctly?)`))
+    console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
     console.log(chalk.white(req.body))
   }
   res.status(200).end()
