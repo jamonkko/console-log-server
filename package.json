@@ -2,19 +2,23 @@
   "name": "console-log-server",
   "version": "0.0.1",
   "description": "Logs all http requests to console",
-  "main": "dist/console-log-server.js",
-  "jsnext:main": "src/console-log-server.js",
+  "main": "dist",
+  "jsnext:main": "src",
   "files": [
     "dist",
     "src",
     "vendor"
   ],
+  "bin": {
+    "console-log-server": "./dist/cli.js"
+  },
   "scripts": {
     "babel": "babel src -d dist",
     "babel-node": "babel-node --presets es2015",
-    "build": "npm run header && npm run standard && npm run babel",
-    "header": "header src/*.js dist/*.js",
-    "start": "nodemon --exec npm run babel-node -- ./src/console-log-server.js",
+    "build": "npm run header && npm run standard && npm run babel && npm run --silent permissions",
+    "header": "header src/index.js",
+    "permissions": "chmod +x src/cli.js dist/cli.js",
+    "start": "nodemon --exec npm run babel-node -- ./src/index.js",
     "standard": "standard"
   },
   "repository": {

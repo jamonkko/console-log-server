@@ -6,9 +6,7 @@ Use it to quick check what your app is sending to external REST API. Or whenever
 ## Usage
 
 ```sh
-$ git clone https://github.com/jamonkko/console-log-server.git
-$ cd console-log-server
-$ npm install
-$ PORT=8080 npm start
+$ npm install console-log-server --global
+$ console-log-server -p 8000
 ```
 

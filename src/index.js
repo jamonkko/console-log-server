@@ -10,7 +10,7 @@ import chalk from 'chalk'
 import { neatJSON } from '../vendor/neat-json'
 import prettyjson from 'prettyjson'
 import { pd } from 'pretty-data'
-import _ from 'lodash'
+import _ from 'lodash/fp'
 import xmlParser from 'express-xml-bodyparser'
 
 const saveRawBody = (req, res, next) => {
@@ -112,11 +112,10 @@ const create = () => {
   server.app = app
 }
 
-const start = (cb = () => true) => {
-  const port = _.toNumber(process.env.PORT || 3000)
-  const hostname = process.env.HOSTNAME || 'localhost'
-  server.app.listen(port, hostname, () => {
-    console.log(`console-log-server listening on http://${hostname}:${port}`)
+const start = (opts = {}, cb = () => true) => {
+  opts = _.defaults(opts, {port: 3000, hostname: 'localhost'})
+  server.app.listen(opts.port, opts.hostname, () => {
+    console.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
     cb(null)
   })
 }
