@@ -46,11 +46,20 @@ const handleMiddlewareErrors = (err, req, res, next) => {
   }
   const logXmlParseError = () => {
     const lineErrorMatches = err.message.match(/Line:\s+(\d+)/)
+    const columnErrorMatches = err.message.match(/Column:\s+(\d+)/)
     if (!lineErrorMatches) return false
     const line = _.toNumber(lineErrorMatches[1])
-    const lineWithError = _.last(req.rawBody.split('\n', line))
-    console.error(chalk.yellow(`Line ${line} in request body (error is probably near it):`))
+    const column = _.toNumber(columnErrorMatches[1])
+    const lineWithError = req.rawBody.split('\n', line + 1)[line]
+    let errorTitle = `Actual error might be earlier, but here is the line:${line}`
+    if (column) {
+      errorTitle += ` column:${column}`
+    }
+    console.error(chalk.yellow(errorTitle))
     console.error(lineWithError)
+    if (column) {
+      console.error(' '.repeat(column - 1) + chalk.bold.red('^'))
+    }
   }
   console.error(chalk.red('Error receiving request: ' + req.method + ' ' + req.originalUrl))
   console.error(chalk.red(err.stack))
