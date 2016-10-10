@@ -1,6 +1,6 @@
 /*!
  * @license
- * console-log-server v0.0.1 (https://github.com/jamonkko/console-log-server#readme)
+ * console-log-server v0.0.2 (https://github.com/jamonkko/console-log-server#readme)
  * Copyright 2016 Jarkko Mönkkönen <jamonkko@gmail.com>
  * Licensed under MIT
  */
@@ -141,26 +141,23 @@ const create = () => {
     }
     res.status(200).end()
   })
-  server.app = app
+  return app
 }
 
-const start = (opts = {}, cb = () => true) => {
+export default function consoleLogServer (opts = {}) {
   opts = _.defaults({port: 3000, hostname: 'localhost'}, opts)
-  server.app.listen(opts.port, opts.hostname, () => {
-    console.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
-    cb(null)
-  })
-}
-
-const server = {
-  app: null,
-  create,
-  start
+  const app = create(opts)
+  return {
+    app,
+    start: (cb = () => true) => {
+      app.listen(opts.port, opts.hostname, () => {
+        console.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
+        cb(null)
+      })
+    }
+  }
 }
 
 if (!module.parent) {
-  create()
-  start()
+  consoleLogServer().start()
 }
-
-export default server

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import meow from 'meow'
-import server from './'
+import consoleLogServer from './'
 
 let unknownParameters = false
 
@@ -26,6 +26,5 @@ const cli = meow(`
 if (unknownParameters) {
   cli.showHelp()
 } else {
-  server.create()
-  server.start(cli.flags)
+  consoleLogServer(cli.flags).start()
 }

@@ -26,6 +26,5 @@ var cli = (0, _meow2.default)('\n  Usage\n    $ console-log-server\n\n  Options\
 if (unknownParameters) {
   cli.showHelp();
 } else {
-  _2.default.create();
-  _2.default.start(cli.flags);
+  (0, _2.default)(cli.flags).start();
 }
