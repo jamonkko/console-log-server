@@ -64,7 +64,7 @@ const handleMiddlewareErrors = (err, req, res, next) => {
   console.error(chalk.red('Error receiving request: ' + req.method + ' ' + req.originalUrl))
   console.error(chalk.red(err.stack))
   logJsonParseError() || logXmlParseError()
-  res.status(500).send('Internal error!')
+  res.status(400).end()
 }
 
 const unknownContentType = (req) => Buffer.isBuffer(req.body)
