@@ -4,10 +4,6 @@ import xmlParser from 'express-xml-bodyparser'
 import { logRequest, handleMiddlewareErrors } from './log-request'
 import _ from 'lodash/fp'
 
-const defaultRoute = (req, res) => {
-  res.status(200).end()
-}
-
 export default (opts) => {
   const app = express()
   app.use(function saveRawBody (req, res, next) {
@@ -39,6 +35,8 @@ export default (opts) => {
   })
   app.use(handleMiddlewareErrors)
   app.use(logRequest)
-  app.all('*', defaultRoute)
+  app.all('*', function defaultRoute (req, res) {
+    res.status(200).end()
+  })
   return app
 }
