@@ -12,16 +12,15 @@ const cli = meow(`
     --port, -p Port Number
     --hostname, -h Host name
     --no-color
-
     --version
     --help
+
   Examples
     $ console-log-server -p 3000
 `, {
   alias: {
     p: 'port',
-    h: 'hostname',
-    nc: 'no-color'
+    h: 'hostname'
   },
   unknown: (arg) => {
     unknownArgs = (arg !== '--no-color')
