@@ -10,4 +10,4 @@ $ npm install console-log-server --global
 $ console-log-server -p 8000
 ```
 
-![Demo](./resources/console-log-server-demo.gif | height=40px)
+<img src="./resources/console-log-server-demo.gif" alt="Demo" style="width: 200px;"/>
