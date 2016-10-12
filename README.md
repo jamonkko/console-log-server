@@ -10,4 +10,4 @@ $ npm install console-log-server --global
 $ console-log-server -p 8000
 ```
 
-![Demo](https://raw.githubusercontent.com/jamonkko/console-log-server/master/resources/console-log-server-demo.gif)
+![Demo](https://raw.githubusercontent.com/jamonkko/console-log-server/master/resources/console-log-server-demo.gif =250x)
