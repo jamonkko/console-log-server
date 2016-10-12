@@ -9,6 +9,5 @@ Useful for quickly viewing what kind of requests your app is sending.
 $ npm install console-log-server --global
 $ console-log-server -p 8000
 ```
-<div style="text-align:center">
-  <img src="./resources/console-log-server-demo.gif" alt="Demo" width="700"/> 
-</div
+<img src="./resources/console-log-server-demo.gif" alt="Demo" width="700" align="center"/> 
+
