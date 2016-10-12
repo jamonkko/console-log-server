@@ -1,7 +1,7 @@
 # console-log-server
-Logs all requests to command line console and responds 200 OK.
+Logs all requests to command line console (stdout) and responds 200 OK.
 
-Use it to quick check what your app is sending to external REST API. Or whenever you need to see what you requests look like.
+Useful for quickly viewing what kind of requests your app is sending.
 
 ## Usage
 
@@ -10,3 +10,4 @@ $ npm install console-log-server --global
 $ console-log-server -p 8000
 ```
 
+![Demo](https://raw.githubusercontent.com/jamonkko/console-log-server/master/resources/console-log-server-demo.gif)
