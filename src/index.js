@@ -8,8 +8,23 @@ import application from './application'
 import _ from 'lodash/fp'
 
 export default function consoleLogServer (opts = {}) {
-  opts = _.defaults({port: 3000, hostname: 'localhost'}, opts)
+  opts = _.defaults({
+    port: 3000,
+    hostname: 'localhost',
+    defaultRoute: (req, res) => res.status(200).end(),
+    useRoutes: (app) => {
+      if (opts.router) {
+        app.use(opts.router)
+      }
+      if (_.isFunction(opts.defaultRoute)) {
+        app.all('*', opts.defaultRoute)
+      }
+    }
+  }, opts)
   const app = application(opts)
+  if (_.isFunction(opts.useRoutes)) {
+    opts.useRoutes(app)
+  }
   return {
     app,
     start: (cb = () => true) => {

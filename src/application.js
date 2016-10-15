@@ -35,8 +35,5 @@ export default (opts) => {
   })
   app.use(handleMiddlewareErrors)
   app.use(logRequest)
-  app.all('*', function defaultRoute (req, res) {
-    res.status(200).end()
-  })
   return app
 }
