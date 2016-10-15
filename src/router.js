@@ -1,7 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import xmlParser from 'express-xml-bodyparser'
-import { logRequest, handleMiddlewareErrors } from './logging'
+import log from './logging'
 import _ from 'lodash/fp'
 
 export default (opts) => {
@@ -33,7 +33,18 @@ export default (opts) => {
     }
     next()
   })
-  router.use(handleMiddlewareErrors)
-  router.use(logRequest)
+  router.use(function logInvalidRequest (err, req, res, next) {
+    if (!req.bodyType) {
+      req.bodyType = 'error'
+    }
+    log(err, req, res)
+    res.status(400).end()
+  })
+  router.use(function logOkRequest (req, res, next) {
+    res.on('finish', () => {
+      log(null, req, res)
+    })
+    next()
+  })
   return router
 }
