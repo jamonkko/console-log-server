@@ -1,7 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import xmlParser from 'express-xml-bodyparser'
-import { logRequest, handleMiddlewareErrors } from './log-request'
+import { logRequest, handleMiddlewareErrors } from './logging'
 import _ from 'lodash/fp'
 
 export default (opts) => {
