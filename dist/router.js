@@ -71,12 +71,12 @@ exports.default = function (opts) {
     if (!req.bodyType) {
       req.bodyType = 'error';
     }
-    (0, _logging2.default)(err, req, res);
+    (0, _logging2.default)(err, req, res, opts.log);
     res.status(400).end();
   });
   router.use(function logOkRequest(req, res, next) {
     res.on('finish', function () {
-      (0, _logging2.default)(null, req, res);
+      (0, _logging2.default)(null, req, res, opts.log);
     });
     next();
   });

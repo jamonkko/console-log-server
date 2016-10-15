@@ -22,52 +22,53 @@ var _prettyData = require('pretty-data');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = function (err, req, res, next) {
+exports.default = function (err, req, res, log) {
   function divider(text) {
     var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _chalk2.default.cyan.dim;
 
     var divLine = color('*'.repeat(text.length));
     return {
       begin: function begin() {
-        console.log(divLine);
-        console.log(text);
+        log(divLine);
+        log(text);
       },
       end: function end() {
-        console.log(text);
-        console.log(divLine);
+        log(text);
+        log(divLine);
       }
     };
   }
 
   var pathLine = req.method + ' ' + req.originalUrl;
   var div = !err ? divider(_chalk2.default.yellow.bold(pathLine)) : divider(_chalk2.default.red.bold(pathLine + ' (error!)'), _chalk2.default.red.dim);
+  log();
   div.begin();
   var renderParams = function renderParams(obj) {
     return _prettyjson2.default.render(obj, { defaultIndentation: 2 }, 2);
   };
   var headers = req.headers;
 
-  console.log(_chalk2.default.magenta('headers' + ':'));
-  console.log(renderParams(headers));
+  log(_chalk2.default.magenta('headers' + ':'));
+  log(renderParams(headers));
 
   if (_fp2.default.isEmpty(req.query)) {
-    console.log(_chalk2.default.magenta('query: (empty)'));
+    log(_chalk2.default.magenta('query: (empty)'));
   } else {
-    console.log(_chalk2.default.magenta('query:'));
-    console.log(renderParams(req.query));
+    log(_chalk2.default.magenta('query:'));
+    log(renderParams(req.query));
   }
 
   switch (req.bodyType) {
     case 'empty':
-      console.log(_chalk2.default.magenta('body: (empty)'));
+      log(_chalk2.default.magenta('body: (empty)'));
       break;
     case 'raw':
-      console.log(_chalk2.default.magenta('body: ') + _chalk2.default.yellow('(parsed as raw string by console-log-server since content-type is \'' + headers['content-type'] + '\'. Forgot to set it correctly?)'));
-      console.log(_chalk2.default.white(req.body.toString()));
+      log(_chalk2.default.magenta('body: ') + _chalk2.default.yellow('(parsed as raw string by console-log-server since content-type is \'' + headers['content-type'] + '\'. Forgot to set it correctly?)'));
+      log(_chalk2.default.white(req.body.toString()));
       break;
     case 'json':
-      console.log(_chalk2.default.magenta('body (json): '));
-      console.log(_chalk2.default.green((0, _neatJson.neatJSON)(req.body, {
+      log(_chalk2.default.magenta('body (json): '));
+      log(_chalk2.default.green((0, _neatJson.neatJSON)(req.body, {
         wrap: 40,
         aligned: true,
         afterComma: 1,
@@ -76,17 +77,17 @@ exports.default = function (err, req, res, next) {
       })));
       break;
     case 'xml':
-      console.log(_chalk2.default.magenta('body (xml): '));
-      console.log(_chalk2.default.green(_prettyData.pd.xml(req.rawBody)));
+      log(_chalk2.default.magenta('body (xml): '));
+      log(_chalk2.default.green(_prettyData.pd.xml(req.rawBody)));
       break;
     case 'text':
-      console.log(_chalk2.default.magenta('body: ') + _chalk2.default.yellow('(parsed as plain text since content-type is \'' + headers['content-type'] + '\'. Forgot to set it correctly?)'));
-      console.log(_chalk2.default.white(req.body));
+      log(_chalk2.default.magenta('body: ') + _chalk2.default.yellow('(parsed as plain text since content-type is \'' + headers['content-type'] + '\'. Forgot to set it correctly?)'));
+      log(_chalk2.default.white(req.body));
       break;
     case 'error':
-      console.log(_chalk2.default.red('body (error): ') + _chalk2.default.yellow('(failed to handle request. Body printed below as plain text if at all...)'));
+      log(_chalk2.default.red('body (error): ') + _chalk2.default.yellow('(failed to handle request. Body printed below as plain text if at all...)'));
       if (req.body) {
-        console.log(_chalk2.default.white(req.rawBody));
+        log(_chalk2.default.white(req.rawBody));
       }
       break;
     default:
@@ -94,7 +95,7 @@ exports.default = function (err, req, res, next) {
   }
 
   if (err) {
-    console.log();
+    log();
     var logJsonParseError = function logJsonParseError() {
       var positionMatches = err.message.match(/at position\s+(\d+)/);
       if (!positionMatches) return false;
@@ -129,5 +130,5 @@ exports.default = function (err, req, res, next) {
   }
 
   div.end();
-  console.log();
+  log();
 };
