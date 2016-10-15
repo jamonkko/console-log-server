@@ -20,7 +20,7 @@ export default (opts) => {
   }))
   app.use(xmlParser())
   app.use(function markBodyAsXml (req, res, next) {
-    if (!_.isEmpty(req.body) && !req.bodyType) {
+    if (!req.bodyType && !_.isEmpty(req.body)) {
       req.bodyType = 'xml'
     }
     next()
