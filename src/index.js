@@ -12,6 +12,9 @@ export default function consoleLogServer (opts = {}) {
   opts = _.defaults({
     port: 3000,
     hostname: 'localhost',
+    log: (...args) => {
+      console.log(...args)
+    },
     defaultRoute: (req, res) => res.status(200).end(),
     addRouter: (app) => {
       if (opts.router) {
@@ -31,7 +34,7 @@ export default function consoleLogServer (opts = {}) {
     app,
     start: (cb = () => true) => {
       app.listen(opts.port, opts.hostname, () => {
-        console.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
+        opts.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
         cb(null)
       })
     }

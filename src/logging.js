@@ -4,48 +4,49 @@ import _ from 'lodash/fp'
 import { neatJSON } from '../vendor/neat-json'
 import { pd } from 'pretty-data'
 
-export default (err, req, res, next) => {
+export default (err, req, res, log) => {
   function divider (text, color = chalk.cyan.dim) {
     const divLine = color('*'.repeat(text.length))
     return {
       begin: () => {
-        console.log(divLine)
-        console.log(text)
+        log(divLine)
+        log(text)
       },
       end: () => {
-        console.log(text)
-        console.log(divLine)
+        log(text)
+        log(divLine)
       }
     }
   }
 
   const pathLine = req.method + ' ' + req.originalUrl
   const div = !err ? divider(chalk.yellow.bold(pathLine)) : divider(chalk.red.bold(`${pathLine} (error!)`), chalk.red.dim)
+  log()
   div.begin()
   const renderParams = (obj) => prettyjson.render(obj, {defaultIndentation: 2}, 2)
   const headers = req.headers
 
-  console.log(chalk.magenta('headers' + ':'))
-  console.log(renderParams(headers))
+  log(chalk.magenta('headers' + ':'))
+  log(renderParams(headers))
 
   if (_.isEmpty(req.query)) {
-    console.log(chalk.magenta('query: (empty)'))
+    log(chalk.magenta('query: (empty)'))
   } else {
-    console.log(chalk.magenta('query:'))
-    console.log(renderParams(req.query))
+    log(chalk.magenta('query:'))
+    log(renderParams(req.query))
   }
 
   switch (req.bodyType) {
     case 'empty':
-      console.log(chalk.magenta('body: (empty)'))
+      log(chalk.magenta('body: (empty)'))
       break
     case 'raw':
-      console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string by console-log-server since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
-      console.log(chalk.white(req.body.toString()))
+      log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string by console-log-server since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
+      log(chalk.white(req.body.toString()))
       break
     case 'json':
-      console.log(chalk.magenta('body (json): '))
-      console.log(chalk.green(neatJSON(req.body, {
+      log(chalk.magenta('body (json): '))
+      log(chalk.green(neatJSON(req.body, {
         wrap: 40,
         aligned: true,
         afterComma: 1,
@@ -54,17 +55,17 @@ export default (err, req, res, next) => {
       })))
       break
     case 'xml':
-      console.log(chalk.magenta('body (xml): '))
-      console.log(chalk.green(pd.xml(req.rawBody)))
+      log(chalk.magenta('body (xml): '))
+      log(chalk.green(pd.xml(req.rawBody)))
       break
     case 'text':
-      console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
-      console.log(chalk.white(req.body))
+      log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
+      log(chalk.white(req.body))
       break
     case 'error':
-      console.log(chalk.red('body (error): ') + chalk.yellow(`(failed to handle request. Body printed below as plain text if at all...)`))
+      log(chalk.red('body (error): ') + chalk.yellow(`(failed to handle request. Body printed below as plain text if at all...)`))
       if (req.body) {
-        console.log(chalk.white(req.rawBody))
+        log(chalk.white(req.rawBody))
       }
       break
     default:
@@ -72,7 +73,7 @@ export default (err, req, res, next) => {
   }
 
   if (err) {
-    console.log()
+    log()
     const logJsonParseError = () => {
       const positionMatches = err.message.match(/at position\s+(\d+)/)
       if (!positionMatches) return false
@@ -107,6 +108,6 @@ export default (err, req, res, next) => {
   }
 
   div.end()
-  console.log()
+  log()
 }
 
