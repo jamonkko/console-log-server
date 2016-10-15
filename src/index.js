@@ -4,15 +4,16 @@
  * Copyright 2016 Jarkko Mönkkönen <jamonkko@gmail.com>
  * Licensed under MIT
  */
-import application from './application'
+import router from './router'
 import _ from 'lodash/fp'
+import express from 'express'
 
 export default function consoleLogServer (opts = {}) {
   opts = _.defaults({
     port: 3000,
     hostname: 'localhost',
     defaultRoute: (req, res) => res.status(200).end(),
-    useRoutes: (app) => {
+    addRouter: (app) => {
       if (opts.router) {
         app.use(opts.router)
       }
@@ -21,9 +22,10 @@ export default function consoleLogServer (opts = {}) {
       }
     }
   }, opts)
-  const app = application(opts)
-  if (_.isFunction(opts.useRoutes)) {
-    opts.useRoutes(app)
+  const app = opts.app || express()
+  app.use(router(opts))
+  if (_.isFunction(opts.addRouter)) {
+    opts.addRouter(app)
   }
   return {
     app,

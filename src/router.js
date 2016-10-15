@@ -5,35 +5,35 @@ import { logRequest, handleMiddlewareErrors } from './log-request'
 import _ from 'lodash/fp'
 
 export default (opts) => {
-  const app = express()
-  app.use(function saveRawBody (req, res, next) {
+  const router = express.Router()
+  router.use(function saveRawBody (req, res, next) {
     req.rawBody = ''
     req.on('data', (chunk) => { req.rawBody += chunk })
     next()
   })
-  app.use(bodyParser.json({
+  router.use(bodyParser.json({
     verify: (req) => { req.bodyType = 'json' }
   }))
-  app.use(bodyParser.urlencoded({
+  router.use(bodyParser.urlencoded({
     extended: false,
     verify: (req) => { req.bodyType = 'url' }
   }))
-  app.use(xmlParser())
-  app.use(function markBodyAsXml (req, res, next) {
+  router.use(xmlParser())
+  router.use(function markBodyAsXml (req, res, next) {
     if (!req.bodyType && !_.isEmpty(req.body)) {
       req.bodyType = 'xml'
     }
     next()
   })
-  app.use(bodyParser.text({verify: (req) => { req.bodyType = 'text' }}))
-  app.use(bodyParser.raw({type: () => true, verify: (req) => { req.bodyType = 'raw' }}))
-  app.use(function detectEmptyBody (req, res, next) {
+  router.use(bodyParser.text({verify: (req) => { req.bodyType = 'text' }}))
+  router.use(bodyParser.raw({type: () => true, verify: (req) => { req.bodyType = 'raw' }}))
+  router.use(function detectEmptyBody (req, res, next) {
     if (req.rawBody.length === 0) {
       req.bodyType = 'empty'
     }
     next()
   })
-  app.use(handleMiddlewareErrors)
-  app.use(logRequest)
-  return app
+  router.use(handleMiddlewareErrors)
+  router.use(logRequest)
+  return router
 }
