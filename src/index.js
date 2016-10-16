@@ -12,10 +12,11 @@ export default function consoleLogServer (opts = {}) {
   opts = _.defaults({
     port: 3000,
     hostname: 'localhost',
+    resultCode: 200,
     log: (...args) => {
       console.log(...args)
     },
-    defaultRoute: (req, res) => res.status(200).end(),
+    defaultRoute: (req, res) => res.status(opts.resultCode).end(),
     addRouter: (app) => {
       if (opts.router) {
         app.use(opts.router)
