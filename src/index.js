@@ -7,16 +7,27 @@
 import router from './router'
 import _ from 'lodash/fp'
 import express from 'express'
+import mime from 'mime-types'
 
 export default function consoleLogServer (opts = {}) {
+  const mimeExtensions = _.flow(_.values, _.flatten, _.without(['json']))(mime.extensions)
   opts = _.defaults({
     port: 3000,
     hostname: 'localhost',
     resultCode: 200,
+    resultBody: null,
     log: (...args) => {
       console.log(...args)
     },
-    defaultRoute: (req, res) => res.status(opts.resultCode).end(),
+    defaultRoute: (req, res) => {
+      const negotiatedType = req.accepts(mimeExtensions)
+      const defaultHandler = () => opts.resultBody ? res.send(opts.resultBody) : res.end()
+      res.status(opts.resultCode).format({
+        json: () => opts.resultBody ? res.jsonp(opts.resultBody) : res.end(),
+        [negotiatedType]: defaultHandler,
+        default: defaultHandler
+      })
+    },
     addRouter: (app) => {
       if (opts.router) {
         app.use(opts.router)
