@@ -13,6 +13,7 @@ const cli = meow(`
     --hostname, -h Host name
     --result-code, -c Response result code
     --result-body, -b Response content
+    --result-header, -H Response header
     --no-color
     --version
     --help
@@ -25,6 +26,7 @@ const cli = meow(`
     h: 'hostname',
     c: 'result-code',
     b: 'result-body',
+    H: 'result-header'
   },
   unknown: (arg) => {
     unknownArgs = (arg !== '--no-color')
