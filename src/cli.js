@@ -19,7 +19,12 @@ const cli = meow(`
     --help
 
   Examples
+
+    # basic usage
     $ console-log-server -p 3000
+
+    # customized response
+    $ console-log-server -p 3000 -c 201 -b "cool type content" --result-header='Content-Type:application/cool' --result-header='key:value'
 `, {
   alias: {
     p: 'port',

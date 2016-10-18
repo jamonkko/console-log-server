@@ -1,6 +1,6 @@
 /*!
  * @license
- * console-log-server v0.0.2 (https://github.com/jamonkko/console-log-server#readme)
+ * console-log-server v0.1.0 (https://github.com/jamonkko/console-log-server#readme)
  * Copyright 2016 Jarkko Mönkkönen <jamonkko@gmail.com>
  * Licensed under MIT
  */
