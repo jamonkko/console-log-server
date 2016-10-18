@@ -35,7 +35,7 @@ export default function consoleLogServer (opts = {}) {
       res.set(headers)
         .status(opts.resultCode)
         .format({
-          json: () => opts.resultBody ? res.jsonp(opts.resultBody) : res.end(),
+          json: () => opts.resultBody ? res.jsonp(JSON.parse(opts.resultBody)) : res.end(),
           [negotiatedType]: defaultHandler,
           default: defaultHandler
         })

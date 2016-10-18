@@ -59,7 +59,7 @@ function consoleLogServer() {
       }), _fp2.default.fromPairs)(opts.resultHeader);
       res.set(headers).status(opts.resultCode).format((_res$set$status$forma = {
         json: function json() {
-          return opts.resultBody ? res.jsonp(opts.resultBody) : res.end();
+          return opts.resultBody ? res.jsonp(JSON.parse(opts.resultBody)) : res.end();
         }
       }, _defineProperty(_res$set$status$forma, negotiatedType, defaultHandler), _defineProperty(_res$set$status$forma, 'default', defaultHandler), _res$set$status$forma));
     },
