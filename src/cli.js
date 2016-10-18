@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import meow from 'meow'
 import consoleLogServer from './'
+import _ from 'lodash/fp'
 
 let unknownArgs = false
 
@@ -34,8 +35,8 @@ const cli = meow(`
     H: 'result-header'
   },
   unknown: (arg) => {
-    unknownArgs = (arg !== '--no-color')
-    return false
+    unknownArgs = !_.includes(arg, ['--no-color', '--version'])
+    return true
   }
 })
 

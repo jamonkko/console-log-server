@@ -1,3 +1,7 @@
+Version: 0.1.3
+--------------
+- fix --version to work
+
 Version: 0.1.2
 --------------
 - just updated readme to show all cli options

@@ -5,9 +5,13 @@ var _meow = require('meow');
 
 var _meow2 = _interopRequireDefault(_meow);
 
-var _ = require('./');
+var _2 = require('./');
 
-var _2 = _interopRequireDefault(_);
+var _3 = _interopRequireDefault(_2);
+
+var _fp = require('lodash/fp');
+
+var _fp2 = _interopRequireDefault(_fp);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -22,13 +26,13 @@ var cli = (0, _meow2.default)('\n  Usage\n    $ console-log-server\n\n  Options\
     H: 'result-header'
   },
   unknown: function unknown(arg) {
-    unknownArgs = arg !== '--no-color';
-    return false;
+    unknownArgs = !_fp2.default.includes(arg, ['--no-color', '--version']);
+    return true;
   }
 });
 
 if (unknownArgs) {
   cli.showHelp();
 } else {
-  (0, _2.default)(cli.flags).start();
+  (0, _3.default)(cli.flags).start();
 }
