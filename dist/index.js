@@ -17,21 +17,51 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
+var _mimeTypes = require('mime-types');
+
+var _mimeTypes2 = _interopRequireDefault(_mimeTypes);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } /*!
+                                                                                                                                                                                                                   * @license
+                                                                                                                                                                                                                   * console-log-server v0.0.2 (https://github.com/jamonkko/console-log-server#readme)
+                                                                                                                                                                                                                   * Copyright 2016 Jarkko Mönkkönen <jamonkko@gmail.com>
+                                                                                                                                                                                                                   * Licensed under MIT
+                                                                                                                                                                                                                   */
+
 
 function consoleLogServer() {
   var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
+  var mimeExtensions = _fp2.default.flow(_fp2.default.values, _fp2.default.flatten, _fp2.default.without(['json']))(_mimeTypes2.default.extensions);
+
   opts = _fp2.default.defaults({
     port: 3000,
     hostname: 'localhost',
+    resultCode: 200,
+    resultBody: null,
+    resultHeader: [],
     log: function log() {
       var _console;
 
       (_console = console).log.apply(_console, arguments);
     },
     defaultRoute: function defaultRoute(req, res) {
-      return res.status(200).end();
+      var _res$set$status$forma;
+
+      var negotiatedType = req.accepts(mimeExtensions);
+      var defaultHandler = function defaultHandler() {
+        return opts.resultBody ? res.send(opts.resultBody) : res.end();
+      };
+      var headers = _fp2.default.flow(_fp2.default.map(function (h) {
+        return h.split(':', 2);
+      }), _fp2.default.fromPairs)(opts.resultHeader);
+      res.set(headers).status(opts.resultCode).format((_res$set$status$forma = {
+        json: function json() {
+          return opts.resultBody ? res.jsonp(opts.resultBody) : res.end();
+        }
+      }, _defineProperty(_res$set$status$forma, negotiatedType, defaultHandler), _defineProperty(_res$set$status$forma, 'default', defaultHandler), _res$set$status$forma));
     },
     addRouter: function addRouter(app) {
       if (opts.router) {
@@ -60,13 +90,7 @@ function consoleLogServer() {
       });
     }
   };
-} /*!
-   * @license
-   * console-log-server v0.0.2 (https://github.com/jamonkko/console-log-server#readme)
-   * Copyright 2016 Jarkko Mönkkönen <jamonkko@gmail.com>
-   * Licensed under MIT
-   */
-
+}
 
 if (!module.parent) {
   consoleLogServer().start();
