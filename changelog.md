@@ -1,3 +1,7 @@
+Version: 0.1.2
+--------------
+- just updated readme to show all cli options
+
 Version: 0.1.1
 --------------
 - fix to return json body correctly
