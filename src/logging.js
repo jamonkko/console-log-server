@@ -54,6 +54,10 @@ export default (err, req, res, log) => {
         afterColonN: 1
       })))
       break
+    case 'url':
+      log(chalk.magenta('body (url): '))
+      log(renderParams(req.body))
+      break
     case 'xml':
       log(chalk.magenta('body (xml): '))
       log(chalk.green(pd.xml(req.rawBody)))
@@ -69,7 +73,7 @@ export default (err, req, res, log) => {
       }
       break
     default:
-      throw new Error('Internal Error! bodyType not set!')
+      throw new Error(`Internal Error! Unknown bodyType: ${req.bodyType}`)
   }
 
   if (err) {

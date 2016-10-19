@@ -15,7 +15,7 @@ export default (opts) => {
     verify: (req) => { req.bodyType = 'json' }
   }))
   router.use(bodyParser.urlencoded({
-    extended: false,
+    extended: true,
     verify: (req) => { req.bodyType = 'url' }
   }))
   router.use(xmlParser())
