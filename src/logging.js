@@ -58,6 +58,14 @@ export default (err, req, res, log) => {
       log(chalk.magenta('body (url): '))
       log(renderParams(req.body))
       break
+    case 'multi':
+      log(chalk.magenta('body (multipart/form-data): '))
+      log(renderParams(req.body))
+      log(chalk.magenta(`files (${req.files.length}): `))
+      req.files.forEach((file, index) => {
+        log(renderParams({[index + 1]: _.merge(file, {buffer: '*** filtered ***'})}))
+      })
+      break
     case 'xml':
       log(chalk.magenta('body (xml): '))
       log(chalk.green(pd.xml(req.rawBody)))

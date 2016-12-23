@@ -25,9 +25,9 @@ export default function consoleLogServer (opts = {}) {
     log: (...args) => {
       console.log(...args)
     },
-    defaultRoute: (req, res) => {
+    requestHandler: (req, res) => {
       const negotiatedType = req.accepts(mimeExtensions)
-      const defaultHandler = () => opts.resultBody ? res.send(opts.resultBody) : res.end()
+      const defaultRespond = () => opts.resultBody ? res.send(opts.resultBody) : res.end()
       const headers = _.flow(
         _.map((h) => h.split(':', 2)),
         _.fromPairs
@@ -36,16 +36,16 @@ export default function consoleLogServer (opts = {}) {
         .status(opts.resultCode)
         .format({
           json: () => opts.resultBody ? res.jsonp(JSON.parse(opts.resultBody)) : res.end(),
-          [negotiatedType]: defaultHandler,
-          default: defaultHandler
+          [negotiatedType]: defaultRespond,
+          default: defaultRespond
         })
     },
     addRouter: (app) => {
       if (opts.router) {
         app.use(opts.router)
       }
-      if (_.isFunction(opts.defaultRoute)) {
-        app.all('*', opts.defaultRoute)
+      if (_.isFunction(opts.requestHandler)) {
+        app.all('*', opts.requestHandler)
       }
     }
   }, opts)
