@@ -25,8 +25,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } /*!
                                                                                                                                                                                                                    * @license
-                                                                                                                                                                                                                   * console-log-server v0.1.3 (https://github.com/jamonkko/console-log-server#readme)
-                                                                                                                                                                                                                   * Copyright 2016 Jarkko Mönkkönen <jamonkko@gmail.com>
+                                                                                                                                                                                                                   * console-log-server v0.1.4 (https://github.com/jamonkko/console-log-server#readme)
+                                                                                                                                                                                                                   * Copyright 2017 Jarkko Mönkkönen <jamonkko@gmail.com>
                                                                                                                                                                                                                    * Licensed under MIT
                                                                                                                                                                                                                    */
 

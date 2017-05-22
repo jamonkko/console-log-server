@@ -41,7 +41,7 @@ exports.default = function (opts) {
     }
   }));
   router.use(_bodyParser2.default.urlencoded({
-    extended: false,
+    extended: true,
     verify: function verify(req) {
       req.bodyType = 'url';
     }

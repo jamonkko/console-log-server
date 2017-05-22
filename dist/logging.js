@@ -76,6 +76,10 @@ exports.default = function (err, req, res, log) {
         afterColonN: 1
       })));
       break;
+    case 'url':
+      log(_chalk2.default.magenta('body (url): '));
+      log(renderParams(req.body));
+      break;
     case 'xml':
       log(_chalk2.default.magenta('body (xml): '));
       log(_chalk2.default.green(_prettyData.pd.xml(req.rawBody)));
@@ -91,7 +95,7 @@ exports.default = function (err, req, res, log) {
       }
       break;
     default:
-      throw new Error('Internal Error! bodyType not set!');
+      throw new Error('Internal Error! Unknown bodyType: ' + req.bodyType);
   }
 
   if (err) {
