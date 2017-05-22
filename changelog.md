@@ -1,3 +1,7 @@
+Version: 0.1.4
+--------------
+- support url encoded forms with extended syntax
+
 Version: 0.1.3
 --------------
 - fix --version to work
