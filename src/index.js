@@ -49,6 +49,9 @@ export default function consoleLogServer (opts = {}) {
       }
     }
   }, opts)
+
+  opts.resultHeader = opts.resultHeader && _.castArray(opts.resultHeader)
+
   const app = opts.app || express()
   app.use(router(opts))
   if (_.isFunction(opts.addRouter)) {
