@@ -1,3 +1,7 @@
+Version: 0.1.5
+--------------
+- fix --resultHeader to work with only one value
+
 Version: 0.1.4
 --------------
 - support url encoded forms with extended syntax
