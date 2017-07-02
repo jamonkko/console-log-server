@@ -1,3 +1,7 @@
+Version: 0.1.6
+--------------
+- add missing lodash dependency #2
+
 Version: 0.1.5
 --------------
 - fix --resultHeader to work with only one value
