@@ -24,6 +24,8 @@ $ console-log-server -p 8000
 ## Command line options
 
 ```sh
+  Logs all http requests to console
+
   Usage
     $ console-log-server
 
@@ -35,6 +37,7 @@ $ console-log-server -p 8000
     --result-header, -H Response header
     --no-color
     --version
+    --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat
     --help
 
   Examples
@@ -43,5 +46,8 @@ $ console-log-server -p 8000
     $ console-log-server -p 3000
 
     # customized response
-    $ console-log-server -p 3000 -c 201 -b 'cool type content' --result-header='Content-Type:application/cool' --result-header='key:value'
+    $ console-log-server -p 3000 -c 201 -b "cool type content" --result-header='Content-Type:application/cool' --result-header='key:value'
+
+    # Log date with UTC date format instead of local with offset
+    $ console-log-server -d "isoUtcDateTime"
 ```
