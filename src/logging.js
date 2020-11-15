@@ -6,7 +6,7 @@ import { pd } from 'pretty-data'
 
 export default (err, req, res, log) => {
   function divider (text, color = chalk.cyan.dim) {
-    const divLine = color('*'.repeat(text.length))
+    const divLine = color('*'.repeat(chalk.stripColor(text).length))
     return {
       begin: () => {
         log(divLine)
