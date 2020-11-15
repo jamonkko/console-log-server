@@ -37,12 +37,12 @@ export default (opts) => {
     if (!req.bodyType) {
       req.bodyType = 'error'
     }
-    log(err, req, res, opts.log)
+    log(err, req, res, opts)
     res.status(400).end()
   })
   router.use(function logOkRequest (req, res, next) {
     res.on('finish', () => {
-      log(null, req, res, opts.log)
+      log(null, req, res, opts)
     })
     next()
   })

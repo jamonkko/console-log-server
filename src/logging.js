@@ -3,8 +3,12 @@ import chalk from 'chalk'
 import _ from 'lodash/fp'
 import { neatJSON } from '../vendor/neat-json'
 import { pd } from 'pretty-data'
+import dateFormat from 'dateformat'
 
-export default (err, req, res, log) => {
+export default (err, req, res, opts) => {
+  const log = opts.log
+  const now = new Date()
+
   function divider (text, color = chalk.cyan.dim) {
     const divLine = color('*'.repeat(chalk.stripColor(text).length))
     return {
@@ -26,6 +30,10 @@ export default (err, req, res, log) => {
   const renderParams = (obj) => prettyjson.render(obj, {defaultIndentation: 2}, 2)
   const headers = req.headers
 
+  log(chalk.magenta('meta' + ':'))
+  log(renderParams({
+    date: dateFormat(now, opts.dateFormat || "yyyy-mm-dd'T'HH:MM:sso")
+  }))
   log(chalk.magenta('headers' + ':'))
   log(renderParams(headers))
 

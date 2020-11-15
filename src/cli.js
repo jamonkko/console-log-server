@@ -17,6 +17,7 @@ const cli = meow(`
     --result-header, -H Response header
     --no-color
     --version
+    --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat
     --help
 
   Examples
@@ -26,13 +27,17 @@ const cli = meow(`
 
     # customized response
     $ console-log-server -p 3000 -c 201 -b "cool type content" --result-header='Content-Type:application/cool' --result-header='key:value'
+
+    # Log date with UTC date format instead of local with offset
+    $ console-log-server -d "isoUtcDateTime"
 `, {
   alias: {
     p: 'port',
     h: 'hostname',
     c: 'result-code',
     b: 'result-body',
-    H: 'result-header'
+    H: 'result-header',
+    d: 'date-format'
   },
   unknown: (arg) => {
     unknownArgs = !_.includes(arg, ['--no-color', '--version'])
