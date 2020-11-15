@@ -8,6 +8,7 @@ import router from './router'
 import _ from 'lodash/fp'
 import express from 'express'
 import mime from 'mime-types'
+import cors from 'cors'
 
 export default function consoleLogServer (opts = {}) {
   const mimeExtensions = _.flow(
@@ -53,6 +54,7 @@ export default function consoleLogServer (opts = {}) {
   opts.resultHeader = opts.resultHeader && _.castArray(opts.resultHeader)
 
   const app = opts.app || express()
+  app.use(cors())
   app.use(router(opts))
   if (_.isFunction(opts.addRouter)) {
     opts.addRouter(app)
