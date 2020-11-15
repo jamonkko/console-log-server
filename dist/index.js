@@ -21,12 +21,16 @@ var _mimeTypes = require('mime-types');
 
 var _mimeTypes2 = _interopRequireDefault(_mimeTypes);
 
+var _cors = require('cors');
+
+var _cors2 = _interopRequireDefault(_cors);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } /*!
                                                                                                                                                                                                                    * @license
                                                                                                                                                                                                                    * console-log-server v0.1.6 (https://github.com/jamonkko/console-log-server#readme)
-                                                                                                                                                                                                                   * Copyright 2017 Jarkko Mönkkönen <jamonkko@gmail.com>
+                                                                                                                                                                                                                   * Copyright 2020 Jarkko Mönkkönen <jamonkko@gmail.com>
                                                                                                                                                                                                                    * Licensed under MIT
                                                                                                                                                                                                                    */
 
@@ -76,6 +80,7 @@ function consoleLogServer() {
   opts.resultHeader = opts.resultHeader && _fp2.default.castArray(opts.resultHeader);
 
   var app = opts.app || (0, _express2.default)();
+  app.use((0, _cors2.default)());
   app.use((0, _router2.default)(opts));
   if (_fp2.default.isFunction(opts.addRouter)) {
     opts.addRouter(app);

@@ -1,7 +1,7 @@
 /*!
  * @license
  * console-log-server v0.1.6 (https://github.com/jamonkko/console-log-server#readme)
- * Copyright 2017 Jarkko Mönkkönen <jamonkko@gmail.com>
+ * Copyright 2020 Jarkko Mönkkönen <jamonkko@gmail.com>
  * Licensed under MIT
  */
 import router from './router'

@@ -20,13 +20,20 @@ var _neatJson = require('../vendor/neat-json');
 
 var _prettyData = require('pretty-data');
 
+var _dateformat = require('dateformat');
+
+var _dateformat2 = _interopRequireDefault(_dateformat);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = function (err, req, res, log) {
+exports.default = function (err, req, res, opts) {
+  var log = opts.log;
+  var now = new Date();
+
   function divider(text) {
     var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _chalk2.default.cyan.dim;
 
-    var divLine = color('*'.repeat(text.length));
+    var divLine = color('*'.repeat(_chalk2.default.stripColor(text).length));
     return {
       begin: function begin() {
         log(divLine);
@@ -48,6 +55,10 @@ exports.default = function (err, req, res, log) {
   };
   var headers = req.headers;
 
+  log(_chalk2.default.magenta('meta' + ':'));
+  log(renderParams({
+    date: (0, _dateformat2.default)(now, opts.dateFormat || "yyyy-mm-dd'T'HH:MM:sso")
+  }));
   log(_chalk2.default.magenta('headers' + ':'));
   log(renderParams(headers));
 
