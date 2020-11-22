@@ -33,7 +33,7 @@ exports.default = function (err, req, res, opts) {
   function divider(text) {
     var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _chalk2.default.cyan.dim;
 
-    var divLine = color('*'.repeat(_chalk2.default.stripColor(text).length));
+    var divLine = color(_fp2.default.repeat(_chalk2.default.stripColor(text).length, '*'));
     return {
       begin: function begin() {
         log(divLine);
@@ -136,7 +136,7 @@ exports.default = function (err, req, res, opts) {
       console.error(_chalk2.default.yellow(errorTitle));
       console.error(lineWithError);
       if (column) {
-        console.error(' '.repeat(column - 1) + _chalk2.default.bold.red('^'));
+        console.error(_fp2.default.repeat(column - 1, ' ') + _chalk2.default.bold.red('^'));
       }
     };
 

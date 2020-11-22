@@ -10,7 +10,7 @@ export default (err, req, res, opts) => {
   const now = new Date()
 
   function divider (text, color = chalk.cyan.dim) {
-    const divLine = color('*'.repeat(chalk.stripColor(text).length))
+    const divLine = color(_.repeat(chalk.stripColor(text).length, '*'))
     return {
       begin: () => {
         log(divLine)
@@ -111,7 +111,7 @@ export default (err, req, res, opts) => {
       console.error(chalk.yellow(errorTitle))
       console.error(lineWithError)
       if (column) {
-        console.error(' '.repeat(column - 1) + chalk.bold.red('^'))
+        console.error(_.repeat(column - 1, ' ') + chalk.bold.red('^'))
       }
     }
 
@@ -122,4 +122,3 @@ export default (err, req, res, opts) => {
   div.end()
   log()
 }
-
