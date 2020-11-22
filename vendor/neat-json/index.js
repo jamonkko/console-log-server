@@ -106,6 +106,8 @@ function neatJSON(value,opts){
           }
           return indent+'{\n'+keyvals.join(',\n')+'\n'+(opts.indentLast?indent2:indent)+'}'
         }
+      }else if (typeof o === 'string'){
+        return indent+'\"'+o+'\"';
       }else{
         return indent+JSON.stringify(o);
       }
