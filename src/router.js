@@ -1,7 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import xmlParser from 'express-xml-bodyparser'
-import log from './logging'
+import logRequest from './logging'
 import _ from 'lodash/fp'
 
 export default (opts) => {
@@ -37,12 +37,12 @@ export default (opts) => {
     if (!req.bodyType) {
       req.bodyType = 'error'
     }
-    log(err, req, res, opts)
+    logRequest(err, req, res, opts)
     res.status(400).end()
   })
   router.use(function logOkRequest (req, res, next) {
     res.on('finish', () => {
-      log(null, req, res, opts)
+      logRequest(null, req, res, opts)
     })
     next()
   })
