@@ -25,8 +25,8 @@ export default (opts) => {
     }
     next()
   })
-  router.use(bodyParser.text({verify: (req) => { req.bodyType = 'text' }}))
-  router.use(bodyParser.raw({type: () => true, verify: (req) => { req.bodyType = 'raw' }}))
+  router.use(bodyParser.text({ verify: (req) => { req.bodyType = 'text' } }))
+  router.use(bodyParser.raw({ type: () => true, verify: (req) => { req.bodyType = 'raw' } }))
   router.use(function detectEmptyBody (req, res, next) {
     if (req.rawBody.length === 0) {
       req.bodyType = 'empty'

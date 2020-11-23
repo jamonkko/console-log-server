@@ -27,7 +27,7 @@ export default (err, req, res, opts) => {
   const div = !err ? divider(chalk.yellow.bold(pathLine)) : divider(chalk.red.bold(`${pathLine} (error!)`), chalk.red.dim)
   log()
   div.begin()
-  const renderParams = (obj) => prettyjson.render(obj, {defaultIndentation: 2}, 2)
+  const renderParams = (obj) => prettyjson.render(obj, { defaultIndentation: 2 }, 2)
   const headers = req.headers
 
   log(chalk.magenta('meta' + ':'))
@@ -75,7 +75,7 @@ export default (err, req, res, opts) => {
       log(chalk.white(req.body))
       break
     case 'error':
-      log(chalk.red('body (error): ') + chalk.yellow(`(failed to handle request. Body printed below as plain text if at all...)`))
+      log(chalk.red('body (error): ') + chalk.yellow('(failed to handle request. Body printed below as plain text if at all...)'))
       if (req.body) {
         log(chalk.white(req.rawBody))
       }
