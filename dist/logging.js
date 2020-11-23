@@ -101,7 +101,7 @@ var _default = function _default(err, req, res, opts) {
       break;
 
     case 'error':
-      log(_chalk["default"].red('body (error): ') + _chalk["default"].yellow("(failed to handle request. Body printed below as plain text if at all...)"));
+      log(_chalk["default"].red('body (error): ') + _chalk["default"].yellow('(failed to handle request. Body printed below as plain text if at all...)'));
 
       if (req.body) {
         log(_chalk["default"].white(req.rawBody));

@@ -9,6 +9,7 @@ import _ from 'lodash/fp'
 import express from 'express'
 import mime from 'mime-types'
 import cors from 'cors'
+import proxy from 'express-http-proxy'
 
 export default function consoleLogServer (opts = {}) {
   const mimeExtensions = _.flow(
@@ -56,6 +57,24 @@ export default function consoleLogServer (opts = {}) {
   const app = opts.app || express()
   app.use(cors())
   app.use(router(opts))
+  if (opts.proxy) {
+    _.flow(
+      _.trim,
+      _.split(' '),
+      _.each((proxyArg) => {
+        const [pathPart, proxyPart] = _.split('>', proxyArg)
+        const proxyHost = proxyPart ?? pathPart
+        const path = proxyPart === undefined ? '/' : (_.startsWith(pathPart, '/') ? pathPart : `/${pathPart || ''}`)
+        opts.log('Using proxies:')
+        if (proxyHost) {
+          opts.log(`  '${path}' -> ${proxyHost}`)
+          app.use(path, proxy(proxyHost))
+        } else {
+          throw Error(`Invalid proxy arguments: ${proxyArg}`)
+        }
+      })
+    )(opts.proxy)
+  }
   if (_.isFunction(opts.addRouter)) {
     opts.addRouter(app)
   }

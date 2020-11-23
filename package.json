@@ -59,6 +59,7 @@
     "cors": "^2.8.5",
     "dateformat": "^3.0.3",
     "express": "^4.14.0",
+    "express-http-proxy": "^1.6.2",
     "express-xml-bodyparser": "^0.3.0",
     "lodash": "^4.17.4",
     "meow": "^3.7.0",
