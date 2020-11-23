@@ -84,6 +84,8 @@ function consoleLogServer() {
   app.use((0, _router["default"])(opts));
 
   if (opts.proxy) {
+    opts.log('Using proxies:');
+
     _fp["default"].flow(_fp["default"].trim, _fp["default"].split(' '), _fp["default"].each(function (proxyArg) {
       var _$split = _fp["default"].split('>', proxyArg),
           _$split2 = _slicedToArray(_$split, 2),
@@ -92,11 +94,17 @@ function consoleLogServer() {
 
       var proxyHost = proxyPart !== null && proxyPart !== void 0 ? proxyPart : pathPart;
       var path = proxyPart === undefined ? '/' : _fp["default"].startsWith(pathPart, '/') ? pathPart : "/".concat(pathPart || '');
-      opts.log('Using proxies:');
 
       if (proxyHost) {
         opts.log("  '".concat(path, "' -> ").concat(proxyHost));
-        app.use(path, (0, _expressHttpProxy["default"])(proxyHost));
+        app.use(path, (0, _expressHttpProxy["default"])(proxyHost, {
+          parseReqBody: true,
+          reqAsBuffer: true,
+          proxyReqOptDecorator: function proxyReqOptDecorator(proxyReqOpts, srcReq) {
+            srcReq.__CLS_PROXY_URL__ = "".concat(proxyHost).concat(srcReq.originalUrl);
+            return proxyReqOpts;
+          }
+        }));
       } else {
         throw Error("Invalid proxy arguments: ".concat(proxyArg));
       }

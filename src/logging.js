@@ -23,8 +23,12 @@ export default (err, req, res, opts) => {
     }
   }
 
-  const pathLine = req.method + ' ' + req.originalUrl
-  const div = !err ? divider(chalk.yellow.bold(pathLine)) : divider(chalk.red.bold(`${pathLine} (error!)`), chalk.red.dim)
+  const proxyUrl = req.__CLS_PROXY_URL__ || ''
+  const proxyArrow = chalk.white.bold(' --> ')
+  const pathLine = `${req.method} ${req.originalUrl}`
+  const div = !err
+    ? divider(chalk.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : ''))
+    : divider(chalk.red.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') + chalk.red.bold('  *error*'), chalk.red.dim)
   log()
   div.begin()
   const renderParams = (obj) => prettyjson.render(obj, { defaultIndentation: 2 }, 2)

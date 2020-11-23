@@ -38,8 +38,12 @@ var _default = function _default(err, req, res, opts) {
     };
   }
 
-  var pathLine = req.method + ' ' + req.originalUrl;
-  var div = !err ? divider(_chalk["default"].yellow.bold(pathLine)) : divider(_chalk["default"].red.bold("".concat(pathLine, " (error!)")), _chalk["default"].red.dim);
+  var proxyUrl = req.__CLS_PROXY_URL__ || '';
+
+  var proxyArrow = _chalk["default"].white.bold(' --> ');
+
+  var pathLine = "".concat(req.method, " ").concat(req.originalUrl);
+  var div = !err ? divider(_chalk["default"].yellow.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].yellow.bold(proxyUrl) : '')) : divider(_chalk["default"].red.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].red.bold(proxyUrl) : '') + _chalk["default"].red.bold('  *error*'), _chalk["default"].red.dim);
   log();
   div.begin();
 

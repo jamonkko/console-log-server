@@ -58,6 +58,7 @@ export default function consoleLogServer (opts = {}) {
   app.use(cors())
   app.use(router(opts))
   if (opts.proxy) {
+    opts.log('Using proxies:')
     _.flow(
       _.trim,
       _.split(' '),
@@ -65,16 +66,23 @@ export default function consoleLogServer (opts = {}) {
         const [pathPart, proxyPart] = _.split('>', proxyArg)
         const proxyHost = proxyPart ?? pathPart
         const path = proxyPart === undefined ? '/' : (_.startsWith(pathPart, '/') ? pathPart : `/${pathPart || ''}`)
-        opts.log('Using proxies:')
         if (proxyHost) {
           opts.log(`  '${path}' -> ${proxyHost}`)
-          app.use(path, proxy(proxyHost))
+          app.use(path, proxy(proxyHost, {
+            parseReqBody: true,
+            reqAsBuffer: true,
+            proxyReqOptDecorator: function (proxyReqOpts, srcReq) {
+              srcReq.__CLS_PROXY_URL__ = `${proxyHost}${srcReq.originalUrl}`
+              return proxyReqOpts
+            }
+          }))
         } else {
           throw Error(`Invalid proxy arguments: ${proxyArg}`)
         }
       })
     )(opts.proxy)
   }
+
   if (_.isFunction(opts.addRouter)) {
     opts.addRouter(app)
   }
