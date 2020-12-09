@@ -53,8 +53,43 @@ const cli = meow(`
   }
 })
 
+function parseProxies (proxiesArg) {
+  const proxies = _.flow(
+    _.trim,
+    _.split(/\s+/),
+    _.map((proxyArg) => {
+      const [pathPart, proxyPart] = _.split('>', proxyArg)
+      const proxyHost = proxyPart ?? pathPart
+      if (!proxyHost) { throw Error(`Invalid proxy arguments: ${proxyArg}`) }
+      const path = proxyPart === undefined ? '/' : (_.startsWith(pathPart, '/') ? pathPart : `/${pathPart || ''}`)
+      return {
+        path,
+        host: proxyHost
+      }
+    })
+  )(proxiesArg)
+  const duplicates = _.flow(
+    _.groupBy('path'),
+    _.pickBy(v => v.length > 1),
+    _.mapValues(_.flow(
+      _.map(({ path, host }) => `'${path}' -> ${host}`),
+      _.join(' vs. ')
+    )),
+    _.values,
+    _.join(', ')
+  )(proxies)
+
+  if (duplicates) {
+    throw Error(`Multiple proxies for same path(s): ${duplicates}`)
+  }
+
+  return proxies
+}
+
 if (unknownArgs) {
   cli.showHelp()
 } else {
+  cli.flags.proxy = parseProxies(cli.flags.proxy)
+
   consoleLogServer(cli.flags).start()
 }
