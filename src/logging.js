@@ -108,10 +108,11 @@ export default (err, req, res, opts) => {
       const line = _.toNumber(lineErrorMatches[1])
       const column = _.toNumber(columnErrorMatches[1])
       const lineWithError = req.rawBody.split('\n', line + 1)[line]
-      let errorTitle = `Actual error might be earlier, but here is the line:${line}`
+      let errorTitle = `Failed to parse body as XML according to Content-Type. Parse error in body might be here at line:${line}`
       if (column) {
         errorTitle += ` column:${column}`
       }
+      errorTitle += ' (see below)'
       console.error(chalk.yellow(errorTitle))
       console.error(lineWithError)
       if (column) {

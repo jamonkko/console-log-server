@@ -144,12 +144,13 @@ var _default = function _default(err, req, res, opts) {
       var column = _fp["default"].toNumber(columnErrorMatches[1]);
 
       var lineWithError = req.rawBody.split('\n', line + 1)[line];
-      var errorTitle = "Actual error might be earlier, but here is the line:".concat(line);
+      var errorTitle = "Failed to parse body as XML according to Content-Type. Parse error in body might be here at line:".concat(line);
 
       if (column) {
         errorTitle += " column:".concat(column);
       }
 
+      errorTitle += ' (see below)';
       console.error(_chalk["default"].yellow(errorTitle));
       console.error(lineWithError);
 
