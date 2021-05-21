@@ -67,6 +67,9 @@ export default (opts) => {
   router.use(function logOkRequest (req, res, next) {
     res.on('finish', () => {
       logRequest(null, req, res, opts)
+      opts.console.group()
+      logResponse(null, req, res, opts)
+      console.groupEnd()
     })
     next()
   })
