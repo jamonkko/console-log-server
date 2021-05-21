@@ -5,12 +5,12 @@ import { neatJSON } from '../vendor/neat-json'
 import { pd } from 'pretty-data'
 import dateFormat from 'dateformat'
 
-  const now = new Date()
 export function logRequest (err, req, res, opts) {
   const console = opts.console
+  const now = dateFormat(new Date(), opts.dateFormat)
 
-  function divider (text, color = chalk.cyan.dim) {
-    const divLine = color(_.repeat(chalk.stripColor(text).length, '*'))
+  function divider (text, color = chalk.white.dim) {
+    const divLine = color.bold(`>> [req:1] [${now}]`)
     return {
       begin: () => {
         console.log(divLine)
@@ -33,11 +33,6 @@ export function logRequest (err, req, res, opts) {
   div.begin()
   const renderParams = (obj) => prettyjson.render(obj, { defaultIndentation: 2 }, 2)
   const headers = req.headers
-
-  log(chalk.magenta('meta' + ':'))
-  log(renderParams({
-    date: dateFormat(now, opts.dateFormat || "yyyy-mm-dd'T'HH:MM:sso")
-  }))
   console.log(chalk.magenta('headers' + ':'))
   console.log(renderParams(headers))
 
