@@ -1,7 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import xmlParser from 'express-xml-bodyparser'
-import logRequest from './logging'
+import { logRequest, logResponse } from './logging'
 import _ from 'lodash/fp'
 
 export default (opts) => {
@@ -40,6 +40,30 @@ export default (opts) => {
     logRequest(err, req, res, opts)
     res.status(400).end()
   })
+
+  router.use(function captureResponse (req, res, next) {
+    const oldWrite = res.write
+    const oldEnd = res.end
+
+    const chunks = []
+
+    res.write = (...restArgs) => {
+      chunks.push(Buffer.from(restArgs[0]))
+      oldWrite.apply(res, restArgs)
+    }
+
+    res.end = (...restArgs) => {
+      if (restArgs[0]) {
+        chunks.push(Buffer.from(restArgs[0]))
+      }
+      const body = Buffer.concat(chunks).toString('utf8')
+      res.locals.body = body
+      oldEnd.apply(res, restArgs)
+    }
+
+    next()
+  })
+
   router.use(function logOkRequest (req, res, next) {
     res.on('finish', () => {
       logRequest(null, req, res, opts)
