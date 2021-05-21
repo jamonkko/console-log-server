@@ -74,42 +74,55 @@ var _default = function _default(opts) {
     (0, _logging.logRequest)(err, req, res, opts);
     res.status(400).end();
   });
-  router.use(function captureResponse(req, res, next) {
-    var oldWrite = res.write;
-    var oldEnd = res.end;
-    var chunks = [];
 
-    res.write = function () {
-      for (var _len = arguments.length, restArgs = new Array(_len), _key = 0; _key < _len; _key++) {
-        restArgs[_key] = arguments[_key];
+  if (opts.logResponse === true || !_fp["default"].isEmpty(opts.proxy) && opts.logResponse !== false) {
+    router.use(function captureResponse(req, res, next) {
+      var _req$locals;
+
+      if (opts.logResponse === true || !!((_req$locals = req.locals) !== null && _req$locals !== void 0 && _req$locals.proxyUrl) && opts.logResponse !== false) {
+        var oldWrite = res.write;
+        var oldEnd = res.end;
+        var chunks = [];
+
+        res.write = function () {
+          for (var _len = arguments.length, restArgs = new Array(_len), _key = 0; _key < _len; _key++) {
+            restArgs[_key] = arguments[_key];
+          }
+
+          chunks.push(Buffer.from(restArgs[0]));
+          oldWrite.apply(res, restArgs);
+        };
+
+        res.end = function () {
+          for (var _len2 = arguments.length, restArgs = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            restArgs[_key2] = arguments[_key2];
+          }
+
+          if (restArgs[0]) {
+            chunks.push(Buffer.from(restArgs[0]));
+          }
+
+          var body = Buffer.concat(chunks).toString('utf8');
+          res.locals.body = body;
+          oldEnd.apply(res, restArgs);
+        };
       }
 
-      chunks.push(Buffer.from(restArgs[0]));
-      oldWrite.apply(res, restArgs);
-    };
+      next();
+    });
+  }
 
-    res.end = function () {
-      for (var _len2 = arguments.length, restArgs = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        restArgs[_key2] = arguments[_key2];
-      }
-
-      if (restArgs[0]) {
-        chunks.push(Buffer.from(restArgs[0]));
-      }
-
-      var body = Buffer.concat(chunks).toString('utf8');
-      res.locals.body = body;
-      oldEnd.apply(res, restArgs);
-    };
-
-    next();
-  });
   router.use(function logOkRequest(req, res, next) {
     res.on('finish', function () {
+      var _req$locals2;
+
       (0, _logging.logRequest)(null, req, res, opts);
-      opts.console.group();
-      (0, _logging.logResponse)(null, req, res, opts);
-      console.groupEnd();
+
+      if (opts.logResponse === true || !!((_req$locals2 = req.locals) !== null && _req$locals2 !== void 0 && _req$locals2.proxyUrl) && opts.logResponse !== false) {
+        opts.console.group();
+        (0, _logging.logResponse)(null, req, res, opts);
+        console.groupEnd();
+      }
     });
     next();
   });

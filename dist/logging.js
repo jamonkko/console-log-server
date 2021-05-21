@@ -41,7 +41,7 @@ function logRequest(err, req, res, opts) {
     };
   }
 
-  var proxyUrl = req.__CLS_PROXY_URL__ || '';
+  var proxyUrl = req.locals.proxyUrl || '';
 
   var proxyArrow = _chalk["default"].white.bold(' --> ');
 
@@ -185,7 +185,7 @@ function logResponse(err, req, res, opts) {
     };
   }
 
-  var proxyUrl = req.__CLS_PROXY_URL__ || '';
+  var proxyUrl = req.locals.proxyUrl || '';
 
   var proxyArrow = _chalk["default"].white.bold(' <-- ');
 

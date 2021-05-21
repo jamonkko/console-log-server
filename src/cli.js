@@ -4,6 +4,7 @@ import consoleLogServer from './'
 import _ from 'lodash/fp'
 import prependHttp from 'prepend-http'
 import url from 'url'
+import yn from 'yn'
 
 let unknownArgs = false
 
@@ -18,6 +19,7 @@ const cli = meow(`
     --response-code, -c Response response code (ignored if proxied)
     --response-body, -b Response content (ignored if proxied)
     --response-header, -H Response header (ignored if proxied)
+    --log-response, -r Log also the response. Enabled by default only for proxied requests. Logged response is fully read to a buffer which might change your api behaviour since response is not streamed directly to client, consider turning off if that is a problem.
     --no-color
     --version
     --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat (default "yyyy-mm-dd'T'HH:MM:sso")
@@ -42,6 +44,12 @@ const cli = meow(`
 
     # Proxy the request to path under other host. Response will be the actual response from the proxy.
     $ console-log-server -P http://api.example.com/v1/cats
+
+    # Turn off response logging
+    $ console-log-server -r no
+
+    # Turn off response logging for all requests
+    $ console-log-server -r yes
 `, {
   alias: {
     p: 'port',
@@ -50,7 +58,8 @@ const cli = meow(`
     b: 'response-body',
     H: 'response-header',
     d: 'date-format',
-    P: 'proxy'
+    P: 'proxy',
+    r: 'log-response'
   },
   unknown: (arg) => {
     unknownArgs = !_.includes(arg, ['--no-color', '--version'])
@@ -102,7 +111,13 @@ function parseProxies (proxiesArg) {
 if (unknownArgs) {
   cli.showHelp()
 } else {
-  cli.flags.proxy = parseProxies(cli.flags.proxy)
+  const proxy = parseProxies(cli.flags.proxy)
+  if (proxy !== undefined) {
+    cli.flags.proxy = proxy
+  }
+  if (cli.flags.logResponse !== undefined) {
+    cli.flags.logResponse = cli.flags.logResponse === 'on' ? true : cli.flags.logResponse === 'off' ? false : yn(cli.flags.logResponse)
+  }
 
   consoleLogServer(cli.flags).start()
 }

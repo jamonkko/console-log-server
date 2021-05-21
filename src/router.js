@@ -41,35 +41,40 @@ export default (opts) => {
     res.status(400).end()
   })
 
-  router.use(function captureResponse (req, res, next) {
-    const oldWrite = res.write
-    const oldEnd = res.end
+  if (opts.logResponse === true || (!_.isEmpty(opts.proxy) && opts.logResponse !== false)) {
+    router.use(function captureResponse (req, res, next) {
+      if (opts.logResponse === true || (!!req.locals?.proxyUrl && opts.logResponse !== false)) {
+        const oldWrite = res.write
+        const oldEnd = res.end
 
-    const chunks = []
+        const chunks = []
 
-    res.write = (...restArgs) => {
-      chunks.push(Buffer.from(restArgs[0]))
-      oldWrite.apply(res, restArgs)
-    }
+        res.write = (...restArgs) => {
+          chunks.push(Buffer.from(restArgs[0]))
+          oldWrite.apply(res, restArgs)
+        }
 
-    res.end = (...restArgs) => {
-      if (restArgs[0]) {
-        chunks.push(Buffer.from(restArgs[0]))
+        res.end = (...restArgs) => {
+          if (restArgs[0]) {
+            chunks.push(Buffer.from(restArgs[0]))
+          }
+          const body = Buffer.concat(chunks).toString('utf8')
+          res.locals.body = body
+          oldEnd.apply(res, restArgs)
+        }
       }
-      const body = Buffer.concat(chunks).toString('utf8')
-      res.locals.body = body
-      oldEnd.apply(res, restArgs)
-    }
-
-    next()
-  })
+      next()
+    })
+  }
 
   router.use(function logOkRequest (req, res, next) {
     res.on('finish', () => {
       logRequest(null, req, res, opts)
-      opts.console.group()
-      logResponse(null, req, res, opts)
-      console.groupEnd()
+      if (opts.logResponse === true || (!!req.locals?.proxyUrl && opts.logResponse !== false)) {
+        opts.console.group()
+        logResponse(null, req, res, opts)
+        console.groupEnd()
+      }
     })
     next()
   })

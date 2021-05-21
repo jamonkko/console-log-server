@@ -54,7 +54,7 @@ export default function consoleLogServer (opts = {}) {
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
 
   const app = opts.app || express()
-  app.use(function addLocals(req) {
+  app.use(function addLocals (req, res, next) {
     req.locals ||= {}
     next()
   })

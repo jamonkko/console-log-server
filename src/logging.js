@@ -142,7 +142,7 @@ export function logResponse (err, req, res, opts) {
     }
   }
 
-  const proxyUrl = req.req.locals.proxyUrl || ''
+  const proxyUrl = req.locals.proxyUrl || ''
   const proxyArrow = chalk.white.bold(' <-- ')
   const statusPreFix = `${res.statusCode}`
   const pathLine = ` <- ${req.method} ${req.originalUrl}`

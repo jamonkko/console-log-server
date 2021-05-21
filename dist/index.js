@@ -29,9 +29,9 @@ function consoleLogServer() {
   opts = _fp["default"].defaults({
     port: 3000,
     hostname: 'localhost',
-    resultCode: 200,
-    resultBody: null,
-    resultHeader: [],
+    responseCode: 200,
+    responseBody: null,
+    responseHeader: [],
     console: console,
     dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
     defaultRoute: function defaultRoute(req, res) {
@@ -40,16 +40,16 @@ function consoleLogServer() {
       var negotiatedType = req.accepts(mimeExtensions);
 
       var defaultHandler = function defaultHandler() {
-        return opts.resultBody ? res.send(opts.resultBody) : res.end();
+        return opts.responseBody ? res.send(opts.responseBody) : res.end();
       };
 
       var headers = _fp["default"].flow(_fp["default"].map(function (h) {
         return h.split(':', 2);
-      }), _fp["default"].fromPairs)(opts.resultHeader);
+      }), _fp["default"].fromPairs)(opts.responseHeader);
 
-      res.set(headers).status(opts.resultCode).format((_res$set$status$forma = {
+      res.set(headers).status(opts.responseCode).format((_res$set$status$forma = {
         json: function json() {
-          return opts.resultBody ? res.jsonp(JSON.parse(opts.resultBody)) : res.end();
+          return opts.responseBody ? res.jsonp(JSON.parse(opts.responseBody)) : res.end();
         }
       }, _defineProperty(_res$set$status$forma, negotiatedType, defaultHandler), _defineProperty(_res$set$status$forma, "default", defaultHandler), _res$set$status$forma));
     },
@@ -63,8 +63,12 @@ function consoleLogServer() {
       }
     }
   }, opts);
-  opts.resultHeader = opts.resultHeader && _fp["default"].castArray(opts.resultHeader);
+  opts.responseHeader = opts.responseHeader && _fp["default"].castArray(opts.responseHeader);
   var app = opts.app || (0, _express["default"])();
+  app.use(function addLocals(req, res, next) {
+    req.locals || (req.locals = {});
+    next();
+  });
   app.use((0, _cors["default"])());
   app.use((0, _router["default"])(opts));
 
@@ -86,7 +90,7 @@ function consoleLogServer() {
         https: https,
         proxyReqPathResolver: function proxyReqPathResolver(req) {
           var resolvedPath = hostPath === '/' ? req.url : hostPath + req.url;
-          req.__CLS_PROXY_URL__ = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
+          req.locals.proxyUrl = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
           return resolvedPath;
         },
         proxyReqOptDecorator: function proxyReqOptDecorator(proxyReqOpts, _srcReq) {
