@@ -57,7 +57,7 @@ export default function consoleLogServer (opts = {}) {
   app.use(cors())
   app.use(router(opts))
 
-  if (opts.proxy) {
+  if (!_.isEmpty(opts.proxy)) {
     opts.console.log('Using proxies:')
     _.each(({ path, host, hostPath, protocol }) => {
       hostPath = _.startsWith('/', hostPath) ? hostPath : (hostPath === undefined ? '/' : '/' + hostPath)
