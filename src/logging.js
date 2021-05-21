@@ -144,10 +144,11 @@ export function logResponse (err, req, res, opts) {
 
   const proxyUrl = req.__CLS_PROXY_URL__ || ''
   const proxyArrow = chalk.white.bold(' <-- ')
-  const pathLine = `${res.statusCode} - ${req.method} ${req.originalUrl}`
-  const div = !err
-    ? divider(chalk.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : ''))
-    : divider(chalk.red.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') + chalk.red.bold('  *error*'), chalk.red.dim)
+  const statusPreFix = `${res.statusCode}`
+  const pathLine = ` <- ${req.method} ${req.originalUrl}`
+  const div = (!err && res.statusCode < 400)
+    ? divider(chalk.green.bold(statusPreFix) + chalk.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : ''))
+    : divider(chalk.red.bold(statusPreFix) + chalk.red.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') + (err ? chalk.red.bold('  *error*') : ''), chalk.red.dim)
   console.log()
   div.begin()
   const renderParams = (obj) => prettyjson.render(obj, { defaultIndentation: 2 }, 2)
@@ -155,6 +156,7 @@ export function logResponse (err, req, res, opts) {
   console.log(chalk.magenta('headers' + ':'))
   console.log(renderParams(parseHeaders(res._header)))
 
+  console.log(chalk.magenta('body: '))
   console.log(res.locals.body)
   // switch (req.bodyType) {
   //   case 'empty':
