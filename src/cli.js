@@ -59,9 +59,12 @@ const cli = meow(`
 })
 
 function parseProxies (proxiesArg) {
+  if (!proxiesArg) return undefined
+
   const proxies = _.flow(
     _.trim,
     _.split(/\s+/),
+    _.compact,
     _.map((proxyArg) => {
       const [pathPart, proxyPart] = _.split('>', proxyArg)
       const proxyHost = proxyPart ?? pathPart
@@ -77,6 +80,7 @@ function parseProxies (proxiesArg) {
       }
     })
   )(proxiesArg)
+
   const duplicates = _.flow(
     _.groupBy('path'),
     _.pickBy(v => v.length > 1),
