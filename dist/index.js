@@ -32,11 +32,8 @@ function consoleLogServer() {
     resultCode: 200,
     resultBody: null,
     resultHeader: [],
-    log: function log() {
-      var _console;
-
-      (_console = console).log.apply(_console, arguments);
-    },
+    console: console,
+    dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
     defaultRoute: function defaultRoute(req, res) {
       var _res$set$status$forma;
 
@@ -71,18 +68,28 @@ function consoleLogServer() {
   app.use((0, _cors["default"])());
   app.use((0, _router["default"])(opts));
 
-  if (opts.proxy) {
-    opts.log('Using proxies:');
+  if (!_fp["default"].isEmpty(opts.proxy)) {
+    opts.console.log('Using proxies:');
 
     _fp["default"].each(function (_ref) {
       var path = _ref.path,
-          host = _ref.host;
-      opts.log("  '".concat(path, "' -> ").concat(host));
+          host = _ref.host,
+          hostPath = _ref.hostPath,
+          protocol = _ref.protocol;
+      hostPath = _fp["default"].startsWith('/', hostPath) ? hostPath : hostPath === undefined ? '/' : '/' + hostPath;
+      var https = protocol === 'https' ? true : protocol === 'http' ? false : undefined;
+      var protocolPrefix = protocol ? "".concat(protocol, "://") : '';
+      opts.console.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
       app.use(path, (0, _expressHttpProxy["default"])(host, {
         parseReqBody: true,
         reqAsBuffer: true,
-        proxyReqOptDecorator: function proxyReqOptDecorator(proxyReqOpts, srcReq) {
-          srcReq.__CLS_PROXY_URL__ = "".concat(host).concat(srcReq.originalUrl);
+        https: https,
+        proxyReqPathResolver: function proxyReqPathResolver(req) {
+          var resolvedPath = hostPath === '/' ? req.url : hostPath + req.url;
+          req.__CLS_PROXY_URL__ = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
+          return resolvedPath;
+        },
+        proxyReqOptDecorator: function proxyReqOptDecorator(proxyReqOpts, _srcReq) {
           return proxyReqOpts;
         }
       }));
@@ -100,7 +107,7 @@ function consoleLogServer() {
         return true;
       };
       app.listen(opts.port, opts.hostname, function () {
-        opts.log("console-log-server listening on http://".concat(opts.hostname, ":").concat(opts.port));
+        opts.console.log("console-log-server listening on http://".concat(opts.hostname, ":").concat(opts.port));
         cb(null);
       });
     }

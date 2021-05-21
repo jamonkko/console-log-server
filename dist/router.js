@@ -11,7 +11,7 @@ var _bodyParser = _interopRequireDefault(require("body-parser"));
 
 var _expressXmlBodyparser = _interopRequireDefault(require("express-xml-bodyparser"));
 
-var _logging = _interopRequireDefault(require("./logging"));
+var _logging = require("./logging");
 
 var _fp = _interopRequireDefault(require("lodash/fp"));
 
@@ -71,12 +71,45 @@ var _default = function _default(opts) {
       req.bodyType = 'error';
     }
 
-    (0, _logging["default"])(err, req, res, opts);
+    (0, _logging.logRequest)(err, req, res, opts);
     res.status(400).end();
+  });
+  router.use(function captureResponse(req, res, next) {
+    var oldWrite = res.write;
+    var oldEnd = res.end;
+    var chunks = [];
+
+    res.write = function () {
+      for (var _len = arguments.length, restArgs = new Array(_len), _key = 0; _key < _len; _key++) {
+        restArgs[_key] = arguments[_key];
+      }
+
+      chunks.push(Buffer.from(restArgs[0]));
+      oldWrite.apply(res, restArgs);
+    };
+
+    res.end = function () {
+      for (var _len2 = arguments.length, restArgs = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        restArgs[_key2] = arguments[_key2];
+      }
+
+      if (restArgs[0]) {
+        chunks.push(Buffer.from(restArgs[0]));
+      }
+
+      var body = Buffer.concat(chunks).toString('utf8');
+      res.locals.body = body;
+      oldEnd.apply(res, restArgs);
+    };
+
+    next();
   });
   router.use(function logOkRequest(req, res, next) {
     res.on('finish', function () {
-      (0, _logging["default"])(null, req, res, opts);
+      (0, _logging.logRequest)(null, req, res, opts);
+      opts.console.group();
+      (0, _logging.logResponse)(null, req, res, opts);
+      console.groupEnd();
     });
     next();
   });
