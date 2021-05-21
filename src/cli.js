@@ -2,6 +2,8 @@
 import meow from 'meow'
 import consoleLogServer from './'
 import _ from 'lodash/fp'
+import prependHttp from 'prepend-http'
+import url from 'url'
 
 let unknownArgs = false
 
@@ -61,10 +63,14 @@ function parseProxies (proxiesArg) {
       const [pathPart, proxyPart] = _.split('>', proxyArg)
       const proxyHost = proxyPart ?? pathPart
       if (!proxyHost) { throw Error(`Invalid proxy arguments: ${proxyArg}`) }
-      const path = proxyPart === undefined ? '/' : (_.startsWith(pathPart, '/') ? pathPart : `/${pathPart || ''}`)
+      const path = proxyPart === undefined ? '/' : (_.startsWith('/', pathPart) ? pathPart : `/${pathPart || ''}`)
+      const parsedHost = url.URL ? new URL(prependHttp(proxyHost)) : url.parse(prependHttp(proxyHost)) // eslint-disable-line node/no-deprecated-api
+      const protocol = proxyHost.startsWith('https') ? 'https' : (proxyHost.startsWith('http') ? 'http' : undefined)
       return {
         path,
-        host: proxyHost
+        host: parsedHost.host,
+        protocol,
+        hostPath: parsedHost.pathname
       }
     })
   )(proxiesArg)

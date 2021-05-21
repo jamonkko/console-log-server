@@ -58,14 +58,22 @@ export default function consoleLogServer (opts = {}) {
   app.use(router(opts))
 
   if (opts.proxy) {
-    opts.log('Using proxies:')
-    _.each(({ path, host }) => {
-      opts.log(`  '${path}' -> ${host}`)
+    opts.console.log('Using proxies:')
+    _.each(({ path, host, hostPath, protocol }) => {
+      hostPath = _.startsWith('/', hostPath) ? hostPath : (hostPath === undefined ? '/' : '/' + hostPath)
+      const https = protocol === 'https' ? true : (protocol === 'http' ? false : undefined)
+      const protocolPrefix = protocol ? `${protocol}://` : ''
+      opts.console.log(`  '${path}' -> ${protocolPrefix}${host}${hostPath || ''}`)
       app.use(path, proxy(host, {
         parseReqBody: true,
         reqAsBuffer: true,
-        proxyReqOptDecorator: function (proxyReqOpts, srcReq) {
-          srcReq.__CLS_PROXY_URL__ = `${host}${srcReq.originalUrl}`
+        https,
+        proxyReqPathResolver: function (req) {
+          const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
+          req.__CLS_PROXY_URL__ = `${protocolPrefix}${host}${resolvedPath}`
+          return resolvedPath
+        },
+        proxyReqOptDecorator: function (proxyReqOpts, _srcReq) {
           return proxyReqOpts
         }
       }))
