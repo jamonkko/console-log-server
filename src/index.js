@@ -1,7 +1,7 @@
 /*!
  * @license
  * console-log-server v0.2.1 (https://github.com/jamonkko/console-log-server#readme)
- * Copyright 2020 Jarkko Mönkkönen <jamonkko@gmail.com>
+ * Copyright 2021 Jarkko Mönkkönen <jamonkko@gmail.com>
  * Licensed under MIT
  */
 import router from './router'
@@ -24,9 +24,7 @@ export default function consoleLogServer (opts = {}) {
     resultCode: 200,
     resultBody: null,
     resultHeader: [],
-    log: (...args) => {
-      console.log(...args)
-    },
+    console: console,
     dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
     defaultRoute: (req, res) => {
       const negotiatedType = req.accepts(mimeExtensions)
@@ -81,7 +79,7 @@ export default function consoleLogServer (opts = {}) {
     app,
     start: (cb = () => true) => {
       app.listen(opts.port, opts.hostname, () => {
-        opts.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
+        opts.console.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
         cb(null)
       })
     }

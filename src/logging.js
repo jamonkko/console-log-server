@@ -5,20 +5,20 @@ import { neatJSON } from '../vendor/neat-json'
 import { pd } from 'pretty-data'
 import dateFormat from 'dateformat'
 
-export default (err, req, res, opts) => {
-  const log = opts.log
   const now = new Date()
+export function logRequest (err, req, res, opts) {
+  const console = opts.console
 
   function divider (text, color = chalk.cyan.dim) {
     const divLine = color(_.repeat(chalk.stripColor(text).length, '*'))
     return {
       begin: () => {
-        log(divLine)
-        log(text)
+        console.log(divLine)
+        console.log(text)
       },
       end: () => {
-        log(text)
-        log(divLine)
+        console.log(text)
+        console.log(divLine)
       }
     }
   }
@@ -29,7 +29,7 @@ export default (err, req, res, opts) => {
   const div = !err
     ? divider(chalk.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : ''))
     : divider(chalk.red.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') + chalk.red.bold('  *error*'), chalk.red.dim)
-  log()
+  console.log()
   div.begin()
   const renderParams = (obj) => prettyjson.render(obj, { defaultIndentation: 2 }, 2)
   const headers = req.headers
@@ -38,27 +38,27 @@ export default (err, req, res, opts) => {
   log(renderParams({
     date: dateFormat(now, opts.dateFormat || "yyyy-mm-dd'T'HH:MM:sso")
   }))
-  log(chalk.magenta('headers' + ':'))
-  log(renderParams(headers))
+  console.log(chalk.magenta('headers' + ':'))
+  console.log(renderParams(headers))
 
   if (_.isEmpty(req.query)) {
-    log(chalk.magenta('query: (empty)'))
+    console.log(chalk.magenta('query: (empty)'))
   } else {
-    log(chalk.magenta('query:'))
-    log(renderParams(req.query))
+    console.log(chalk.magenta('query:'))
+    console.log(renderParams(req.query))
   }
 
   switch (req.bodyType) {
     case 'empty':
-      log(chalk.magenta('body: (empty)'))
+      console.log(chalk.magenta('body: (empty)'))
       break
     case 'raw':
-      log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string by console-log-server since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
-      log(chalk.white(req.body.toString()))
+      console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string by console-log-server since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
+      console.log(chalk.white(req.body.toString()))
       break
     case 'json':
-      log(chalk.magenta('body (json): '))
-      log(chalk.green(neatJSON(req.body, {
+      console.log(chalk.magenta('body (json): '))
+      console.log(chalk.green(neatJSON(req.body, {
         wrap: 40,
         aligned: true,
         afterComma: 1,
@@ -67,21 +67,21 @@ export default (err, req, res, opts) => {
       })))
       break
     case 'url':
-      log(chalk.magenta('body (url): '))
-      log(renderParams(req.body))
+      console.log(chalk.magenta('body (url): '))
+      console.log(renderParams(req.body))
       break
     case 'xml':
-      log(chalk.magenta('body (xml): '))
-      log(chalk.green(pd.xml(req.rawBody)))
+      console.log(chalk.magenta('body (xml): '))
+      console.log(chalk.green(pd.xml(req.rawBody)))
       break
     case 'text':
-      log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
-      log(chalk.white(req.body))
+      console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
+      console.log(chalk.white(req.body))
       break
     case 'error':
-      log(chalk.red('body (error): ') + chalk.yellow('(failed to handle request. Body printed below as plain text if at all...)'))
+      console.log(chalk.red('body (error): ') + chalk.yellow('(failed to handle request. Body printed below as plain text if at all...)'))
       if (req.body) {
-        log(chalk.white(req.rawBody))
+        console.log(chalk.white(req.rawBody))
       }
       break
     default:
@@ -89,7 +89,7 @@ export default (err, req, res, opts) => {
   }
 
   if (err) {
-    log()
+    console.log()
     const logJsonParseError = () => {
       const positionMatches = err.message.match(/at position\s+(\d+)/)
       if (!positionMatches) return false
@@ -125,5 +125,5 @@ export default (err, req, res, opts) => {
   }
 
   div.end()
-  log()
+  console.log()
 }
