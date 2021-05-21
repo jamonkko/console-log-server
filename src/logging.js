@@ -24,7 +24,7 @@ export function logRequest (err, req, res, opts) {
     }
   }
 
-  const proxyUrl = req.__CLS_PROXY_URL__ || ''
+  const proxyUrl = req.locals.proxyUrl || ''
   const proxyArrow = chalk.white.bold(' --> ')
   const pathLine = `${req.method} ${req.originalUrl}`
   const div = !err
@@ -142,7 +142,7 @@ export function logResponse (err, req, res, opts) {
     }
   }
 
-  const proxyUrl = req.__CLS_PROXY_URL__ || ''
+  const proxyUrl = req.req.locals.proxyUrl || ''
   const proxyArrow = chalk.white.bold(' <-- ')
   const statusPreFix = `${res.statusCode}`
   const pathLine = ` <- ${req.method} ${req.originalUrl}`

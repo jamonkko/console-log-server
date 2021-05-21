@@ -54,6 +54,10 @@ export default function consoleLogServer (opts = {}) {
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
 
   const app = opts.app || express()
+  app.use(function addLocals(req) {
+    req.locals ||= {}
+    next()
+  })
   app.use(cors())
   app.use(router(opts))
 
@@ -70,7 +74,7 @@ export default function consoleLogServer (opts = {}) {
         https,
         proxyReqPathResolver: function (req) {
           const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-          req.__CLS_PROXY_URL__ = `${protocolPrefix}${host}${resolvedPath}`
+          req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
           return resolvedPath
         },
         proxyReqOptDecorator: function (proxyReqOpts, _srcReq) {
