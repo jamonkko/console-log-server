@@ -27,6 +27,7 @@ export default function consoleLogServer (opts = {}) {
     log: (...args) => {
       console.log(...args)
     },
+    dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
     defaultRoute: (req, res) => {
       const negotiatedType = req.accepts(mimeExtensions)
       const defaultHandler = () => opts.resultBody ? res.send(opts.resultBody) : res.end()

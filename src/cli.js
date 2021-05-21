@@ -18,7 +18,7 @@ const cli = meow(`
     --result-header, -H Response header (ignored if proxied)
     --no-color
     --version
-    --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat
+    --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat (default "yyyy-mm-dd'T'HH:MM:sso")
     --help
 
   Examples
