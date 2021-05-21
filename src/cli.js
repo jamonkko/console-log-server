@@ -39,6 +39,9 @@ const cli = meow(`
 
     # Proxy the requests to multiple hosts based on paths.
     $ console-log-server -P "/api/1>http://api-1.example.com /api/2>http://api-2.example.com"
+
+    # Proxy the request to path under other host. Result will be the actual result from the proxy.
+    $ console-log-server -P http://api.example.com/v1/cats
 `, {
   alias: {
     p: 'port',
