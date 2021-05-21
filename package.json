@@ -61,7 +61,7 @@
     "express": "^4.14.0",
     "express-http-proxy": "^1.6.2",
     "express-xml-bodyparser": "^0.3.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.21",
     "meow": "^3.7.0",
     "mime-types": "^2.1.12",
     "pretty-data": "^0.40.0",
