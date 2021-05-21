@@ -15,9 +15,9 @@ const cli = meow(`
     --port, -p Port Number
     --hostname, -h Host name
     --proxy, -P Host(s) to proxy the request to using https://www.npmjs.com/package/express-http-proxy. You can provide one or more proxies using format: [<path>>]<url> [<path>>]<url>...
-    --result-code, -c Response result code (ignored if proxied)
-    --result-body, -b Response content (ignored if proxied)
-    --result-header, -H Response header (ignored if proxied)
+    --response-code, -c Response response code (ignored if proxied)
+    --response-body, -b Response content (ignored if proxied)
+    --response-header, -H Response header (ignored if proxied)
     --no-color
     --version
     --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat (default "yyyy-mm-dd'T'HH:MM:sso")
@@ -29,26 +29,26 @@ const cli = meow(`
     $ console-log-server -p 3000
 
     # customized response
-    $ console-log-server -p 3000 -c 201 -b "cool type content" --result-header='Content-Type:application/cool' --result-header='key:value'
+    $ console-log-server -p 3000 -c 201 -b "cool type content" --response-header='Content-Type:application/cool' --response-header='key:value'
 
     # Log date with UTC date format instead of local with offset
     $ console-log-server -d "isoUtcDateTime"
 
-    # Proxy the request to other host. Result will be the actual result from the proxy.
+    # Proxy the request to other host. Response will be the actual response from the proxy.
     $ console-log-server -P http://api.example.com
 
     # Proxy the requests to multiple hosts based on paths.
     $ console-log-server -P "/api/1>http://api-1.example.com /api/2>http://api-2.example.com"
 
-    # Proxy the request to path under other host. Result will be the actual result from the proxy.
+    # Proxy the request to path under other host. Response will be the actual response from the proxy.
     $ console-log-server -P http://api.example.com/v1/cats
 `, {
   alias: {
     p: 'port',
     h: 'hostname',
-    c: 'result-code',
-    b: 'result-body',
-    H: 'result-header',
+    c: 'response-code',
+    b: 'response-body',
+    H: 'response-header',
     d: 'date-format',
     P: 'proxy'
   },

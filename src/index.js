@@ -21,22 +21,22 @@ export default function consoleLogServer (opts = {}) {
   opts = _.defaults({
     port: 3000,
     hostname: 'localhost',
-    resultCode: 200,
-    resultBody: null,
-    resultHeader: [],
+    responseCode: 200,
+    responseBody: null,
+    responseHeader: [],
     console: console,
     dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
     defaultRoute: (req, res) => {
       const negotiatedType = req.accepts(mimeExtensions)
-      const defaultHandler = () => opts.resultBody ? res.send(opts.resultBody) : res.end()
+      const defaultHandler = () => opts.responseBody ? res.send(opts.responseBody) : res.end()
       const headers = _.flow(
         _.map((h) => h.split(':', 2)),
         _.fromPairs
-      )(opts.resultHeader)
+      )(opts.responseHeader)
       res.set(headers)
-        .status(opts.resultCode)
+        .status(opts.responseCode)
         .format({
-          json: () => opts.resultBody ? res.jsonp(JSON.parse(opts.resultBody)) : res.end(),
+          json: () => opts.responseBody ? res.jsonp(JSON.parse(opts.responseBody)) : res.end(),
           [negotiatedType]: defaultHandler,
           default: defaultHandler
         })
@@ -51,7 +51,7 @@ export default function consoleLogServer (opts = {}) {
     }
   }, opts)
 
-  opts.resultHeader = opts.resultHeader && _.castArray(opts.resultHeader)
+  opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
 
   const app = opts.app || express()
   app.use(cors())
