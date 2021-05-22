@@ -9,7 +9,6 @@ import _ from 'lodash/fp'
 import express from 'express'
 import mime from 'mime-types'
 import cors from 'cors'
-import proxy from 'express-http-proxy'
 
 export default function consoleLogServer (opts = {}) {
   const mimeExtensions = _.flow(
@@ -62,29 +61,6 @@ export default function consoleLogServer (opts = {}) {
   })
   app.use(cors())
   app.use(router(opts))
-
-  if (!_.isEmpty(opts.proxy)) {
-    opts.console.log('Using proxies:')
-    _.each(({ path, host, hostPath, protocol }) => {
-      hostPath = _.startsWith('/', hostPath) ? hostPath : (hostPath === undefined ? '/' : '/' + hostPath)
-      const https = protocol === 'https' ? true : (protocol === 'http' ? false : undefined)
-      const protocolPrefix = protocol ? `${protocol}://` : ''
-      opts.console.log(`  '${path}' -> ${protocolPrefix}${host}${hostPath || ''}`)
-      app.use(path, proxy(host, {
-        parseReqBody: true,
-        reqAsBuffer: true,
-        https,
-        proxyReqPathResolver: function (req) {
-          const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-          req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
-          return resolvedPath
-        },
-        proxyReqOptDecorator: function (proxyReqOpts, _srcReq) {
-          return proxyReqOpts
-        }
-      }))
-    }, opts.proxy)
-  }
 
   if (_.isFunction(opts.addRouter)) {
     opts.addRouter(app)
