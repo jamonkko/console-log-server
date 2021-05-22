@@ -4,9 +4,19 @@ import xmlParser from 'express-xml-bodyparser'
 import { logRequest, logResponse } from './logging'
 import proxy from 'express-http-proxy'
 import _ from 'lodash/fp'
+import cors from 'cors'
 
 export default (opts) => {
   const router = express.Router()
+
+  let reqCounter = 0
+  router.use(function addLocals (req, res, next) {
+    req.locals ||= {}
+    req.locals.id = ++reqCounter
+    next()
+  })
+
+  router.use(cors())
 
   router.use(function saveRawBody (req, res, next) {
     req.rawBody = ''
