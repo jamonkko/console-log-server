@@ -11,7 +11,7 @@ export function logRequest (err, req, res, opts) {
   const now = dateFormat(new Date(), opts.dateFormat)
 
   function divider (text, color = chalk.white.dim) {
-    const divLine = color.bold(`>> [req:1] [${now}]`)
+    const divLine = color.bold(`>> [req:${req.locals.id}] [${now}]`)
     return {
       begin: () => {
         console.log(divLine)
@@ -129,7 +129,7 @@ export function logResponse (err, req, res, opts) {
   const now = dateFormat(new Date(), opts.dateFormat)
 
   function divider (text, color = chalk.white.dim) {
-    const divLine = color.bold(`<< [res:1] [${now}]`)
+    const divLine = color.bold(`<< [res:${req.locals.id}] [${now}]`)
     return {
       begin: () => {
         console.log(divLine)

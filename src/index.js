@@ -54,8 +54,10 @@ export default function consoleLogServer (opts = {}) {
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
 
   const app = opts.app || express()
+  let reqCounter = 0
   app.use(function addLocals (req, res, next) {
     req.locals ||= {}
+    req.locals.id = ++reqCounter
     next()
   })
   app.use(cors())
