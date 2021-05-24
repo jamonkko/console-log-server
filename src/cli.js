@@ -4,7 +4,6 @@ import consoleLogServer from './'
 import _ from 'lodash/fp'
 import prependHttp from 'prepend-http'
 import url from 'url'
-import yn from 'yn'
 
 let unknownArgs = false
 
@@ -135,11 +134,13 @@ if (unknownArgs) {
     logResponse:
       cli.flags.logResponse === undefined
         ? undefined
-        : cli.flags.logResponse === 'on'
+        : /^(?:y|yes|true|1|on)$/i.test(cli.flags.logResponse)
         ? true
-        : cli.flags.logResponse === 'off'
+        : /^(?:n|no|false|0|off)$/i.test(cli.flags.logResponse)
         ? false
-        : yn(cli.flags.logResponse),
+        : console.log(
+            `Invalid value '${cli.flags.logResponse}' for --log-response`
+          ) || cli.showHelp(1),
     ignoreUncaughtErrors: true
   }).start()
 }
