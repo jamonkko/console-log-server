@@ -111,15 +111,7 @@ export default opts => {
       router.use(
         path,
         proxy(host, {
-          // parseReqBody: true,
-          // reqAsBuffer: true,
           https,
-          // filter: function addProxyUrl (req) {
-          //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-          //   console.log('set proxy url filter')
-          //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
-          //   return true
-          // },
           proxyReqPathResolver: function (req) {
             const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
             req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
@@ -138,12 +130,6 @@ export default opts => {
             res.status(500).json({ message: err.toString() })
             res.locals.body = { message: err.toString() }
           }
-          // proxyReqOptDecorator: function (proxyReqOpts, req) {
-          //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-          //   console.log('set proxy url resolver decorator')
-          //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
-          //   return proxyReqOpts
-          // }
         })
       )
     }, opts.proxy)
