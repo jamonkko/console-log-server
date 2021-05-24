@@ -90,6 +90,10 @@ export default (opts) => {
         userResDecorator: function (proxyRes, proxyResData, userReq, userRes) {
           userRes.locals.body = proxyResData.toString('utf8')
           return proxyResData
+        },
+        proxyErrorHandler: function (err, res, next) {
+          res.status(500).json({ message: err.toString() })
+          res.locals.body = { message: err.toString() }
         }
         // proxyReqOptDecorator: function (proxyReqOpts, req) {
         //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
