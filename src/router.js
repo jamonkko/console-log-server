@@ -117,15 +117,13 @@ export default opts => {
             req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
             return resolvedPath
           },
-          userResDecorator: function (
-            proxyRes,
-            proxyResData,
-            userReq,
-            userRes
-          ) {
-            userRes.locals.body = proxyResData.toString('utf8')
-            return proxyResData
-          },
+          userResDecorator:
+            opts.logResponse !== false
+              ? function (proxyRes, proxyResData, userReq, userRes) {
+                  userRes.locals.body = proxyResData.toString('utf8')
+                  return proxyResData
+                }
+              : undefined,
           proxyErrorHandler: function (err, res, next) {
             res.status(500).json({ message: err.toString() })
             res.locals.body = { message: err.toString() }
