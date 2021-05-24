@@ -100,5 +100,6 @@ if (unknownArgs) {
     cli.flags.logResponse = cli.flags.logResponse === 'on' ? true : cli.flags.logResponse === 'off' ? false : (0, _yn["default"])(cli.flags.logResponse);
   }
 
+  cli.flags.ignoreUncaughtErrors = true;
   (0, _2["default"])(cli.flags).start();
 }

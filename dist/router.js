@@ -13,13 +13,24 @@ var _expressXmlBodyparser = _interopRequireDefault(require("express-xml-bodypars
 
 var _logging = require("./logging");
 
+var _expressHttpProxy = _interopRequireDefault(require("express-http-proxy"));
+
 var _fp = _interopRequireDefault(require("lodash/fp"));
+
+var _cors = _interopRequireDefault(require("cors"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var _default = function _default(opts) {
   var router = _express["default"].Router();
 
+  var reqCounter = 0;
+  router.use(function addLocals(req, res, next) {
+    req.locals || (req.locals = {});
+    req.locals.id = ++reqCounter;
+    next();
+  });
+  router.use((0, _cors["default"])());
   router.use(function saveRawBody(req, res, next) {
     req.rawBody = '';
     req.on('data', function (chunk) {
@@ -74,12 +85,73 @@ var _default = function _default(opts) {
     (0, _logging.logRequest)(err, req, res, opts);
     res.status(400).end();
   });
+  router.use(function logOkRequest(req, res, next) {
+    res.on('finish', function () {
+      var _req$locals;
+
+      (0, _logging.logRequest)(null, req, res, opts);
+
+      if (opts.logResponse === true || !!((_req$locals = req.locals) !== null && _req$locals !== void 0 && _req$locals.proxyUrl) && opts.logResponse !== false) {
+        opts.console.group();
+        (0, _logging.logResponse)(null, req, res, opts);
+        console.groupEnd();
+      }
+    });
+    next();
+  });
+
+  if (!_fp["default"].isEmpty(opts.proxy)) {
+    opts.console.log('Using proxies:');
+
+    _fp["default"].each(function (_ref) {
+      var path = _ref.path,
+          host = _ref.host,
+          hostPath = _ref.hostPath,
+          protocol = _ref.protocol;
+      hostPath = _fp["default"].startsWith('/', hostPath) ? hostPath : hostPath === undefined ? '/' : '/' + hostPath;
+      var https = protocol === 'https' ? true : protocol === 'http' ? false : undefined;
+      var protocolPrefix = protocol ? "".concat(protocol, "://") : '';
+      opts.console.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
+      router.use(path, (0, _expressHttpProxy["default"])(host, {
+        // parseReqBody: true,
+        // reqAsBuffer: true,
+        https: https,
+        // filter: function addProxyUrl (req) {
+        //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
+        //   console.log('set proxy url filter')
+        //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
+        //   return true
+        // },
+        proxyReqPathResolver: function proxyReqPathResolver(req) {
+          var resolvedPath = hostPath === '/' ? req.url : hostPath + req.url;
+          req.locals.proxyUrl = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
+          return resolvedPath;
+        },
+        userResDecorator: function userResDecorator(proxyRes, proxyResData, userReq, userRes) {
+          userRes.locals.body = proxyResData.toString('utf8');
+          return proxyResData;
+        },
+        proxyErrorHandler: function proxyErrorHandler(err, res, next) {
+          res.status(500).json({
+            message: err.toString()
+          });
+          res.locals.body = {
+            message: err.toString()
+          };
+        } // proxyReqOptDecorator: function (proxyReqOpts, req) {
+        //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
+        //   console.log('set proxy url resolver decorator')
+        //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
+        //   return proxyReqOpts
+        // }
+
+      }));
+    }, opts.proxy);
+  }
 
   if (opts.logResponse === true || !_fp["default"].isEmpty(opts.proxy) && opts.logResponse !== false) {
     router.use(function captureResponse(req, res, next) {
-      var _req$locals;
-
-      if (opts.logResponse === true || !!((_req$locals = req.locals) !== null && _req$locals !== void 0 && _req$locals.proxyUrl) && opts.logResponse !== false) {
+      if (opts.logResponse === true) {
         var oldWrite = res.write;
         var oldEnd = res.end;
         var chunks = [];
@@ -112,20 +184,6 @@ var _default = function _default(opts) {
     });
   }
 
-  router.use(function logOkRequest(req, res, next) {
-    res.on('finish', function () {
-      var _req$locals2;
-
-      (0, _logging.logRequest)(null, req, res, opts);
-
-      if (opts.logResponse === true || !!((_req$locals2 = req.locals) !== null && _req$locals2 !== void 0 && _req$locals2.proxyUrl) && opts.logResponse !== false) {
-        opts.console.group();
-        (0, _logging.logResponse)(null, req, res, opts);
-        console.groupEnd();
-      }
-    });
-    next();
-  });
   return router;
 };
 

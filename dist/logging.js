@@ -28,7 +28,7 @@ function logRequest(err, req, res, opts) {
 
   function divider(text) {
     var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _chalk["default"].white.dim;
-    var divLine = color.bold(">> [req:1] [".concat(now, "]"));
+    var divLine = color.bold(">> [req:".concat(req.locals.id, "] [").concat(now, "]"));
     return {
       begin: function begin() {
         console.log(divLine);
@@ -172,7 +172,7 @@ function logResponse(err, req, res, opts) {
 
   function divider(text) {
     var color = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _chalk["default"].white.dim;
-    var divLine = color.bold("<< [res:1] [".concat(now, "]"));
+    var divLine = color.bold("<< [res:".concat(req.locals.id, "] [").concat(now, "]"));
     return {
       begin: function begin() {
         console.log(divLine);

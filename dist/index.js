@@ -13,10 +13,6 @@ var _express = _interopRequireDefault(require("express"));
 
 var _mimeTypes = _interopRequireDefault(require("mime-types"));
 
-var _cors = _interopRequireDefault(require("cors"));
-
-var _expressHttpProxy = _interopRequireDefault(require("express-http-proxy"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -34,6 +30,7 @@ function consoleLogServer() {
     responseHeader: [],
     console: console,
     dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
+    ignoreUncaughtErrors: false,
     defaultRoute: function defaultRoute(req, res) {
       var _res$set$status$forma;
 
@@ -65,40 +62,7 @@ function consoleLogServer() {
   }, opts);
   opts.responseHeader = opts.responseHeader && _fp["default"].castArray(opts.responseHeader);
   var app = opts.app || (0, _express["default"])();
-  app.use(function addLocals(req, res, next) {
-    req.locals || (req.locals = {});
-    next();
-  });
-  app.use((0, _cors["default"])());
   app.use((0, _router["default"])(opts));
-
-  if (!_fp["default"].isEmpty(opts.proxy)) {
-    opts.console.log('Using proxies:');
-
-    _fp["default"].each(function (_ref) {
-      var path = _ref.path,
-          host = _ref.host,
-          hostPath = _ref.hostPath,
-          protocol = _ref.protocol;
-      hostPath = _fp["default"].startsWith('/', hostPath) ? hostPath : hostPath === undefined ? '/' : '/' + hostPath;
-      var https = protocol === 'https' ? true : protocol === 'http' ? false : undefined;
-      var protocolPrefix = protocol ? "".concat(protocol, "://") : '';
-      opts.console.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
-      app.use(path, (0, _expressHttpProxy["default"])(host, {
-        parseReqBody: true,
-        reqAsBuffer: true,
-        https: https,
-        proxyReqPathResolver: function proxyReqPathResolver(req) {
-          var resolvedPath = hostPath === '/' ? req.url : hostPath + req.url;
-          req.locals.proxyUrl = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
-          return resolvedPath;
-        },
-        proxyReqOptDecorator: function proxyReqOptDecorator(proxyReqOpts, _srcReq) {
-          return proxyReqOpts;
-        }
-      }));
-    }, opts.proxy);
-  }
 
   if (_fp["default"].isFunction(opts.addRouter)) {
     opts.addRouter(app);
@@ -110,14 +74,25 @@ function consoleLogServer() {
       var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {
         return true;
       };
-      app.listen(opts.port, opts.hostname, function () {
+      var server = app.listen(opts.port, opts.hostname, function () {
         opts.console.log("console-log-server listening on http://".concat(opts.hostname, ":").concat(opts.port));
         cb(null);
       });
+
+      if (opts.ignoreUncaughtErrors) {
+        process.on('uncaughtException', function (err) {
+          opts.console.log('Unhandled error. Set ignoreUncaughtErrors to pass these through');
+          opts.console.log(err);
+        });
+      }
+
+      return server;
     }
   };
 }
 
 if (!module.parent) {
-  consoleLogServer().start();
+  consoleLogServer().start({
+    ignoreUncaughtErrors: true
+  });
 }
