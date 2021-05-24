@@ -8,7 +8,8 @@ import yn from 'yn'
 
 let unknownArgs = false
 
-const cli = meow(`
+const cli = meow(
+  `
   Usage
     $ console-log-server
 
@@ -50,22 +51,24 @@ const cli = meow(`
 
     # Turn off response logging for all requests
     $ console-log-server -r yes
-`, {
-  alias: {
-    p: 'port',
-    h: 'hostname',
-    c: 'response-code',
-    b: 'response-body',
-    H: 'response-header',
-    d: 'date-format',
-    P: 'proxy',
-    r: 'log-response'
-  },
-  unknown: (arg) => {
-    unknownArgs = !_.includes(arg, ['--no-color', '--version'])
-    return true
+`,
+  {
+    alias: {
+      p: 'port',
+      h: 'hostname',
+      c: 'response-code',
+      b: 'response-body',
+      H: 'response-header',
+      d: 'date-format',
+      P: 'proxy',
+      r: 'log-response'
+    },
+    unknown: arg => {
+      unknownArgs = !_.includes(arg, ['--no-color', '--version'])
+      return true
+    }
   }
-})
+)
 
 function parseProxies (proxiesArg) {
   if (!proxiesArg) return undefined
@@ -74,13 +77,26 @@ function parseProxies (proxiesArg) {
     _.trim,
     _.split(/\s+/),
     _.compact,
-    _.map((proxyArg) => {
+    _.map(proxyArg => {
       const [pathPart, proxyPart] = _.split('>', proxyArg)
       const proxyHost = proxyPart ?? pathPart
-      if (!proxyHost) { throw Error(`Invalid proxy arguments: ${proxyArg}`) }
-      const path = proxyPart === undefined ? '/' : (_.startsWith('/', pathPart) ? pathPart : `/${pathPart || ''}`)
-      const parsedHost = url.URL ? new URL(prependHttp(proxyHost)) : url.parse(prependHttp(proxyHost)) // eslint-disable-line node/no-deprecated-api
-      const protocol = proxyHost.startsWith('https') ? 'https' : (proxyHost.startsWith('http') ? 'http' : undefined)
+      if (!proxyHost) {
+        throw Error(`Invalid proxy arguments: ${proxyArg}`)
+      }
+      const path =
+        proxyPart === undefined
+          ? '/'
+          : _.startsWith('/', pathPart)
+          ? pathPart
+          : `/${pathPart || ''}`
+      const parsedHost = url.URL
+        ? new URL(prependHttp(proxyHost))
+        : url.parse(prependHttp(proxyHost)) // eslint-disable-line node/no-deprecated-api
+      const protocol = proxyHost.startsWith('https')
+        ? 'https'
+        : proxyHost.startsWith('http')
+        ? 'http'
+        : undefined
       return {
         path,
         host: parsedHost.host,
@@ -93,10 +109,12 @@ function parseProxies (proxiesArg) {
   const duplicates = _.flow(
     _.groupBy('path'),
     _.pickBy(v => v.length > 1),
-    _.mapValues(_.flow(
-      _.map(({ path, host }) => `'${path}' -> ${host}`),
-      _.join(' vs. ')
-    )),
+    _.mapValues(
+      _.flow(
+        _.map(({ path, host }) => `'${path}' -> ${host}`),
+        _.join(' vs. ')
+      )
+    ),
     _.values,
     _.join(', ')
   )(proxies)
@@ -116,7 +134,12 @@ if (unknownArgs) {
     cli.flags.proxy = proxy
   }
   if (cli.flags.logResponse !== undefined) {
-    cli.flags.logResponse = cli.flags.logResponse === 'on' ? true : cli.flags.logResponse === 'off' ? false : yn(cli.flags.logResponse)
+    cli.flags.logResponse =
+      cli.flags.logResponse === 'on'
+        ? true
+        : cli.flags.logResponse === 'off'
+        ? false
+        : yn(cli.flags.logResponse)
   }
   cli.flags.ignoreUncaughtErrors = true
   consoleLogServer(cli.flags).start()

@@ -6,7 +6,7 @@ import proxy from 'express-http-proxy'
 import _ from 'lodash/fp'
 import cors from 'cors'
 
-export default (opts) => {
+export default opts => {
   const router = express.Router()
 
   let reqCounter = 0
@@ -20,16 +20,26 @@ export default (opts) => {
 
   router.use(function saveRawBody (req, res, next) {
     req.rawBody = ''
-    req.on('data', (chunk) => { req.rawBody += chunk })
+    req.on('data', chunk => {
+      req.rawBody += chunk
+    })
     next()
   })
-  router.use(bodyParser.json({
-    verify: (req) => { req.bodyType = 'json' }
-  }))
-  router.use(bodyParser.urlencoded({
-    extended: true,
-    verify: (req) => { req.bodyType = 'url' }
-  }))
+  router.use(
+    bodyParser.json({
+      verify: req => {
+        req.bodyType = 'json'
+      }
+    })
+  )
+  router.use(
+    bodyParser.urlencoded({
+      extended: true,
+      verify: req => {
+        req.bodyType = 'url'
+      }
+    })
+  )
   router.use(xmlParser())
   router.use(function markBodyAsXml (req, res, next) {
     if (!req.bodyType && !_.isEmpty(req.body)) {
@@ -37,8 +47,21 @@ export default (opts) => {
     }
     next()
   })
-  router.use(bodyParser.text({ verify: (req) => { req.bodyType = 'text' } }))
-  router.use(bodyParser.raw({ type: () => true, verify: (req) => { req.bodyType = 'raw' } }))
+  router.use(
+    bodyParser.text({
+      verify: req => {
+        req.bodyType = 'text'
+      }
+    })
+  )
+  router.use(
+    bodyParser.raw({
+      type: () => true,
+      verify: req => {
+        req.bodyType = 'raw'
+      }
+    })
+  )
   router.use(function detectEmptyBody (req, res, next) {
     if (req.rawBody.length === 0) {
       req.bodyType = 'empty'
@@ -56,7 +79,10 @@ export default (opts) => {
   router.use(function logOkRequest (req, res, next) {
     res.on('finish', () => {
       logRequest(null, req, res, opts)
-      if (opts.logResponse === true || (!!req.locals?.proxyUrl && opts.logResponse !== false)) {
+      if (
+        opts.logResponse === true ||
+        (!!req.locals?.proxyUrl && opts.logResponse !== false)
+      ) {
         opts.console.group()
         logResponse(null, req, res, opts)
         console.groupEnd()
@@ -68,44 +94,62 @@ export default (opts) => {
   if (!_.isEmpty(opts.proxy)) {
     opts.console.log('Using proxies:')
     _.each(({ path, host, hostPath, protocol }) => {
-      hostPath = _.startsWith('/', hostPath) ? hostPath : (hostPath === undefined ? '/' : '/' + hostPath)
-      const https = protocol === 'https' ? true : (protocol === 'http' ? false : undefined)
+      hostPath = _.startsWith('/', hostPath)
+        ? hostPath
+        : hostPath === undefined
+        ? '/'
+        : '/' + hostPath
+      const https =
+        protocol === 'https' ? true : protocol === 'http' ? false : undefined
       const protocolPrefix = protocol ? `${protocol}://` : ''
-      opts.console.log(`  '${path}' -> ${protocolPrefix}${host}${hostPath || ''}`)
-      router.use(path, proxy(host, {
-        // parseReqBody: true,
-        // reqAsBuffer: true,
-        https,
-        // filter: function addProxyUrl (req) {
-        //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-        //   console.log('set proxy url filter')
-        //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
-        //   return true
-        // },
-        proxyReqPathResolver: function (req) {
-          const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-          req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
-          return resolvedPath
-        },
-        userResDecorator: function (proxyRes, proxyResData, userReq, userRes) {
-          userRes.locals.body = proxyResData.toString('utf8')
-          return proxyResData
-        },
-        proxyErrorHandler: function (err, res, next) {
-          res.status(500).json({ message: err.toString() })
-          res.locals.body = { message: err.toString() }
-        }
-        // proxyReqOptDecorator: function (proxyReqOpts, req) {
-        //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-        //   console.log('set proxy url resolver decorator')
-        //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
-        //   return proxyReqOpts
-        // }
-      }))
+      opts.console.log(
+        `  '${path}' -> ${protocolPrefix}${host}${hostPath || ''}`
+      )
+      router.use(
+        path,
+        proxy(host, {
+          // parseReqBody: true,
+          // reqAsBuffer: true,
+          https,
+          // filter: function addProxyUrl (req) {
+          //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
+          //   console.log('set proxy url filter')
+          //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
+          //   return true
+          // },
+          proxyReqPathResolver: function (req) {
+            const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
+            req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
+            return resolvedPath
+          },
+          userResDecorator: function (
+            proxyRes,
+            proxyResData,
+            userReq,
+            userRes
+          ) {
+            userRes.locals.body = proxyResData.toString('utf8')
+            return proxyResData
+          },
+          proxyErrorHandler: function (err, res, next) {
+            res.status(500).json({ message: err.toString() })
+            res.locals.body = { message: err.toString() }
+          }
+          // proxyReqOptDecorator: function (proxyReqOpts, req) {
+          //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
+          //   console.log('set proxy url resolver decorator')
+          //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
+          //   return proxyReqOpts
+          // }
+        })
+      )
     }, opts.proxy)
   }
 
-  if (opts.logResponse === true || (!_.isEmpty(opts.proxy) && opts.logResponse !== false)) {
+  if (
+    opts.logResponse === true ||
+    (!_.isEmpty(opts.proxy) && opts.logResponse !== false)
+  ) {
     router.use(function captureResponse (req, res, next) {
       if (opts.logResponse === true) {
         const oldWrite = res.write

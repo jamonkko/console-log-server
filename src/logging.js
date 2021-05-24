@@ -28,11 +28,20 @@ export function logRequest (err, req, res, opts) {
   const proxyArrow = chalk.white.bold(' --> ')
   const pathLine = `${req.method} ${req.originalUrl}`
   const div = !err
-    ? divider(chalk.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : ''))
-    : divider(chalk.red.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') + chalk.red.bold('  *error*'), chalk.red.dim)
+    ? divider(
+        chalk.yellow.bold(pathLine) +
+          (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : '')
+      )
+    : divider(
+        chalk.red.bold(pathLine) +
+          (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') +
+          chalk.red.bold('  *error*'),
+        chalk.red.dim
+      )
   console.log()
   div.begin()
-  const renderParams = (obj) => prettyjson.render(obj, { defaultIndentation: 2 }, 2)
+  const renderParams = obj =>
+    prettyjson.render(obj, { defaultIndentation: 2 }, 2)
   const headers = req.headers
   console.log(chalk.magenta('headers' + ':'))
   console.log(renderParams(headers))
@@ -49,18 +58,27 @@ export function logRequest (err, req, res, opts) {
       console.log(chalk.magenta('body: (empty)'))
       break
     case 'raw':
-      console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as raw string by console-log-server since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
+      console.log(
+        chalk.magenta('body: ') +
+          chalk.yellow(
+            `(parsed as raw string by console-log-server since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`
+          )
+      )
       console.log(chalk.white(req.body.toString()))
       break
     case 'json':
       console.log(chalk.magenta('body (json): '))
-      console.log(chalk.green(neatJSON(req.body, {
-        wrap: 40,
-        aligned: true,
-        afterComma: 1,
-        afterColon1: 1,
-        afterColonN: 1
-      })))
+      console.log(
+        chalk.green(
+          neatJSON(req.body, {
+            wrap: 40,
+            aligned: true,
+            afterComma: 1,
+            afterColon1: 1,
+            afterColonN: 1
+          })
+        )
+      )
       break
     case 'url':
       console.log(chalk.magenta('body (url): '))
@@ -71,11 +89,21 @@ export function logRequest (err, req, res, opts) {
       console.log(chalk.green(pd.xml(req.rawBody)))
       break
     case 'text':
-      console.log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
+      console.log(
+        chalk.magenta('body: ') +
+          chalk.yellow(
+            `(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`
+          )
+      )
       console.log(chalk.white(req.body))
       break
     case 'error':
-      console.log(chalk.red('body (error): ') + chalk.yellow('(failed to handle request. Body printed below as plain text if at all...)'))
+      console.log(
+        chalk.red('body (error): ') +
+          chalk.yellow(
+            '(failed to handle request. Body printed below as plain text if at all...)'
+          )
+      )
       if (req.body) {
         console.log(chalk.white(req.rawBody))
       }
@@ -92,9 +120,15 @@ export function logRequest (err, req, res, opts) {
       const index = _.toNumber(positionMatches[1])
       const contentBeforeError = req.rawBody.substring(index - 80, index)
       const contentAfterError = req.rawBody.substring(index, index + 80)
-      console.error(chalk.yellow(`Check the request body position near ${index} below (marked with '!'):`))
+      console.error(
+        chalk.yellow(
+          `Check the request body position near ${index} below (marked with '!'):`
+        )
+      )
       console.error(chalk.yellow('...'))
-      console.error(`${contentBeforeError}${chalk.red('!')}${contentAfterError}"`)
+      console.error(
+        `${contentBeforeError}${chalk.red('!')}${contentAfterError}"`
+      )
       console.error(chalk.yellow('...'))
     }
     const logXmlParseError = () => {
@@ -146,12 +180,24 @@ export function logResponse (err, req, res, opts) {
   const proxyArrow = chalk.white.bold(' <-- ')
   const statusPreFix = `${res.statusCode}`
   const pathLine = ` <- ${req.method} ${req.originalUrl}`
-  const div = (!err && res.statusCode < 400)
-    ? divider(chalk.green.bold(statusPreFix) + chalk.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : ''))
-    : divider(chalk.red.bold(statusPreFix) + chalk.red.bold(pathLine) + (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') + (err ? chalk.red.bold('  *error*') : ''), chalk.red.dim)
+  const div =
+    !err && res.statusCode < 400
+      ? divider(
+          chalk.green.bold(statusPreFix) +
+            chalk.yellow.bold(pathLine) +
+            (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : '')
+        )
+      : divider(
+          chalk.red.bold(statusPreFix) +
+            chalk.red.bold(pathLine) +
+            (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') +
+            (err ? chalk.red.bold('  *error*') : ''),
+          chalk.red.dim
+        )
   console.log()
   div.begin()
-  const renderParams = (obj) => prettyjson.render(obj, { defaultIndentation: 2 }, 2)
+  const renderParams = obj =>
+    prettyjson.render(obj, { defaultIndentation: 2 }, 2)
   // const headers = res.getHeaders()
   console.log(chalk.magenta('headers' + ':'))
   console.log(renderParams(parseHeaders(res._header)))

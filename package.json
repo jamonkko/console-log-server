@@ -15,11 +15,13 @@
   "scripts": {
     "babel": "babel src -d dist",
     "babel-node": "babel-node --presets @babel/preset-env",
-    "build": "npm run header && npm run standard && npm run babel && npm run --silent permissions",
+    "build": "npm run header && npm run check && npm run babel && npm run --silent permissions",
     "header": "header src/index.js",
     "permissions": "chmod +x src/cli.js dist/cli.js",
     "start": "nodemon --exec npm run babel-node -- ./src/index.js",
-    "standard": "standard"
+    "prettier": "prettier-standard ./src/**/*.js",
+    "format": "npm run prettier",
+    "check": "npm run prettier -- --lint --check"
   },
   "repository": {
     "type": "git",
@@ -51,7 +53,7 @@
     "eslint": "^7.14.0",
     "module-header": "github:jamonkko/module-header#replace-existing",
     "nodemon": "^1.10.2",
-    "standard": "^16.0.3"
+    "prettier-standard": "^16.4.1"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
