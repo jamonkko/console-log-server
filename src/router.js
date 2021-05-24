@@ -7,6 +7,7 @@ import _ from 'lodash/fp'
 import cors from 'cors'
 
 export default opts => {
+  const cnsl = opts.console
   const router = express.Router()
 
   let reqCounter = 0
@@ -83,16 +84,20 @@ export default opts => {
         opts.logResponse === true ||
         (!!req.locals?.proxyUrl && opts.logResponse !== false)
       ) {
-        opts.console.group()
+        if (_.isFunction(cnsl.group)) {
+          cnsl.group()
+        }
         logResponse(null, req, res, opts)
-        console.groupEnd()
+        if (_.isFunction(cnsl.groupEnd)) {
+          cnsl.groupEnd()
+        }
       }
     })
     next()
   })
 
   if (!_.isEmpty(opts.proxy)) {
-    opts.console.log('Using proxies:')
+    cnsl.log('Using proxies:')
     _.each(({ path, host, hostPath, protocol }) => {
       hostPath = _.startsWith('/', hostPath)
         ? hostPath
@@ -102,9 +107,7 @@ export default opts => {
       const https =
         protocol === 'https' ? true : protocol === 'http' ? false : undefined
       const protocolPrefix = protocol ? `${protocol}://` : ''
-      opts.console.log(
-        `  '${path}' -> ${protocolPrefix}${host}${hostPath || ''}`
-      )
+      cnsl.log(`  '${path}' -> ${protocolPrefix}${host}${hostPath || ''}`)
       router.use(
         path,
         proxy(host, {

@@ -11,8 +11,6 @@ var _prependHttp = _interopRequireDefault(require("prepend-http"));
 
 var _url = _interopRequireDefault(require("url"));
 
-var _yn = _interopRequireDefault(require("yn"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -98,7 +96,7 @@ if (unknownArgs) {
 } else {
   (0, _2["default"])(_objectSpread(_objectSpread({}, cli.flags), {}, {
     proxy: parseProxies(cli.flags.proxy),
-    logResponse: cli.flags.logResponse === undefined ? undefined : cli.flags.logResponse === 'on' ? true : cli.flags.logResponse === 'off' ? false : (0, _yn["default"])(cli.flags.logResponse),
+    logResponse: cli.flags.logResponse === undefined ? undefined : /^(?:y|yes|true|1|on)$/i.test(cli.flags.logResponse) ? true : /^(?:n|no|false|0|off)$/i.test(cli.flags.logResponse) ? false : console.log("Invalid value '".concat(cli.flags.logResponse, "' for --log-response")) || cli.showHelp(1),
     ignoreUncaughtErrors: true
   })).start();
 }

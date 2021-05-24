@@ -7,19 +7,19 @@ import dateFormat from 'dateformat'
 import parseHeaders from 'parse-headers'
 
 export function logRequest (err, req, res, opts) {
-  const console = opts.console
+  const cnsl = opts.console
   const now = dateFormat(new Date(), opts.dateFormat)
 
   function divider (text, color = chalk.white.dim) {
     const divLine = color.bold(`>> [req:${req.locals.id}] [${now}]`)
     return {
       begin: () => {
-        console.log(divLine)
-        console.log(text)
+        cnsl.log(divLine)
+        cnsl.log(text)
       },
       end: () => {
-        console.log(text)
-        console.log(divLine)
+        cnsl.log(text)
+        cnsl.log(divLine)
       }
     }
   }
@@ -38,37 +38,37 @@ export function logRequest (err, req, res, opts) {
           chalk.red.bold('  *error*'),
         chalk.red.dim
       )
-  console.log()
+  cnsl.log()
   div.begin()
   const renderParams = obj =>
     prettyjson.render(obj, { defaultIndentation: 2 }, 2)
   const headers = req.headers
-  console.log(chalk.magenta('headers' + ':'))
-  console.log(renderParams(headers))
+  cnsl.log(chalk.magenta('headers' + ':'))
+  cnsl.log(renderParams(headers))
 
   if (_.isEmpty(req.query)) {
-    console.log(chalk.magenta('query: (empty)'))
+    cnsl.log(chalk.magenta('query: (empty)'))
   } else {
-    console.log(chalk.magenta('query:'))
-    console.log(renderParams(req.query))
+    cnsl.log(chalk.magenta('query:'))
+    cnsl.log(renderParams(req.query))
   }
 
   switch (req.bodyType) {
     case 'empty':
-      console.log(chalk.magenta('body: (empty)'))
+      cnsl.log(chalk.magenta('body: (empty)'))
       break
     case 'raw':
-      console.log(
+      cnsl.log(
         chalk.magenta('body: ') +
           chalk.yellow(
             `(parsed as raw string by console-log-server since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`
           )
       )
-      console.log(chalk.white(req.body.toString()))
+      cnsl.log(chalk.white(req.body.toString()))
       break
     case 'json':
-      console.log(chalk.magenta('body (json): '))
-      console.log(
+      cnsl.log(chalk.magenta('body (json): '))
+      cnsl.log(
         chalk.green(
           neatJSON(req.body, {
             wrap: 40,
@@ -81,31 +81,31 @@ export function logRequest (err, req, res, opts) {
       )
       break
     case 'url':
-      console.log(chalk.magenta('body (url): '))
-      console.log(renderParams(req.body))
+      cnsl.log(chalk.magenta('body (url): '))
+      cnsl.log(renderParams(req.body))
       break
     case 'xml':
-      console.log(chalk.magenta('body (xml): '))
-      console.log(chalk.green(pd.xml(req.rawBody)))
+      cnsl.log(chalk.magenta('body (xml): '))
+      cnsl.log(chalk.green(pd.xml(req.rawBody)))
       break
     case 'text':
-      console.log(
+      cnsl.log(
         chalk.magenta('body: ') +
           chalk.yellow(
             `(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`
           )
       )
-      console.log(chalk.white(req.body))
+      cnsl.log(chalk.white(req.body))
       break
     case 'error':
-      console.log(
+      cnsl.log(
         chalk.red('body (error): ') +
           chalk.yellow(
             '(failed to handle request. Body printed below as plain text if at all...)'
           )
       )
       if (req.body) {
-        console.log(chalk.white(req.rawBody))
+        cnsl.log(chalk.white(req.rawBody))
       }
       break
     default:
@@ -113,23 +113,21 @@ export function logRequest (err, req, res, opts) {
   }
 
   if (err) {
-    console.log()
+    cnsl.log()
     const logJsonParseError = () => {
       const positionMatches = err.message.match(/at position\s+(\d+)/)
       if (!positionMatches) return false
       const index = _.toNumber(positionMatches[1])
       const contentBeforeError = req.rawBody.substring(index - 80, index)
       const contentAfterError = req.rawBody.substring(index, index + 80)
-      console.error(
+      cnsl.error(
         chalk.yellow(
           `Check the request body position near ${index} below (marked with '!'):`
         )
       )
-      console.error(chalk.yellow('...'))
-      console.error(
-        `${contentBeforeError}${chalk.red('!')}${contentAfterError}"`
-      )
-      console.error(chalk.yellow('...'))
+      cnsl.error(chalk.yellow('...'))
+      cnsl.error(`${contentBeforeError}${chalk.red('!')}${contentAfterError}"`)
+      cnsl.error(chalk.yellow('...'))
     }
     const logXmlParseError = () => {
       const lineErrorMatches = err.message.match(/Line:\s+(\d+)/)
@@ -143,35 +141,35 @@ export function logRequest (err, req, res, opts) {
         errorTitle += ` column:${column}`
       }
       errorTitle += ' (see below)'
-      console.error(chalk.yellow(errorTitle))
-      console.error(lineWithError)
+      cnsl.error(chalk.yellow(errorTitle))
+      cnsl.error(lineWithError)
       if (column) {
-        console.error(_.repeat(column - 1, ' ') + chalk.bold.red('^'))
+        cnsl.error(_.repeat(column - 1, ' ') + chalk.bold.red('^'))
       }
     }
 
-    console.error(chalk.red(err.stack))
+    cnsl.error(chalk.red(err.stack))
     logJsonParseError() || logXmlParseError()
   }
 
   div.end()
-  console.log()
+  cnsl.log()
 }
 
 export function logResponse (err, req, res, opts) {
-  const console = opts.console
+  const cnsl = opts.console
   const now = dateFormat(new Date(), opts.dateFormat)
 
   function divider (text, color = chalk.white.dim) {
     const divLine = color.bold(`<< [res:${req.locals.id}] [${now}]`)
     return {
       begin: () => {
-        console.log(divLine)
-        console.log(text)
+        cnsl.log(divLine)
+        cnsl.log(text)
       },
       end: () => {
-        console.log(text)
-        console.log(divLine)
+        cnsl.log(text)
+        cnsl.log(divLine)
       }
     }
   }
@@ -194,16 +192,16 @@ export function logResponse (err, req, res, opts) {
             (err ? chalk.red.bold('  *error*') : ''),
           chalk.red.dim
         )
-  console.log()
+  cnsl.log()
   div.begin()
   const renderParams = obj =>
     prettyjson.render(obj, { defaultIndentation: 2 }, 2)
   // const headers = res.getHeaders()
-  console.log(chalk.magenta('headers' + ':'))
-  console.log(renderParams(parseHeaders(res._header)))
+  cnsl.log(chalk.magenta('headers' + ':'))
+  cnsl.log(renderParams(parseHeaders(res._header)))
 
-  console.log(chalk.magenta('body: '))
-  console.log(res.locals.body)
+  cnsl.log(chalk.magenta('body: '))
+  cnsl.log(res.locals.body)
   // switch (req.bodyType) {
   //   case 'empty':
   //     log(chalk.magenta('body: (empty)'))
@@ -277,5 +275,5 @@ export function logResponse (err, req, res, opts) {
   // }
 
   div.end()
-  console.log()
+  cnsl.log()
 }

@@ -57,7 +57,7 @@ export default function consoleLogServer (opts = {}) {
     },
     opts
   )
-
+  const cnsl = opts.console
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
 
   const app = opts.app || express()
@@ -71,17 +71,17 @@ export default function consoleLogServer (opts = {}) {
     app,
     start: (cb = () => true) => {
       const server = app.listen(opts.port, opts.hostname, () => {
-        opts.console.log(
+        cnsl.log(
           `console-log-server listening on http://${opts.hostname}:${opts.port}`
         )
         cb(null)
       })
       if (opts.ignoreUncaughtErrors) {
         process.on('uncaughtException', function (err) {
-          opts.console.log(
+          cnsl.log(
             'Unhandled error. Set ignoreUncaughtErrors to pass these through'
           )
-          opts.console.log(err)
+          cnsl.log(err)
         })
       }
       return server

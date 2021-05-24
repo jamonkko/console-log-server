@@ -22,6 +22,8 @@ var _cors = _interopRequireDefault(require("cors"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var _default = function _default(opts) {
+  var cnsl = opts.console;
+
   var router = _express["default"].Router();
 
   var reqCounter = 0;
@@ -92,16 +94,22 @@ var _default = function _default(opts) {
       (0, _logging.logRequest)(null, req, res, opts);
 
       if (opts.logResponse === true || !!((_req$locals = req.locals) !== null && _req$locals !== void 0 && _req$locals.proxyUrl) && opts.logResponse !== false) {
-        opts.console.group();
+        if (_fp["default"].isFunction(cnsl.group)) {
+          cnsl.group();
+        }
+
         (0, _logging.logResponse)(null, req, res, opts);
-        console.groupEnd();
+
+        if (_fp["default"].isFunction(cnsl.groupEnd)) {
+          cnsl.groupEnd();
+        }
       }
     });
     next();
   });
 
   if (!_fp["default"].isEmpty(opts.proxy)) {
-    opts.console.log('Using proxies:');
+    cnsl.log('Using proxies:');
 
     _fp["default"].each(function (_ref) {
       var path = _ref.path,
@@ -111,7 +119,7 @@ var _default = function _default(opts) {
       hostPath = _fp["default"].startsWith('/', hostPath) ? hostPath : hostPath === undefined ? '/' : '/' + hostPath;
       var https = protocol === 'https' ? true : protocol === 'http' ? false : undefined;
       var protocolPrefix = protocol ? "".concat(protocol, "://") : '';
-      opts.console.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
+      cnsl.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
       router.use(path, (0, _expressHttpProxy["default"])(host, {
         // parseReqBody: true,
         // reqAsBuffer: true,

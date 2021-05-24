@@ -60,6 +60,7 @@ function consoleLogServer() {
       }
     }
   }, opts);
+  var cnsl = opts.console;
   opts.responseHeader = opts.responseHeader && _fp["default"].castArray(opts.responseHeader);
   var app = opts.app || (0, _express["default"])();
   app.use((0, _router["default"])(opts));
@@ -75,14 +76,14 @@ function consoleLogServer() {
         return true;
       };
       var server = app.listen(opts.port, opts.hostname, function () {
-        opts.console.log("console-log-server listening on http://".concat(opts.hostname, ":").concat(opts.port));
+        cnsl.log("console-log-server listening on http://".concat(opts.hostname, ":").concat(opts.port));
         cb(null);
       });
 
       if (opts.ignoreUncaughtErrors) {
         process.on('uncaughtException', function (err) {
-          opts.console.log('Unhandled error. Set ignoreUncaughtErrors to pass these through');
-          opts.console.log(err);
+          cnsl.log('Unhandled error. Set ignoreUncaughtErrors to pass these through');
+          cnsl.log(err);
         });
       }
 

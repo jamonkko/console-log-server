@@ -23,7 +23,7 @@ var _parseHeaders = _interopRequireDefault(require("parse-headers"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function logRequest(err, req, res, opts) {
-  var console = opts.console;
+  var cnsl = opts.console;
   var now = (0, _dateformat["default"])(new Date(), opts.dateFormat);
 
   function divider(text) {
@@ -31,12 +31,12 @@ function logRequest(err, req, res, opts) {
     var divLine = color.bold(">> [req:".concat(req.locals.id, "] [").concat(now, "]"));
     return {
       begin: function begin() {
-        console.log(divLine);
-        console.log(text);
+        cnsl.log(divLine);
+        cnsl.log(text);
       },
       end: function end() {
-        console.log(text);
-        console.log(divLine);
+        cnsl.log(text);
+        cnsl.log(divLine);
       }
     };
   }
@@ -47,7 +47,7 @@ function logRequest(err, req, res, opts) {
 
   var pathLine = "".concat(req.method, " ").concat(req.originalUrl);
   var div = !err ? divider(_chalk["default"].yellow.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].yellow.bold(proxyUrl) : '')) : divider(_chalk["default"].red.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].red.bold(proxyUrl) : '') + _chalk["default"].red.bold('  *error*'), _chalk["default"].red.dim);
-  console.log();
+  cnsl.log();
   div.begin();
 
   var renderParams = function renderParams(obj) {
@@ -57,29 +57,29 @@ function logRequest(err, req, res, opts) {
   };
 
   var headers = req.headers;
-  console.log(_chalk["default"].magenta('headers' + ':'));
-  console.log(renderParams(headers));
+  cnsl.log(_chalk["default"].magenta('headers' + ':'));
+  cnsl.log(renderParams(headers));
 
   if (_fp["default"].isEmpty(req.query)) {
-    console.log(_chalk["default"].magenta('query: (empty)'));
+    cnsl.log(_chalk["default"].magenta('query: (empty)'));
   } else {
-    console.log(_chalk["default"].magenta('query:'));
-    console.log(renderParams(req.query));
+    cnsl.log(_chalk["default"].magenta('query:'));
+    cnsl.log(renderParams(req.query));
   }
 
   switch (req.bodyType) {
     case 'empty':
-      console.log(_chalk["default"].magenta('body: (empty)'));
+      cnsl.log(_chalk["default"].magenta('body: (empty)'));
       break;
 
     case 'raw':
-      console.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(parsed as raw string by console-log-server since content-type is '".concat(headers['content-type'], "'. Forgot to set it correctly?)")));
-      console.log(_chalk["default"].white(req.body.toString()));
+      cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(parsed as raw string by console-log-server since content-type is '".concat(headers['content-type'], "'. Forgot to set it correctly?)")));
+      cnsl.log(_chalk["default"].white(req.body.toString()));
       break;
 
     case 'json':
-      console.log(_chalk["default"].magenta('body (json): '));
-      console.log(_chalk["default"].green((0, _neatJson.neatJSON)(req.body, {
+      cnsl.log(_chalk["default"].magenta('body (json): '));
+      cnsl.log(_chalk["default"].green((0, _neatJson.neatJSON)(req.body, {
         wrap: 40,
         aligned: true,
         afterComma: 1,
@@ -89,25 +89,25 @@ function logRequest(err, req, res, opts) {
       break;
 
     case 'url':
-      console.log(_chalk["default"].magenta('body (url): '));
-      console.log(renderParams(req.body));
+      cnsl.log(_chalk["default"].magenta('body (url): '));
+      cnsl.log(renderParams(req.body));
       break;
 
     case 'xml':
-      console.log(_chalk["default"].magenta('body (xml): '));
-      console.log(_chalk["default"].green(_prettyData.pd.xml(req.rawBody)));
+      cnsl.log(_chalk["default"].magenta('body (xml): '));
+      cnsl.log(_chalk["default"].green(_prettyData.pd.xml(req.rawBody)));
       break;
 
     case 'text':
-      console.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(parsed as plain text since content-type is '".concat(headers['content-type'], "'. Forgot to set it correctly?)")));
-      console.log(_chalk["default"].white(req.body));
+      cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(parsed as plain text since content-type is '".concat(headers['content-type'], "'. Forgot to set it correctly?)")));
+      cnsl.log(_chalk["default"].white(req.body));
       break;
 
     case 'error':
-      console.log(_chalk["default"].red('body (error): ') + _chalk["default"].yellow('(failed to handle request. Body printed below as plain text if at all...)'));
+      cnsl.log(_chalk["default"].red('body (error): ') + _chalk["default"].yellow('(failed to handle request. Body printed below as plain text if at all...)'));
 
       if (req.body) {
-        console.log(_chalk["default"].white(req.rawBody));
+        cnsl.log(_chalk["default"].white(req.rawBody));
       }
 
       break;
@@ -117,7 +117,7 @@ function logRequest(err, req, res, opts) {
   }
 
   if (err) {
-    console.log();
+    cnsl.log();
 
     var logJsonParseError = function logJsonParseError() {
       var positionMatches = err.message.match(/at position\s+(\d+)/);
@@ -127,10 +127,10 @@ function logRequest(err, req, res, opts) {
 
       var contentBeforeError = req.rawBody.substring(index - 80, index);
       var contentAfterError = req.rawBody.substring(index, index + 80);
-      console.error(_chalk["default"].yellow("Check the request body position near ".concat(index, " below (marked with '!'):")));
-      console.error(_chalk["default"].yellow('...'));
-      console.error("".concat(contentBeforeError).concat(_chalk["default"].red('!')).concat(contentAfterError, "\""));
-      console.error(_chalk["default"].yellow('...'));
+      cnsl.error(_chalk["default"].yellow("Check the request body position near ".concat(index, " below (marked with '!'):")));
+      cnsl.error(_chalk["default"].yellow('...'));
+      cnsl.error("".concat(contentBeforeError).concat(_chalk["default"].red('!')).concat(contentAfterError, "\""));
+      cnsl.error(_chalk["default"].yellow('...'));
     };
 
     var logXmlParseError = function logXmlParseError() {
@@ -150,24 +150,24 @@ function logRequest(err, req, res, opts) {
       }
 
       errorTitle += ' (see below)';
-      console.error(_chalk["default"].yellow(errorTitle));
-      console.error(lineWithError);
+      cnsl.error(_chalk["default"].yellow(errorTitle));
+      cnsl.error(lineWithError);
 
       if (column) {
-        console.error(_fp["default"].repeat(column - 1, ' ') + _chalk["default"].bold.red('^'));
+        cnsl.error(_fp["default"].repeat(column - 1, ' ') + _chalk["default"].bold.red('^'));
       }
     };
 
-    console.error(_chalk["default"].red(err.stack));
+    cnsl.error(_chalk["default"].red(err.stack));
     logJsonParseError() || logXmlParseError();
   }
 
   div.end();
-  console.log();
+  cnsl.log();
 }
 
 function logResponse(err, req, res, opts) {
-  var console = opts.console;
+  var cnsl = opts.console;
   var now = (0, _dateformat["default"])(new Date(), opts.dateFormat);
 
   function divider(text) {
@@ -175,12 +175,12 @@ function logResponse(err, req, res, opts) {
     var divLine = color.bold("<< [res:".concat(req.locals.id, "] [").concat(now, "]"));
     return {
       begin: function begin() {
-        console.log(divLine);
-        console.log(text);
+        cnsl.log(divLine);
+        cnsl.log(text);
       },
       end: function end() {
-        console.log(text);
-        console.log(divLine);
+        cnsl.log(text);
+        cnsl.log(divLine);
       }
     };
   }
@@ -192,7 +192,7 @@ function logResponse(err, req, res, opts) {
   var statusPreFix = "".concat(res.statusCode);
   var pathLine = " <- ".concat(req.method, " ").concat(req.originalUrl);
   var div = !err && res.statusCode < 400 ? divider(_chalk["default"].green.bold(statusPreFix) + _chalk["default"].yellow.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].yellow.bold(proxyUrl) : '')) : divider(_chalk["default"].red.bold(statusPreFix) + _chalk["default"].red.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].red.bold(proxyUrl) : '') + (err ? _chalk["default"].red.bold('  *error*') : ''), _chalk["default"].red.dim);
-  console.log();
+  cnsl.log();
   div.begin();
 
   var renderParams = function renderParams(obj) {
@@ -202,10 +202,10 @@ function logResponse(err, req, res, opts) {
   }; // const headers = res.getHeaders()
 
 
-  console.log(_chalk["default"].magenta('headers' + ':'));
-  console.log(renderParams((0, _parseHeaders["default"])(res._header)));
-  console.log(_chalk["default"].magenta('body: '));
-  console.log(res.locals.body); // switch (req.bodyType) {
+  cnsl.log(_chalk["default"].magenta('headers' + ':'));
+  cnsl.log(renderParams((0, _parseHeaders["default"])(res._header)));
+  cnsl.log(_chalk["default"].magenta('body: '));
+  cnsl.log(res.locals.body); // switch (req.bodyType) {
   //   case 'empty':
   //     log(chalk.magenta('body: (empty)'))
   //     break
@@ -276,5 +276,5 @@ function logResponse(err, req, res, opts) {
   // }
 
   div.end();
-  console.log();
+  cnsl.log();
 }
