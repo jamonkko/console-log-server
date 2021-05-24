@@ -129,18 +129,17 @@ function parseProxies (proxiesArg) {
 if (unknownArgs) {
   cli.showHelp()
 } else {
-  const proxy = parseProxies(cli.flags.proxy)
-  if (proxy !== undefined) {
-    cli.flags.proxy = proxy
-  }
-  if (cli.flags.logResponse !== undefined) {
-    cli.flags.logResponse =
-      cli.flags.logResponse === 'on'
+  consoleLogServer({
+    ...cli.flags,
+    proxy: parseProxies(cli.flags.proxy),
+    logResponse:
+      cli.flags.logResponse === undefined
+        ? undefined
+        : cli.flags.logResponse === 'on'
         ? true
         : cli.flags.logResponse === 'off'
         ? false
-        : yn(cli.flags.logResponse)
-  }
-  cli.flags.ignoreUncaughtErrors = true
-  consoleLogServer(cli.flags).start()
+        : yn(cli.flags.logResponse),
+    ignoreUncaughtErrors: true
+  }).start()
 }
