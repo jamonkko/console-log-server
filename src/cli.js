@@ -118,6 +118,6 @@ if (unknownArgs) {
   if (cli.flags.logResponse !== undefined) {
     cli.flags.logResponse = cli.flags.logResponse === 'on' ? true : cli.flags.logResponse === 'off' ? false : yn(cli.flags.logResponse)
   }
-
+  cli.flags.ignoreUncaughtErrors = true
   consoleLogServer(cli.flags).start()
 }

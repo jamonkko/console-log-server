@@ -24,6 +24,7 @@ export default function consoleLogServer (opts = {}) {
     responseHeader: [],
     console: console,
     dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
+    ignoreUncaughtErrors: false,
     defaultRoute: (req, res) => {
       const negotiatedType = req.accepts(mimeExtensions)
       const defaultHandler = () => opts.responseBody ? res.send(opts.responseBody) : res.end()
@@ -61,14 +62,21 @@ export default function consoleLogServer (opts = {}) {
   return {
     app,
     start: (cb = () => true) => {
-      app.listen(opts.port, opts.hostname, () => {
+      const server = app.listen(opts.port, opts.hostname, () => {
         opts.console.log(`console-log-server listening on http://${opts.hostname}:${opts.port}`)
         cb(null)
       })
+      if (opts.ignoreUncaughtErrors) {
+        process.on('uncaughtException', function (err) {
+          opts.console.log('Unhandled error. Set ignoreUncaughtErrors to pass these through')
+          opts.console.log(err)
+        })
+      }
+      return server
     }
   }
 }
 
 if (!module.parent) {
-  consoleLogServer().start()
+  consoleLogServer().start({ ignoreUncaughtErrors: true })
 }
