@@ -24,6 +24,7 @@ const cli = meow(
     --version
     --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat (default "yyyy-mm-dd'T'HH:MM:sso")
     --help
+    --default-cors, -C Add "default" cors using https://www.npmjs.com/package/cors default values. By default only enabled for non-proxied responses. Turn on to enable also for proxy responses, turn off to disable completely.
 
   Examples
 
@@ -36,20 +37,23 @@ const cli = meow(
     # Log date with UTC date format instead of local with offset
     $ console-log-server -d "isoUtcDateTime"
 
-    # Proxy the request to other host. Response will be the actual response from the proxy.
+    # Proxy the request to other host. Response will be the actual response from the proxy. 
     $ console-log-server -P http://api.example.com
 
     # Proxy the requests to multiple hosts based on paths.
     $ console-log-server -P "/api/1>http://api-1.example.com /api/2>http://api-2.example.com"
 
-    # Proxy the request to path under other host. Response will be the actual response from the proxy.
-    $ console-log-server -P http://api.example.com/v1/cats
+    # Proxy the request to path under other host. Response will be the actual response (with cors headers injected) from the proxy.
+    $ console-log-server -P http://api.example.com/v1/cats -C yes
 
     # Turn off response logging
     $ console-log-server -r no
 
-    # Turn off response logging for all requests
+    # Turn on response logging for all requests
     $ console-log-server -r yes
+
+    # Don't add default (allow all) cors headers at all
+    $ console-log-server -C no
 `,
   {
     alias: {
@@ -60,7 +64,8 @@ const cli = meow(
       H: 'response-header',
       d: 'date-format',
       P: 'proxy',
-      r: 'log-response'
+      r: 'log-response',
+      C: 'default-cors'
     },
     unknown: arg => {
       unknownArgs = !_.includes(arg, ['--no-color', '--version'])
@@ -125,22 +130,23 @@ function parseProxies (proxiesArg) {
   return proxies
 }
 
+const parseOnOff = (value, flagName) =>
+  value === undefined
+    ? undefined
+    : /^(?:y|yes|true|1|on)$/i.test(value)
+    ? true
+    : /^(?:n|no|false|0|off)$/i.test(value)
+    ? false
+    : console.log(`Invalid value '${value}' for ${flagName}`) || cli.showHelp(1)
+
 if (unknownArgs) {
   cli.showHelp()
 } else {
   consoleLogServer({
     ...cli.flags,
     proxy: parseProxies(cli.flags.proxy),
-    logResponse:
-      cli.flags.logResponse === undefined
-        ? undefined
-        : /^(?:y|yes|true|1|on)$/i.test(cli.flags.logResponse)
-        ? true
-        : /^(?:n|no|false|0|off)$/i.test(cli.flags.logResponse)
-        ? false
-        : console.log(
-            `Invalid value '${cli.flags.logResponse}' for --log-response`
-          ) || cli.showHelp(1),
+    logResponse: parseOnOff(cli.flags.logResponse, '--log-response'),
+    defaultCors: parseOnOff(cli.flags.defaultCors, '--default-cors'),
     ignoreUncaughtErrors: true
   }).start()
 }

@@ -17,8 +17,6 @@ export default opts => {
     next()
   })
 
-  router.use(cors())
-
   router.use(function saveRawBody (req, res, next) {
     req.rawBody = ''
     req.on('data', chunk => {
@@ -96,6 +94,10 @@ export default opts => {
     next()
   })
 
+  if (opts.defaultCors === true) {
+    router.use(cors())
+  }
+
   if (!_.isEmpty(opts.proxy)) {
     cnsl.log('Using proxies:')
     _.each(({ path, host, hostPath, protocol }) => {
@@ -131,6 +133,10 @@ export default opts => {
         })
       )
     }, opts.proxy)
+  }
+
+  if (opts.defaultCors === undefined) {
+    router.use(cors())
   }
 
   if (
