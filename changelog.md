@@ -1,3 +1,13 @@
+
+# DEPRECATED
+
+Release notes for **new versions**: https://github.com/jamonkko/console-log-server/releases 
+
+
+----
+
+## Older release notes:
+
 Version: 0.1.6
 --------------
 - add missing lodash dependency #2
