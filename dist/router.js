@@ -29,7 +29,8 @@ var _default = function _default(opts) {
   var reqCounter = 0;
   router.use(function addLocals(req, res, next) {
     req.locals || (req.locals = {});
-    req.locals.id = ++reqCounter;
+    var requestId = req.header('X-Request-ID') || req.header('X-Correlation-ID');
+    req.locals.id = "".concat(++reqCounter) + (requestId ? ":".concat(requestId) : '');
     next();
   });
   router.use(function saveRawBody(req, res, next) {

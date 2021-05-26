@@ -13,7 +13,9 @@ export default opts => {
   let reqCounter = 0
   router.use(function addLocals (req, res, next) {
     req.locals ||= {}
-    req.locals.id = ++reqCounter
+    const requestId =
+      req.header('X-Request-ID') || req.header('X-Correlation-ID')
+    req.locals.id = `${++reqCounter}` + (requestId ? `:${requestId}` : '')
     next()
   })
 
