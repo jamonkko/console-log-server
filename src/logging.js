@@ -6,6 +6,12 @@ import { pd } from 'pretty-data'
 import dateFormat from 'dateformat'
 import parseHeaders from 'parse-headers'
 
+/**
+ * @param {Error} err
+ * @param {RequestExt} req
+ * @param {ResponseExt} res
+ * @param {CLSOptions} opts
+ */
 export function logRequest (err, req, res, opts) {
   const cnsl = opts.console
   const now = dateFormat(new Date(), opts.dateFormat)
@@ -53,7 +59,7 @@ export function logRequest (err, req, res, opts) {
     cnsl.log(renderParams(req.query))
   }
 
-  switch (req.bodyType) {
+  switch (req.locals.bodyType) {
     case 'empty':
       cnsl.log(chalk.magenta('body: (empty)'))
       break
@@ -86,7 +92,7 @@ export function logRequest (err, req, res, opts) {
       break
     case 'xml':
       cnsl.log(chalk.magenta('body (xml): '))
-      cnsl.log(chalk.green(pd.xml(req.rawBody)))
+      cnsl.log(chalk.green(pd.xml(req.locals.rawBody)))
       break
     case 'text':
       cnsl.log(
@@ -105,11 +111,13 @@ export function logRequest (err, req, res, opts) {
           )
       )
       if (req.body) {
-        cnsl.log(chalk.white(req.rawBody))
+        cnsl.log(chalk.white(req.locals.rawBody))
       }
       break
     default:
-      throw new Error(`Internal Error! Unknown bodyType: ${req.bodyType}`)
+      throw new Error(
+        `Internal Error! Unknown bodyType: ${req.locals.bodyType}`
+      )
   }
 
   if (err) {
@@ -118,8 +126,8 @@ export function logRequest (err, req, res, opts) {
       const positionMatches = err.message.match(/at position\s+(\d+)/)
       if (!positionMatches) return false
       const index = _.toNumber(positionMatches[1])
-      const contentBeforeError = req.rawBody.substring(index - 80, index)
-      const contentAfterError = req.rawBody.substring(index, index + 80)
+      const contentBeforeError = req.locals.rawBody.substring(index - 80, index)
+      const contentAfterError = req.locals.rawBody.substring(index, index + 80)
       cnsl.error(
         chalk.yellow(
           `Check the request body position near ${index} below (marked with '!'):`
@@ -135,7 +143,7 @@ export function logRequest (err, req, res, opts) {
       if (!lineErrorMatches) return false
       const line = _.toNumber(lineErrorMatches[1])
       const column = _.toNumber(columnErrorMatches[1])
-      const lineWithError = req.rawBody.split('\n', line + 1)[line]
+      const lineWithError = req.locals.rawBody.split('\n', line + 1)[line]
       let errorTitle = `Failed to parse body as XML according to Content-Type. Parse error in body might be here at line:${line}`
       if (column) {
         errorTitle += ` column:${column}`
@@ -156,7 +164,13 @@ export function logRequest (err, req, res, opts) {
   cnsl.log()
 }
 
-export function logResponse (err, req, res, opts) {
+/**
+ * @param {Error} err
+ * @param {RequestExt} req
+ * @param {ResponseExt} res
+ * @param {CLSOptions} opts
+ */
+export function logResponse (err, /** @type {RequestExt} */ req, res, opts) {
   const cnsl = opts.console
   const now = dateFormat(new Date(), opts.dateFormat)
 
@@ -222,7 +236,7 @@ export function logResponse (err, req, res, opts) {
   //     break
   //   case 'xml':
   //     log(chalk.magenta('body (xml): '))
-  //     log(chalk.green(pd.xml(req.rawBody)))
+  //     log(chalk.green(pd.xml(req.locals.rawBody)))
   //     break
   //   case 'text':
   //     log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
@@ -231,7 +245,7 @@ export function logResponse (err, req, res, opts) {
   //   case 'error':
   //     log(chalk.red('body (error): ') + chalk.yellow('(failed to handle request. Body printed below as plain text if at all...)'))
   //     if (req.body) {
-  //       log(chalk.white(req.rawBody))
+  //       log(chalk.white(req.locals.rawBody))
   //     }
   //     break
   //   default:
@@ -244,8 +258,8 @@ export function logResponse (err, req, res, opts) {
   //     const positionMatches = err.message.match(/at position\s+(\d+)/)
   //     if (!positionMatches) return false
   //     const index = _.toNumber(positionMatches[1])
-  //     const contentBeforeError = req.rawBody.substring(index - 80, index)
-  //     const contentAfterError = req.rawBody.substring(index, index + 80)
+  //     const contentBeforeError = req.locals.rawBody.substring(index - 80, index)
+  //     const contentAfterError = req.locals.rawBody.substring(index, index + 80)
   //     console.error(chalk.yellow(`Check the request body position near ${index} below (marked with '!'):`))
   //     console.error(chalk.yellow('...'))
   //     console.error(`${contentBeforeError}${chalk.red('!')}${contentAfterError}"`)
@@ -257,7 +271,7 @@ export function logResponse (err, req, res, opts) {
   //     if (!lineErrorMatches) return false
   //     const line = _.toNumber(lineErrorMatches[1])
   //     const column = _.toNumber(columnErrorMatches[1])
-  //     const lineWithError = req.rawBody.split('\n', line + 1)[line]
+  //     const lineWithError = req.locals.rawBody.split('\n', line + 1)[line]
   //     let errorTitle = `Failed to parse body as XML according to Content-Type. Parse error in body might be here at line:${line}`
   //     if (column) {
   //       errorTitle += ` column:${column}`

@@ -35,3 +35,12 @@
  *   }
  * } RequestExt
  */
+
+/**
+ * A number, or a string containing a number.
+ * @typedef {import("express-serve-static-core").Response<any, Record<string, any>, number> &
+ *   {
+ *     _header?: Object,
+ *   }
+ * } ResponseExt
+ */
