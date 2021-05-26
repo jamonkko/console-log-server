@@ -6,20 +6,6 @@ import proxy from 'express-http-proxy'
 import _ from 'lodash/fp'
 import cors from 'cors'
 
-/**
- * A number, or a string containing a number.
- * @typedef {import("express-serve-static-core").Request<import("express-serve-static-core").RouteParameters<string>, any, any, qs.ParsedQs, Record<string, any>> &
- *   {
- *     locals: {
- *       id?: string,
- *       bodyType?: string,
- *       rawBody?: string,
- *       proxyUrl?: string
- *     }
- *   }
- * } RequestExt
- */
-
 export default opts => {
   const cnsl = opts.console
   const router = express.Router()

@@ -18,28 +18,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
- * @param {{
- *  ignoreUncaughtErrors?: boolean;
- *  proxy?: {
- *    path: string;
- *    host: string;
- *    protocol: string;
- *    hostPath: string;
- *  }[];
- *  logResponse?: boolean;
- *  defaultCors?: boolean;
- *  responseBody?: string;
- *  responseHeader?: string[];
- *  responseCode?: number;
- *  router?: any;
- *  dateFormat?: string;
- *  defaultRoute?: any;
- *  console?: any;
- *  app?: import("express-serve-static-core").Express;
- *  addRouter?: any;
- *  port?: number;
- *  hostname?: string;
- * }} opts
+ * @param { CLSOptions } opts
  * @return {{
  *  app: import("express-serve-static-core").Express;
  *  start: (callback?: () => void) => import('http').Server;

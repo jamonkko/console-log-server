@@ -21,19 +21,6 @@ var _cors = _interopRequireDefault(require("cors"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-/**
- * A number, or a string containing a number.
- * @typedef {import("express-serve-static-core").Request<import("express-serve-static-core").RouteParameters<string>, any, any, qs.ParsedQs, Record<string, any>> &
- *   {
- *     locals: {
- *       id?: string,
- *       bodyType?: string,
- *       rawBody?: string,
- *       proxyUrl?: string
- *     }
- *   }
- * } RequestExt
- */
 var _default = function _default(opts) {
   var cnsl = opts.console;
 
