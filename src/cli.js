@@ -15,7 +15,7 @@ const cli = meow(
   Options
     --port, -p Port Number
     --hostname, -h Host name
-    --proxy, -P Host(s) to proxy the request to using https://www.npmjs.com/package/express-http-proxy. You can provide one or more proxies using format: [<path>>]<url> [<path>>]<url>...
+    --proxy, -P Host(s) to proxy the request to using https://www.npmjs.com/package/express-http-proxy. Syntax: [<path>>]<url>. You can provide different proxies for separate paths.
     --response-code, -c Response response code (ignored if proxied)
     --response-body, -b Response content (ignored if proxied)
     --response-header, -H Response header (ignored if proxied)
@@ -41,7 +41,7 @@ const cli = meow(
     $ console-log-server -P http://api.example.com
 
     # Proxy the requests to multiple hosts based on paths.
-    $ console-log-server -P "/api/1>http://api-1.example.com /api/2>http://api-2.example.com"
+    $ console-log-server --proxy="/api/1>http://api-1.example.com" -proxy="/api/2>http://api-2.example.com"
 
     # Proxy the request to path under other host. Response will be the actual response (with cors headers injected) from the proxy.
     $ console-log-server -P http://api.example.com/v1/cats -C yes
@@ -78,8 +78,8 @@ function parseProxies (proxiesArg) {
   if (!proxiesArg) return undefined
 
   const proxies = _.flow(
-    _.trim,
-    _.split(/\s+/),
+    _.castArray,
+    _.map(_.trim),
     _.compact,
     _.map(proxyArg => {
       const [pathPart, proxyPart] = _.split('>', proxyArg)
