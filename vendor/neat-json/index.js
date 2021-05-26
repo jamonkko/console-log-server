@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 (function(exports){
 exports.neatJSON = neatJSON;
 

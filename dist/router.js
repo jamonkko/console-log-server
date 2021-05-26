@@ -21,73 +21,106 @@ var _cors = _interopRequireDefault(require("cors"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+/**
+ * A number, or a string containing a number.
+ * @typedef {import("express-serve-static-core").Request<import("express-serve-static-core").RouteParameters<string>, any, any, qs.ParsedQs, Record<string, any>> &
+ *   {
+ *     locals: {
+ *       id?: string,
+ *       bodyType?: string,
+ *       rawBody?: string,
+ *       proxyUrl?: string
+ *     }
+ *   }
+ * } RequestExt
+ */
 var _default = function _default(opts) {
   var cnsl = opts.console;
 
   var router = _express["default"].Router();
 
   var reqCounter = 0;
-  router.use(function addLocals(req, res, next) {
+  router.use(function addLocals(
+  /** @type {RequestExt} */
+  req, res, next) {
     req.locals || (req.locals = {});
     var requestId = req.header('X-Request-ID') || req.header('X-Correlation-ID');
     req.locals.id = "".concat(++reqCounter) + (requestId ? ":".concat(requestId) : '');
     next();
   });
-  router.use(function saveRawBody(req, res, next) {
-    req.rawBody = '';
+  router.use(function saveRawBody(
+  /** @type {RequestExt} */
+  req, res, next) {
+    req.locals.rawBody = '';
     req.on('data', function (chunk) {
-      req.rawBody += chunk;
+      req.locals.rawBody += chunk;
     });
     next();
   });
   router.use(_bodyParser["default"].json({
-    verify: function verify(req) {
-      req.bodyType = 'json';
+    verify: function verify(
+    /** @type {RequestExt} */
+    req) {
+      req.locals.bodyType = 'json';
     }
   }));
   router.use(_bodyParser["default"].urlencoded({
     extended: true,
-    verify: function verify(req) {
-      req.bodyType = 'url';
+    verify: function verify(
+    /** @type {RequestExt} */
+    req) {
+      req.locals.bodyType = 'url';
     }
   }));
   router.use((0, _expressXmlBodyparser["default"])());
-  router.use(function markBodyAsXml(req, res, next) {
-    if (!req.bodyType && !_fp["default"].isEmpty(req.body)) {
-      req.bodyType = 'xml';
+  router.use(function markBodyAsXml(
+  /** @type {RequestExt} */
+  req, res, next) {
+    if (!req.locals.bodyType && !_fp["default"].isEmpty(req.body)) {
+      req.locals.bodyType = 'xml';
     }
 
     next();
   });
   router.use(_bodyParser["default"].text({
-    verify: function verify(req) {
-      req.bodyType = 'text';
+    verify: function verify(
+    /** @type {RequestExt} */
+    req) {
+      req.locals.bodyType = 'text';
     }
   }));
   router.use(_bodyParser["default"].raw({
     type: function type() {
       return true;
     },
-    verify: function verify(req) {
-      req.bodyType = 'raw';
+    verify: function verify(
+    /** @type {RequestExt} */
+    req) {
+      req.locals.bodyType = 'raw';
     }
   }));
-  router.use(function detectEmptyBody(req, res, next) {
-    if (req.rawBody.length === 0) {
-      req.bodyType = 'empty';
+  router.use(
+  /** @param {RequestExt} req */
+  function detectEmptyBody(req, res, next) {
+    if (req.locals.rawBody.length === 0) {
+      req.locals.bodyType = 'empty';
     }
 
     next();
   });
-  router.use(function logInvalidRequest(err, req, res, next) {
-    if (!req.bodyType) {
-      req.bodyType = 'error';
+  router.use(function logInvalidRequest(err,
+  /** @type {RequestExt} */
+  req, res, next) {
+    if (!req.locals.bodyType) {
+      req.locals.bodyType = 'error';
     }
 
     (0, _logging.logRequest)(err, req, res, opts);
     res.status(400).end();
   });
-  router.use(function logOkRequest(req, res, next) {
+  router.use(function logOkRequest(
+  /** @type {RequestExt} */
+  req, res, next) {
     res.on('finish', function () {
       var _req$locals;
 
@@ -126,7 +159,9 @@ var _default = function _default(opts) {
       cnsl.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
       router.use(path, (0, _expressHttpProxy["default"])(host, {
         https: https,
-        proxyReqPathResolver: function proxyReqPathResolver(req) {
+        proxyReqPathResolver: function proxyReqPathResolver(
+        /** @type {RequestExt} */
+        req) {
           var resolvedPath = hostPath === '/' ? req.url : hostPath + req.url;
           req.locals.proxyUrl = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
           return resolvedPath;
@@ -152,7 +187,9 @@ var _default = function _default(opts) {
   }
 
   if (opts.logResponse === true || !_fp["default"].isEmpty(opts.proxy) && opts.logResponse !== false) {
-    router.use(function captureResponse(req, res, next) {
+    router.use(function captureResponse(
+    /** @type {RequestExt} */
+    req, res, next) {
       if (opts.logResponse === true) {
         var oldWrite = res.write;
         var oldEnd = res.end;
@@ -164,7 +201,7 @@ var _default = function _default(opts) {
           }
 
           chunks.push(Buffer.from(restArgs[0]));
-          oldWrite.apply(res, restArgs);
+          return oldWrite.apply(res, restArgs);
         };
 
         res.end = function () {
@@ -178,7 +215,7 @@ var _default = function _default(opts) {
 
           var body = Buffer.concat(chunks).toString('utf8');
           res.locals.body = body;
-          oldEnd.apply(res, restArgs);
+          return oldEnd.apply(res, restArgs);
         };
       }
 

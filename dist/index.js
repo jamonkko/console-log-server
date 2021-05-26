@@ -17,16 +17,42 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function consoleLogServer() {
-  var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
+/**
+ * @param {{
+ *  ignoreUncaughtErrors?: boolean;
+ *  proxy?: {
+ *    path: string;
+ *    host: string;
+ *    protocol: string;
+ *    hostPath: string;
+ *  }[];
+ *  logResponse?: boolean;
+ *  defaultCors?: boolean;
+ *  responseBody?: string;
+ *  responseHeader?: string[];
+ *  responseCode?: number;
+ *  router?: any;
+ *  dateFormat?: string;
+ *  defaultRoute?: any;
+ *  console?: any;
+ *  app?: import("express-serve-static-core").Express;
+ *  addRouter?: any;
+ *  port?: number;
+ *  hostname?: string;
+ * }} opts
+ * @return {{
+ *  app: import("express-serve-static-core").Express;
+ *  start: (callback?: () => void) => import('http').Server;
+ * }}
+ */
+function consoleLogServer(opts) {
   var mimeExtensions = _fp["default"].flow(_fp["default"].values, _fp["default"].flatten, _fp["default"].without(['json']))(_mimeTypes["default"].extensions);
 
   opts = _fp["default"].defaults({
     port: 3000,
     hostname: 'localhost',
     responseCode: 200,
-    responseBody: null,
+    responseBody: undefined,
     responseHeader: [],
     console: console,
     dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
@@ -62,6 +88,10 @@ function consoleLogServer() {
   }, opts);
   var cnsl = opts.console;
   opts.responseHeader = opts.responseHeader && _fp["default"].castArray(opts.responseHeader);
+  /**
+   * @type {import("express-serve-static-core").Express}
+   */
+
   var app = opts.app || (0, _express["default"])();
   app.use((0, _router["default"])(opts));
 
@@ -72,12 +102,10 @@ function consoleLogServer() {
   return {
     app: app,
     start: function start() {
-      var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {
-        return true;
-      };
+      var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
       var server = app.listen(opts.port, opts.hostname, function () {
         cnsl.log("console-log-server listening on http://".concat(opts.hostname, ":").concat(opts.port));
-        cb(null);
+        callback();
       });
 
       if (opts.ignoreUncaughtErrors) {
@@ -93,7 +121,7 @@ function consoleLogServer() {
 }
 
 if (!module.parent) {
-  consoleLogServer().start({
+  consoleLogServer({
     ignoreUncaughtErrors: true
-  });
+  }).start();
 }

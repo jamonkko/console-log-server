@@ -92,8 +92,14 @@ function parseProxies(proxiesArg) {
   return proxies;
 }
 
+function showMessageAndExit(message) {
+  console.log(message);
+  cli.showHelp(1);
+  return undefined;
+}
+
 var parseOnOff = function parseOnOff(value, flagName) {
-  return value === undefined ? undefined : /^(?:y|yes|true|1|on)$/i.test(value) ? true : /^(?:n|no|false|0|off)$/i.test(value) ? false : console.log("Invalid value '".concat(value, "' for ").concat(flagName)) || cli.showHelp(1);
+  return value === undefined ? undefined : /^(?:y|yes|true|1|on)$/i.test(value) ? true : /^(?:n|no|false|0|off)$/i.test(value) ? false : showMessageAndExit("Invalid value '".concat(value, "' for ").concat(flagName));
 };
 
 if (unknownArgs) {

@@ -9,7 +9,35 @@ import _ from 'lodash/fp'
 import express from 'express'
 import mime from 'mime-types'
 
-export default function consoleLogServer (opts = {}) {
+/**
+ * @param {{
+ *  ignoreUncaughtErrors?: boolean;
+ *  proxy?: {
+ *    path: string;
+ *    host: string;
+ *    protocol: string;
+ *    hostPath: string;
+ *  }[];
+ *  logResponse?: boolean;
+ *  defaultCors?: boolean;
+ *  responseBody?: string;
+ *  responseHeader?: string[];
+ *  responseCode?: number;
+ *  router?: any;
+ *  dateFormat?: string;
+ *  defaultRoute?: any;
+ *  console?: any;
+ *  app?: import("express-serve-static-core").Express;
+ *  addRouter?: any;
+ *  port?: number;
+ *  hostname?: string;
+ * }} opts
+ * @return {{
+ *  app: import("express-serve-static-core").Express;
+ *  start: (callback?: () => void) => import('http').Server;
+ * }}
+ */
+export default function consoleLogServer (opts) {
   const mimeExtensions = _.flow(
     _.values,
     _.flatten,
@@ -21,7 +49,7 @@ export default function consoleLogServer (opts = {}) {
       port: 3000,
       hostname: 'localhost',
       responseCode: 200,
-      responseBody: null,
+      responseBody: undefined,
       responseHeader: [],
       console: console,
       dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
@@ -60,6 +88,9 @@ export default function consoleLogServer (opts = {}) {
   const cnsl = opts.console
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
 
+  /**
+   * @type {import("express-serve-static-core").Express}
+   */
   const app = opts.app || express()
 
   app.use(router(opts))
@@ -69,12 +100,12 @@ export default function consoleLogServer (opts = {}) {
   }
   return {
     app,
-    start: (cb = () => true) => {
+    start: (callback = function () {}) => {
       const server = app.listen(opts.port, opts.hostname, () => {
         cnsl.log(
           `console-log-server listening on http://${opts.hostname}:${opts.port}`
         )
-        cb(null)
+        callback()
       })
       if (opts.ignoreUncaughtErrors) {
         process.on('uncaughtException', function (err) {
@@ -90,5 +121,5 @@ export default function consoleLogServer (opts = {}) {
 }
 
 if (!module.parent) {
-  consoleLogServer().start({ ignoreUncaughtErrors: true })
+  consoleLogServer({ ignoreUncaughtErrors: true }).start()
 }

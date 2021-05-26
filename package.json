@@ -21,7 +21,7 @@
     "start": "nodemon --exec npm run babel-node -- ./src/index.js",
     "prettier": "prettier-standard ./src/**/*.js",
     "format": "npm run prettier",
-    "check": "npm run prettier -- --lint --check"
+    "check": "npm run prettier -- --lint --check && tsc"
   },
   "repository": {
     "type": "git",
@@ -49,11 +49,23 @@
     "@babel/core": "^7.0.0",
     "@babel/node": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
+    "@types/chalk": "^2.2.0",
+    "@types/cors": "^2.8.10",
+    "@types/dateformat": "^3.0.1",
+    "@types/express": "^4.17.12",
+    "@types/express-http-proxy": "^1.6.1",
+    "@types/express-xml-bodyparser": "^0.3.2",
+    "@types/lodash": "^4.14.170",
+    "@types/meow": "^3.6.2",
+    "@types/mime-types": "^2.1.0",
+    "@types/pretty-data": "^0.40.0",
+    "@types/prettyjson": "0.0.29",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.14.0",
     "module-header": "github:jamonkko/module-header#replace-existing",
     "nodemon": "^1.10.2",
-    "prettier-standard": "^16.4.1"
+    "prettier-standard": "^16.4.1",
+    "typescript": "^4.2.4"
   },
   "dependencies": {
     "body-parser": "^1.15.2",

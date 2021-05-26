@@ -130,6 +130,12 @@ function parseProxies (proxiesArg) {
   return proxies
 }
 
+function showMessageAndExit (message) {
+  console.log(message)
+  cli.showHelp(1)
+  return undefined
+}
+
 const parseOnOff = (value, flagName) =>
   value === undefined
     ? undefined
@@ -137,7 +143,7 @@ const parseOnOff = (value, flagName) =>
     ? true
     : /^(?:n|no|false|0|off)$/i.test(value)
     ? false
-    : console.log(`Invalid value '${value}' for ${flagName}`) || cli.showHelp(1)
+    : showMessageAndExit(`Invalid value '${value}' for ${flagName}`)
 
 if (unknownArgs) {
   cli.showHelp()

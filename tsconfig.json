@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+      "module": "esnext",
+      "noEmit": true,
+      "checkJs": true,
+      "allowJs": true,
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true
+    },
+    "include": ["src/**/*"]
+  }

@@ -6,12 +6,26 @@ import proxy from 'express-http-proxy'
 import _ from 'lodash/fp'
 import cors from 'cors'
 
+/**
+ * A number, or a string containing a number.
+ * @typedef {import("express-serve-static-core").Request<import("express-serve-static-core").RouteParameters<string>, any, any, qs.ParsedQs, Record<string, any>> &
+ *   {
+ *     locals: {
+ *       id?: string,
+ *       bodyType?: string,
+ *       rawBody?: string,
+ *       proxyUrl?: string
+ *     }
+ *   }
+ * } RequestExt
+ */
+
 export default opts => {
   const cnsl = opts.console
   const router = express.Router()
 
   let reqCounter = 0
-  router.use(function addLocals (req, res, next) {
+  router.use(function addLocals (/** @type {RequestExt} */ req, res, next) {
     req.locals ||= {}
     const requestId =
       req.header('X-Request-ID') || req.header('X-Correlation-ID')
@@ -19,65 +33,72 @@ export default opts => {
     next()
   })
 
-  router.use(function saveRawBody (req, res, next) {
-    req.rawBody = ''
+  router.use(function saveRawBody (/** @type {RequestExt} */ req, res, next) {
+    req.locals.rawBody = ''
     req.on('data', chunk => {
-      req.rawBody += chunk
+      req.locals.rawBody += chunk
     })
     next()
   })
   router.use(
     bodyParser.json({
-      verify: req => {
-        req.bodyType = 'json'
+      verify: (/** @type {RequestExt} */ req) => {
+        req.locals.bodyType = 'json'
       }
     })
   )
   router.use(
     bodyParser.urlencoded({
       extended: true,
-      verify: req => {
-        req.bodyType = 'url'
+      verify: (/** @type {RequestExt} */ req) => {
+        req.locals.bodyType = 'url'
       }
     })
   )
   router.use(xmlParser())
-  router.use(function markBodyAsXml (req, res, next) {
-    if (!req.bodyType && !_.isEmpty(req.body)) {
-      req.bodyType = 'xml'
+  router.use(function markBodyAsXml (/** @type {RequestExt} */ req, res, next) {
+    if (!req.locals.bodyType && !_.isEmpty(req.body)) {
+      req.locals.bodyType = 'xml'
     }
     next()
   })
   router.use(
     bodyParser.text({
-      verify: req => {
-        req.bodyType = 'text'
+      verify: (/** @type {RequestExt} */ req) => {
+        req.locals.bodyType = 'text'
       }
     })
   )
   router.use(
     bodyParser.raw({
       type: () => true,
-      verify: req => {
-        req.bodyType = 'raw'
+      verify: (/** @type {RequestExt} */ req) => {
+        req.locals.bodyType = 'raw'
       }
     })
   )
-  router.use(function detectEmptyBody (req, res, next) {
-    if (req.rawBody.length === 0) {
-      req.bodyType = 'empty'
+  router.use(
+    /** @param {RequestExt} req */ function detectEmptyBody (req, res, next) {
+      if (req.locals.rawBody.length === 0) {
+        req.locals.bodyType = 'empty'
+      }
+      next()
     }
-    next()
-  })
-  router.use(function logInvalidRequest (err, req, res, next) {
-    if (!req.bodyType) {
-      req.bodyType = 'error'
+  )
+  router.use(function logInvalidRequest (
+    err,
+    /** @type {RequestExt} */ req,
+    res,
+    next
+  ) {
+    if (!req.locals.bodyType) {
+      req.locals.bodyType = 'error'
     }
     logRequest(err, req, res, opts)
     res.status(400).end()
   })
 
-  router.use(function logOkRequest (req, res, next) {
+  router.use(function logOkRequest (/** @type {RequestExt} */ req, res, next) {
     res.on('finish', () => {
       logRequest(null, req, res, opts)
       if (
@@ -116,7 +137,7 @@ export default opts => {
         path,
         proxy(host, {
           https,
-          proxyReqPathResolver: function (req) {
+          proxyReqPathResolver: function (/** @type {RequestExt} */ req) {
             const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
             req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
             return resolvedPath
@@ -145,7 +166,11 @@ export default opts => {
     opts.logResponse === true ||
     (!_.isEmpty(opts.proxy) && opts.logResponse !== false)
   ) {
-    router.use(function captureResponse (req, res, next) {
+    router.use(function captureResponse (
+      /** @type {RequestExt} */ req,
+      res,
+      next
+    ) {
       if (opts.logResponse === true) {
         const oldWrite = res.write
         const oldEnd = res.end
@@ -154,7 +179,7 @@ export default opts => {
 
         res.write = (...restArgs) => {
           chunks.push(Buffer.from(restArgs[0]))
-          oldWrite.apply(res, restArgs)
+          return oldWrite.apply(res, restArgs)
         }
 
         res.end = (...restArgs) => {
@@ -163,7 +188,7 @@ export default opts => {
           }
           const body = Buffer.concat(chunks).toString('utf8')
           res.locals.body = body
-          oldEnd.apply(res, restArgs)
+          return oldEnd.apply(res, restArgs)
         }
       }
       next()
