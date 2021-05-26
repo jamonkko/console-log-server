@@ -32,7 +32,6 @@ var _default = function _default(opts) {
     req.locals.id = ++reqCounter;
     next();
   });
-  router.use((0, _cors["default"])());
   router.use(function saveRawBody(req, res, next) {
     req.rawBody = '';
     req.on('data', function (chunk) {
@@ -108,6 +107,10 @@ var _default = function _default(opts) {
     next();
   });
 
+  if (opts.defaultCors === true) {
+    router.use((0, _cors["default"])());
+  }
+
   if (!_fp["default"].isEmpty(opts.proxy)) {
     cnsl.log('Using proxies:');
 
@@ -121,24 +124,16 @@ var _default = function _default(opts) {
       var protocolPrefix = protocol ? "".concat(protocol, "://") : '';
       cnsl.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
       router.use(path, (0, _expressHttpProxy["default"])(host, {
-        // parseReqBody: true,
-        // reqAsBuffer: true,
         https: https,
-        // filter: function addProxyUrl (req) {
-        //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-        //   console.log('set proxy url filter')
-        //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
-        //   return true
-        // },
         proxyReqPathResolver: function proxyReqPathResolver(req) {
           var resolvedPath = hostPath === '/' ? req.url : hostPath + req.url;
           req.locals.proxyUrl = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
           return resolvedPath;
         },
-        userResDecorator: function userResDecorator(proxyRes, proxyResData, userReq, userRes) {
+        userResDecorator: opts.logResponse !== false ? function (proxyRes, proxyResData, userReq, userRes) {
           userRes.locals.body = proxyResData.toString('utf8');
           return proxyResData;
-        },
+        } : undefined,
         proxyErrorHandler: function proxyErrorHandler(err, res, next) {
           res.status(500).json({
             message: err.toString()
@@ -146,15 +141,13 @@ var _default = function _default(opts) {
           res.locals.body = {
             message: err.toString()
           };
-        } // proxyReqOptDecorator: function (proxyReqOpts, req) {
-        //   const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
-        //   console.log('set proxy url resolver decorator')
-        //   req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
-        //   return proxyReqOpts
-        // }
-
+        }
       }));
     }, opts.proxy);
+  }
+
+  if (opts.defaultCors === undefined) {
+    router.use((0, _cors["default"])());
   }
 
   if (opts.logResponse === true || !_fp["default"].isEmpty(opts.proxy) && opts.logResponse !== false) {

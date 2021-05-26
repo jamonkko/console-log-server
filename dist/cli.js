@@ -32,7 +32,7 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 var unknownArgs = false;
-var cli = (0, _meow["default"])("\n  Usage\n    $ console-log-server\n\n  Options\n    --port, -p Port Number\n    --hostname, -h Host name\n    --proxy, -P Host(s) to proxy the request to using https://www.npmjs.com/package/express-http-proxy. You can provide one or more proxies using format: [<path>>]<url> [<path>>]<url>...\n    --response-code, -c Response response code (ignored if proxied)\n    --response-body, -b Response content (ignored if proxied)\n    --response-header, -H Response header (ignored if proxied)\n    --log-response, -r Log also the response. Enabled by default only for proxied requests. Logged response is fully read to a buffer which might change your api behaviour since response is not streamed directly to client, consider turning off if that is a problem.\n    --no-color\n    --version\n    --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat (default \"yyyy-mm-dd'T'HH:MM:sso\")\n    --help\n\n  Examples\n\n    # basic usage\n    $ console-log-server -p 3000\n\n    # customized response\n    $ console-log-server -p 3000 -c 201 -b \"cool type content\" --response-header='Content-Type:application/cool' --response-header='key:value'\n\n    # Log date with UTC date format instead of local with offset\n    $ console-log-server -d \"isoUtcDateTime\"\n\n    # Proxy the request to other host. Response will be the actual response from the proxy.\n    $ console-log-server -P http://api.example.com\n\n    # Proxy the requests to multiple hosts based on paths.\n    $ console-log-server -P \"/api/1>http://api-1.example.com /api/2>http://api-2.example.com\"\n\n    # Proxy the request to path under other host. Response will be the actual response from the proxy.\n    $ console-log-server -P http://api.example.com/v1/cats\n\n    # Turn off response logging\n    $ console-log-server -r no\n\n    # Turn off response logging for all requests\n    $ console-log-server -r yes\n", {
+var cli = (0, _meow["default"])("\n  Usage\n    $ console-log-server\n\n  Options\n    --port, -p Port Number\n    --hostname, -h Host name\n    --proxy, -P Host(s) to proxy the request to using https://www.npmjs.com/package/express-http-proxy. You can provide one or more proxies using format: [<path>>]<url> [<path>>]<url>...\n    --response-code, -c Response response code (ignored if proxied)\n    --response-body, -b Response content (ignored if proxied)\n    --response-header, -H Response header (ignored if proxied)\n    --log-response, -r Log also the response. Enabled by default only for proxied requests. Logged response is fully read to a buffer which might change your api behaviour since response is not streamed directly to client, consider turning off if that is a problem.\n    --no-color\n    --version\n    --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat (default \"yyyy-mm-dd'T'HH:MM:sso\")\n    --help\n    --default-cors, -C Add \"default\" cors using https://www.npmjs.com/package/cors default values. By default only enabled for non-proxied responses. Turn on to enable also for proxy responses, turn off to disable completely.\n\n  Examples\n\n    # basic usage\n    $ console-log-server -p 3000\n\n    # customized response\n    $ console-log-server -p 3000 -c 201 -b \"cool type content\" --response-header='Content-Type:application/cool' --response-header='key:value'\n\n    # Log date with UTC date format instead of local with offset\n    $ console-log-server -d \"isoUtcDateTime\"\n\n    # Proxy the request to other host. Response will be the actual response from the proxy. \n    $ console-log-server -P http://api.example.com\n\n    # Proxy the requests to multiple hosts based on paths.\n    $ console-log-server -P \"/api/1>http://api-1.example.com /api/2>http://api-2.example.com\"\n\n    # Proxy the request to path under other host. Response will be the actual response (with cors headers injected) from the proxy.\n    $ console-log-server -P http://api.example.com/v1/cats -C yes\n\n    # Turn off response logging\n    $ console-log-server -r no\n\n    # Turn on response logging for all requests\n    $ console-log-server -r yes\n\n    # Don't add default (allow all) cors headers at all\n    $ console-log-server -C no\n", {
   alias: {
     p: 'port',
     h: 'hostname',
@@ -41,7 +41,8 @@ var cli = (0, _meow["default"])("\n  Usage\n    $ console-log-server\n\n  Option
     H: 'response-header',
     d: 'date-format',
     P: 'proxy',
-    r: 'log-response'
+    r: 'log-response',
+    C: 'default-cors'
   },
   unknown: function unknown(arg) {
     unknownArgs = !_fp["default"].includes(arg, ['--no-color', '--version']);
@@ -91,12 +92,17 @@ function parseProxies(proxiesArg) {
   return proxies;
 }
 
+var parseOnOff = function parseOnOff(value, flagName) {
+  return value === undefined ? undefined : /^(?:y|yes|true|1|on)$/i.test(value) ? true : /^(?:n|no|false|0|off)$/i.test(value) ? false : console.log("Invalid value '".concat(value, "' for ").concat(flagName)) || cli.showHelp(1);
+};
+
 if (unknownArgs) {
   cli.showHelp();
 } else {
   (0, _2["default"])(_objectSpread(_objectSpread({}, cli.flags), {}, {
     proxy: parseProxies(cli.flags.proxy),
-    logResponse: cli.flags.logResponse === undefined ? undefined : /^(?:y|yes|true|1|on)$/i.test(cli.flags.logResponse) ? true : /^(?:n|no|false|0|off)$/i.test(cli.flags.logResponse) ? false : console.log("Invalid value '".concat(cli.flags.logResponse, "' for --log-response")) || cli.showHelp(1),
+    logResponse: parseOnOff(cli.flags.logResponse, '--log-response'),
+    defaultCors: parseOnOff(cli.flags.defaultCors, '--default-cors'),
     ignoreUncaughtErrors: true
   })).start();
 }
