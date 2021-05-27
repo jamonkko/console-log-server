@@ -29,7 +29,8 @@
  *     locals: {
  *       id?: string,
  *       bodyType?: string,
- *       rawBody?: string,
+ *       rawBodyBuffer?: any,
+ *       rawBody?: import("es6-promise").Promise<any>,
  *       proxyUrl?: string
  *     }
  *   }

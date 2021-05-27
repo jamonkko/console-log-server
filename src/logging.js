@@ -92,7 +92,7 @@ export function logRequest (err, req, res, opts) {
       break
     case 'xml':
       cnsl.log(chalk.magenta('body (xml): '))
-      cnsl.log(chalk.green(pd.xml(req.locals.rawBody)))
+      cnsl.log(chalk.green(pd.xml(req.locals.rawBodyBuffer)))
       break
     case 'text':
       cnsl.log(
@@ -111,7 +111,7 @@ export function logRequest (err, req, res, opts) {
           )
       )
       if (req.body) {
-        cnsl.log(chalk.white(req.locals.rawBody))
+        cnsl.log(chalk.white(req.locals.rawBodyBuffer))
       }
       break
     default:
@@ -126,8 +126,14 @@ export function logRequest (err, req, res, opts) {
       const positionMatches = err.message.match(/at position\s+(\d+)/)
       if (!positionMatches) return false
       const index = _.toNumber(positionMatches[1])
-      const contentBeforeError = req.locals.rawBody.substring(index - 80, index)
-      const contentAfterError = req.locals.rawBody.substring(index, index + 80)
+      const contentBeforeError = req.locals.rawBodyBuffer.substring(
+        index - 80,
+        index
+      )
+      const contentAfterError = req.locals.rawBodyBuffer.substring(
+        index,
+        index + 80
+      )
       cnsl.error(
         chalk.yellow(
           `Check the request body position near ${index} below (marked with '!'):`
@@ -143,7 +149,7 @@ export function logRequest (err, req, res, opts) {
       if (!lineErrorMatches) return false
       const line = _.toNumber(lineErrorMatches[1])
       const column = _.toNumber(columnErrorMatches[1])
-      const lineWithError = req.locals.rawBody.split('\n', line + 1)[line]
+      const lineWithError = req.locals.rawBodyBuffer.split('\n', line + 1)[line]
       let errorTitle = `Failed to parse body as XML according to Content-Type. Parse error in body might be here at line:${line}`
       if (column) {
         errorTitle += ` column:${column}`
@@ -236,7 +242,7 @@ export function logResponse (err, /** @type {RequestExt} */ req, res, opts) {
   //     break
   //   case 'xml':
   //     log(chalk.magenta('body (xml): '))
-  //     log(chalk.green(pd.xml(req.locals.rawBody)))
+  //     log(chalk.green(pd.xml(req.locals.rawBodyBuffer)))
   //     break
   //   case 'text':
   //     log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
@@ -245,7 +251,7 @@ export function logResponse (err, /** @type {RequestExt} */ req, res, opts) {
   //   case 'error':
   //     log(chalk.red('body (error): ') + chalk.yellow('(failed to handle request. Body printed below as plain text if at all...)'))
   //     if (req.body) {
-  //       log(chalk.white(req.locals.rawBody))
+  //       log(chalk.white(req.locals.rawBodyBuffer))
   //     }
   //     break
   //   default:
@@ -258,8 +264,8 @@ export function logResponse (err, /** @type {RequestExt} */ req, res, opts) {
   //     const positionMatches = err.message.match(/at position\s+(\d+)/)
   //     if (!positionMatches) return false
   //     const index = _.toNumber(positionMatches[1])
-  //     const contentBeforeError = req.locals.rawBody.substring(index - 80, index)
-  //     const contentAfterError = req.locals.rawBody.substring(index, index + 80)
+  //     const contentBeforeError = req.locals.rawBodyBuffer.substring(index - 80, index)
+  //     const contentAfterError = req.locals.rawBodyBuffer.substring(index, index + 80)
   //     console.error(chalk.yellow(`Check the request body position near ${index} below (marked with '!'):`))
   //     console.error(chalk.yellow('...'))
   //     console.error(`${contentBeforeError}${chalk.red('!')}${contentAfterError}"`)
@@ -271,7 +277,7 @@ export function logResponse (err, /** @type {RequestExt} */ req, res, opts) {
   //     if (!lineErrorMatches) return false
   //     const line = _.toNumber(lineErrorMatches[1])
   //     const column = _.toNumber(columnErrorMatches[1])
-  //     const lineWithError = req.locals.rawBody.split('\n', line + 1)[line]
+  //     const lineWithError = req.locals.rawBodyBuffer.split('\n', line + 1)[line]
   //     let errorTitle = `Failed to parse body as XML according to Content-Type. Parse error in body might be here at line:${line}`
   //     if (column) {
   //       errorTitle += ` column:${column}`

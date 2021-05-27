@@ -101,7 +101,7 @@ function logRequest(err, req, res, opts) {
 
     case 'xml':
       cnsl.log(_chalk["default"].magenta('body (xml): '));
-      cnsl.log(_chalk["default"].green(_prettyData.pd.xml(req.locals.rawBody)));
+      cnsl.log(_chalk["default"].green(_prettyData.pd.xml(req.locals.rawBodyBuffer)));
       break;
 
     case 'text':
@@ -113,7 +113,7 @@ function logRequest(err, req, res, opts) {
       cnsl.log(_chalk["default"].red('body (error): ') + _chalk["default"].yellow('(failed to handle request. Body printed below as plain text if at all...)'));
 
       if (req.body) {
-        cnsl.log(_chalk["default"].white(req.locals.rawBody));
+        cnsl.log(_chalk["default"].white(req.locals.rawBodyBuffer));
       }
 
       break;
@@ -131,8 +131,8 @@ function logRequest(err, req, res, opts) {
 
       var index = _fp["default"].toNumber(positionMatches[1]);
 
-      var contentBeforeError = req.locals.rawBody.substring(index - 80, index);
-      var contentAfterError = req.locals.rawBody.substring(index, index + 80);
+      var contentBeforeError = req.locals.rawBodyBuffer.substring(index - 80, index);
+      var contentAfterError = req.locals.rawBodyBuffer.substring(index, index + 80);
       cnsl.error(_chalk["default"].yellow("Check the request body position near ".concat(index, " below (marked with '!'):")));
       cnsl.error(_chalk["default"].yellow('...'));
       cnsl.error("".concat(contentBeforeError).concat(_chalk["default"].red('!')).concat(contentAfterError, "\""));
@@ -148,7 +148,7 @@ function logRequest(err, req, res, opts) {
 
       var column = _fp["default"].toNumber(columnErrorMatches[1]);
 
-      var lineWithError = req.locals.rawBody.split('\n', line + 1)[line];
+      var lineWithError = req.locals.rawBodyBuffer.split('\n', line + 1)[line];
       var errorTitle = "Failed to parse body as XML according to Content-Type. Parse error in body might be here at line:".concat(line);
 
       if (column) {
@@ -240,7 +240,7 @@ req, res, opts) {
   //     break
   //   case 'xml':
   //     log(chalk.magenta('body (xml): '))
-  //     log(chalk.green(pd.xml(req.locals.rawBody)))
+  //     log(chalk.green(pd.xml(req.locals.rawBodyBuffer)))
   //     break
   //   case 'text':
   //     log(chalk.magenta('body: ') + chalk.yellow(`(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`))
@@ -249,7 +249,7 @@ req, res, opts) {
   //   case 'error':
   //     log(chalk.red('body (error): ') + chalk.yellow('(failed to handle request. Body printed below as plain text if at all...)'))
   //     if (req.body) {
-  //       log(chalk.white(req.locals.rawBody))
+  //       log(chalk.white(req.locals.rawBodyBuffer))
   //     }
   //     break
   //   default:
@@ -261,8 +261,8 @@ req, res, opts) {
   //     const positionMatches = err.message.match(/at position\s+(\d+)/)
   //     if (!positionMatches) return false
   //     const index = _.toNumber(positionMatches[1])
-  //     const contentBeforeError = req.locals.rawBody.substring(index - 80, index)
-  //     const contentAfterError = req.locals.rawBody.substring(index, index + 80)
+  //     const contentBeforeError = req.locals.rawBodyBuffer.substring(index - 80, index)
+  //     const contentAfterError = req.locals.rawBodyBuffer.substring(index, index + 80)
   //     console.error(chalk.yellow(`Check the request body position near ${index} below (marked with '!'):`))
   //     console.error(chalk.yellow('...'))
   //     console.error(`${contentBeforeError}${chalk.red('!')}${contentAfterError}"`)
@@ -274,7 +274,7 @@ req, res, opts) {
   //     if (!lineErrorMatches) return false
   //     const line = _.toNumber(lineErrorMatches[1])
   //     const column = _.toNumber(columnErrorMatches[1])
-  //     const lineWithError = req.locals.rawBody.split('\n', line + 1)[line]
+  //     const lineWithError = req.locals.rawBodyBuffer.split('\n', line + 1)[line]
   //     let errorTitle = `Failed to parse body as XML according to Content-Type. Parse error in body might be here at line:${line}`
   //     if (column) {
   //       errorTitle += ` column:${column}`

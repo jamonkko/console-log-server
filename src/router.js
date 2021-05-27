@@ -5,6 +5,7 @@ import { logRequest, logResponse } from './logging'
 import proxy from 'express-http-proxy'
 import _ from 'lodash/fp'
 import cors from 'cors'
+import { Promise } from 'es6-promise'
 
 export default opts => {
   const cnsl = opts.console
@@ -20,10 +21,18 @@ export default opts => {
   })
 
   router.use(function saveRawBody (/** @type {RequestExt} */ req, res, next) {
-    req.locals.rawBody = ''
-    req.on('data', chunk => {
-      req.locals.rawBody += chunk
+    req.locals.rawBody = new Promise(resolve => {
+      req.once('end', () => {
+        resolve(req.locals.rawBodyBuffer)
+      })
     })
+    req.on('data', chunk => {
+      if (req.locals.rawBodyBuffer === undefined) {
+        req.locals.rawBodyBuffer = ''
+      }
+      req.locals.rawBodyBuffer += chunk
+    })
+
     next()
   })
   router.use(
@@ -63,14 +72,7 @@ export default opts => {
       }
     })
   )
-  router.use(
-    /** @param {RequestExt} req */ function detectEmptyBody (req, res, next) {
-      if (req.locals.rawBody.length === 0) {
-        req.locals.bodyType = 'empty'
-      }
-      next()
-    }
-  )
+
   router.use(function logInvalidRequest (
     err,
     /** @type {RequestExt} */ req,
@@ -86,6 +88,12 @@ export default opts => {
 
   router.use(function logOkRequest (/** @type {RequestExt} */ req, res, next) {
     res.on('finish', () => {
+      if (
+        req.locals.rawBodyBuffer === undefined ||
+        req.locals.rawBodyBuffer.length === 0
+      ) {
+        req.locals.bodyType ||= 'empty'
+      }
       logRequest(null, req, res, opts)
       if (
         opts.logResponse === true ||
@@ -123,10 +131,17 @@ export default opts => {
         path,
         proxy(host, {
           https,
+          parseReqBody: false,
           proxyReqPathResolver: function (/** @type {RequestExt} */ req) {
             const resolvedPath = hostPath === '/' ? req.url : hostPath + req.url
             req.locals.proxyUrl = `${protocolPrefix}${host}${resolvedPath}`
             return resolvedPath
+          },
+          proxyReqBodyDecorator: function (
+            bodyContent,
+            /** @type {RequestExt} */ srcReq
+          ) {
+            return srcReq.locals.rawBody
           },
           userResDecorator:
             opts.logResponse !== false

@@ -19,6 +19,8 @@ var _fp = _interopRequireDefault(require("lodash/fp"));
 
 var _cors = _interopRequireDefault(require("cors"));
 
+var _es6Promise = require("es6-promise");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var _default = function _default(opts) {
@@ -38,9 +40,17 @@ var _default = function _default(opts) {
   router.use(function saveRawBody(
   /** @type {RequestExt} */
   req, res, next) {
-    req.locals.rawBody = '';
+    req.locals.rawBody = new _es6Promise.Promise(function (resolve) {
+      req.once('end', function () {
+        resolve(req.locals.rawBodyBuffer);
+      });
+    });
     req.on('data', function (chunk) {
-      req.locals.rawBody += chunk;
+      if (req.locals.rawBodyBuffer === undefined) {
+        req.locals.rawBodyBuffer = '';
+      }
+
+      req.locals.rawBodyBuffer += chunk;
     });
     next();
   });
@@ -86,15 +96,6 @@ var _default = function _default(opts) {
       req.locals.bodyType = 'raw';
     }
   }));
-  router.use(
-  /** @param {RequestExt} req */
-  function detectEmptyBody(req, res, next) {
-    if (req.locals.rawBody.length === 0) {
-      req.locals.bodyType = 'empty';
-    }
-
-    next();
-  });
   router.use(function logInvalidRequest(err,
   /** @type {RequestExt} */
   req, res, next) {
@@ -109,11 +110,17 @@ var _default = function _default(opts) {
   /** @type {RequestExt} */
   req, res, next) {
     res.on('finish', function () {
-      var _req$locals;
+      var _req$locals2;
+
+      if (req.locals.rawBodyBuffer === undefined || req.locals.rawBodyBuffer.length === 0) {
+        var _req$locals;
+
+        (_req$locals = req.locals).bodyType || (_req$locals.bodyType = 'empty');
+      }
 
       (0, _logging.logRequest)(null, req, res, opts);
 
-      if (opts.logResponse === true || !!((_req$locals = req.locals) !== null && _req$locals !== void 0 && _req$locals.proxyUrl) && opts.logResponse !== false) {
+      if (opts.logResponse === true || !!((_req$locals2 = req.locals) !== null && _req$locals2 !== void 0 && _req$locals2.proxyUrl) && opts.logResponse !== false) {
         if (_fp["default"].isFunction(cnsl.group)) {
           cnsl.group();
         }
@@ -146,12 +153,18 @@ var _default = function _default(opts) {
       cnsl.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
       router.use(path, (0, _expressHttpProxy["default"])(host, {
         https: https,
+        parseReqBody: false,
         proxyReqPathResolver: function proxyReqPathResolver(
         /** @type {RequestExt} */
         req) {
           var resolvedPath = hostPath === '/' ? req.url : hostPath + req.url;
           req.locals.proxyUrl = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
           return resolvedPath;
+        },
+        proxyReqBodyDecorator: function proxyReqBodyDecorator(bodyContent,
+        /** @type {RequestExt} */
+        srcReq) {
+          return srcReq.locals.rawBody;
         },
         userResDecorator: opts.logResponse !== false ? function (proxyRes, proxyResData, userReq, userRes) {
           userRes.locals.body = proxyResData.toString('utf8');
