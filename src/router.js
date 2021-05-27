@@ -7,6 +7,9 @@ import _ from 'lodash/fp'
 import cors from 'cors'
 import { Promise } from 'es6-promise'
 
+/**
+ * @param {CLSOptions} opts
+ */
 export default opts => {
   const cnsl = opts.console
   const router = express.Router()
@@ -118,11 +121,6 @@ export default opts => {
   if (!_.isEmpty(opts.proxy)) {
     cnsl.log('Using proxies:')
     _.each(({ path, host, hostPath, protocol }) => {
-      hostPath = _.startsWith('/', hostPath)
-        ? hostPath
-        : hostPath === undefined
-        ? '/'
-        : '/' + hostPath
       const https =
         protocol === 'https' ? true : protocol === 'http' ? false : undefined
       const protocolPrefix = protocol ? `${protocol}://` : ''
@@ -156,7 +154,7 @@ export default opts => {
           }
         })
       )
-    }, opts.proxy)
+    }, /** @type {CLSProxy[]} */ (opts.proxy))
   }
 
   if (opts.defaultCors === undefined) {

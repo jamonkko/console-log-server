@@ -87,12 +87,7 @@ function parseProxies (proxiesArg) {
       if (!proxyHost) {
         throw Error(`Invalid proxy arguments: ${proxyArg}`)
       }
-      const path =
-        proxyPart === undefined
-          ? '/'
-          : _.startsWith('/', pathPart)
-          ? pathPart
-          : `/${pathPart || ''}`
+
       const parsedHost = url.URL
         ? new URL(prependHttp(proxyHost))
         : url.parse(prependHttp(proxyHost)) // eslint-disable-line node/no-deprecated-api
@@ -102,30 +97,13 @@ function parseProxies (proxiesArg) {
         ? 'http'
         : undefined
       return {
-        path,
+        path: proxyPart === undefined ? undefined : pathPart,
         host: parsedHost.host,
         protocol,
         hostPath: parsedHost.pathname
       }
     })
   )(proxiesArg)
-
-  const duplicates = _.flow(
-    _.groupBy('path'),
-    _.pickBy(v => v.length > 1),
-    _.mapValues(
-      _.flow(
-        _.map(({ path, host }) => `'${path}' -> ${host}`),
-        _.join(' vs. ')
-      )
-    ),
-    _.values,
-    _.join(', ')
-  )(proxies)
-
-  if (duplicates) {
-    throw Error(`Multiple proxies for same path(s): ${duplicates}`)
-  }
 
   return proxies
 }

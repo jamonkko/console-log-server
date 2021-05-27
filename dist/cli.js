@@ -65,29 +65,16 @@ function parseProxies(proxiesArg) {
       throw Error("Invalid proxy arguments: ".concat(proxyArg));
     }
 
-    var path = proxyPart === undefined ? '/' : _fp["default"].startsWith('/', pathPart) ? pathPart : "/".concat(pathPart || '');
     var parsedHost = _url["default"].URL ? new URL((0, _prependHttp["default"])(proxyHost)) : _url["default"].parse((0, _prependHttp["default"])(proxyHost)); // eslint-disable-line node/no-deprecated-api
 
     var protocol = proxyHost.startsWith('https') ? 'https' : proxyHost.startsWith('http') ? 'http' : undefined;
     return {
-      path: path,
+      path: proxyPart === undefined ? undefined : pathPart,
       host: parsedHost.host,
       protocol: protocol,
       hostPath: parsedHost.pathname
     };
   }))(proxiesArg);
-
-  var duplicates = _fp["default"].flow(_fp["default"].groupBy('path'), _fp["default"].pickBy(function (v) {
-    return v.length > 1;
-  }), _fp["default"].mapValues(_fp["default"].flow(_fp["default"].map(function (_ref) {
-    var path = _ref.path,
-        host = _ref.host;
-    return "'".concat(path, "' -> ").concat(host);
-  }), _fp["default"].join(' vs. '))), _fp["default"].values, _fp["default"].join(', '))(proxies);
-
-  if (duplicates) {
-    throw Error("Multiple proxies for same path(s): ".concat(duplicates));
-  }
 
   return proxies;
 }

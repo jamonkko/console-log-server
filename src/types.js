@@ -1,9 +1,9 @@
 /**
  *  @typedef {Object} CLSProxy
- *  @property {string} path
+ *  @property {string} [path]
  *  @property {string} host
- *  @property {string} protocol
- *  @property {string} hostPath
+ *  @property {string} [protocol]
+ *  @property {string} [hostPath]
  */
 
 /**

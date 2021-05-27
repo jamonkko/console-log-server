@@ -23,6 +23,9 @@ var _es6Promise = require("es6-promise");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+/**
+ * @param {CLSOptions} opts
+ */
 var _default = function _default(opts) {
   var cnsl = opts.console;
 
@@ -147,7 +150,6 @@ var _default = function _default(opts) {
           host = _ref.host,
           hostPath = _ref.hostPath,
           protocol = _ref.protocol;
-      hostPath = _fp["default"].startsWith('/', hostPath) ? hostPath : hostPath === undefined ? '/' : '/' + hostPath;
       var https = protocol === 'https' ? true : protocol === 'http' ? false : undefined;
       var protocolPrefix = protocol ? "".concat(protocol, "://") : '';
       cnsl.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
@@ -179,7 +181,9 @@ var _default = function _default(opts) {
           };
         }
       }));
-    }, opts.proxy);
+    },
+    /** @type {CLSProxy[]} */
+    opts.proxy);
   }
 
   if (opts.defaultCors === undefined) {

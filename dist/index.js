@@ -27,13 +27,17 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * @param { CLSOptions } opts
  * @return {{
  *  app: import("express-serve-static-core").Express;
- *  start: (callback?: () => void) => import('http').Server|import('http').Server[];
+ *  start: (callback?: () => void) => import('http').Server | import('http').Server[];
  * }}
  */
 function consoleLogServer(opts) {
@@ -85,9 +89,34 @@ function consoleLogServer(opts) {
   opts.hostname = opts.hostname && _fp["default"].castArray(opts.hostname);
   opts.port = opts.port && _fp["default"].castArray(opts.port);
   opts.proxy = opts.proxy && _fp["default"].castArray(opts.proxy);
+  opts.proxy = _fp["default"].map(function (proxy) {
+    var path = proxy.path,
+        hostPath = proxy.hostPath;
+    return _objectSpread(_objectSpread({}, proxy), {}, {
+      hostPath: _fp["default"].startsWith('/', hostPath) ? hostPath : hostPath === undefined ? '/' : '/' + hostPath,
+      path: (path === undefined ? '/' : _fp["default"].startsWith('/', path) ? path : "/".concat(path || '')).trim()
+    });
+  },
+  /** @type {CLSProxy[]} */
+  opts.proxy);
+
+  var duplicates = _fp["default"].flow(_fp["default"].groupBy('path'), _fp["default"].pickBy(function (v) {
+    return v.length > 1;
+  }), _fp["default"].mapValues(_fp["default"].flow(_fp["default"].map(function (_ref) {
+    var path = _ref.path,
+        host = _ref.host;
+    return "'".concat(path, "' -> ").concat(host);
+  }), _fp["default"].join(' vs. '))), _fp["default"].values, _fp["default"].join(', '))(
+  /** @type {CLSProxy[]} */
+  opts.proxy);
+
+  if (duplicates) {
+    throw Error("Multiple proxies for same path(s): ".concat(duplicates));
+  }
   /**
    * @type {import("express-serve-static-core").Express}
    */
+
 
   var app = opts.app || (0, _express["default"])();
   app.use((0, _router["default"])(opts));
@@ -105,10 +134,10 @@ function consoleLogServer(opts) {
         return [host, port || opts.port[0]];
       },
       /** @type {string[]} */
-      opts.hostname), _fp["default"].map(function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            host = _ref2[0],
-            port = _ref2[1];
+      opts.hostname), _fp["default"].map(function (_ref2) {
+        var _ref3 = _slicedToArray(_ref2, 2),
+            host = _ref3[0],
+            port = _ref3[1];
 
         return app.listen(port, host, function () {
           cnsl.log("console-log-server listening on http://".concat(host, ":").concat(port));

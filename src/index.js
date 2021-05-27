@@ -71,6 +71,41 @@ export default function consoleLogServer (opts) {
   opts.port = opts.port && _.castArray(opts.port)
   opts.proxy = opts.proxy && _.castArray(opts.proxy)
 
+  opts.proxy = _.map(proxy => {
+    const { path, hostPath } = proxy
+    return {
+      ...proxy,
+      hostPath: _.startsWith('/', hostPath)
+        ? hostPath
+        : hostPath === undefined
+        ? '/'
+        : '/' + hostPath,
+      path: (path === undefined
+        ? '/'
+        : _.startsWith('/', path)
+        ? path
+        : `/${path || ''}`
+      ).trim()
+    }
+  }, /** @type {CLSProxy[]} */ (opts.proxy))
+
+  const duplicates = _.flow(
+    _.groupBy('path'),
+    _.pickBy(v => v.length > 1),
+    _.mapValues(
+      _.flow(
+        _.map(({ path, host }) => `'${path}' -> ${host}`),
+        _.join(' vs. ')
+      )
+    ),
+    _.values,
+    _.join(', ')
+  )(/** @type {CLSProxy[]} */ (opts.proxy))
+
+  if (duplicates) {
+    throw Error(`Multiple proxies for same path(s): ${duplicates}`)
+  }
+
   /**
    * @type {import("express-serve-static-core").Express}
    */
