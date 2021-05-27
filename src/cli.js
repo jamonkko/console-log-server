@@ -55,7 +55,7 @@ const cli = meow(
     # Don't add default (allow all) cors headers at all
     $ console-log-server -C no
 
-    # Start server to your local IP and locahost. Might be useful when debugging devices connected to your own machine. Ports can be given for each hostname with --port flag(s).
+    # Start server to your local IP and localhost. Might be useful when debugging devices connected to your own machine. Ports can be given for each hostname with --port flag(s).
     $ console-log-server -h localhost -h 192.168.0.2 
 `,
   {
