@@ -13,7 +13,7 @@ import mime from 'mime-types'
  * @param { CLSOptions } opts
  * @return {{
  *  app: import("express-serve-static-core").Express;
- *  start: (callback?: () => void) => import('http').Server;
+ *  start: (callback?: () => void) => import('http').Server | import('http').Server[];
  * }}
  */
 export default function consoleLogServer (opts) {
@@ -65,6 +65,11 @@ export default function consoleLogServer (opts) {
     opts
   )
   const cnsl = opts.console
+  opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
+  const isMultiServer = _.isArray(opts.hostname)
+  opts.hostname = opts.hostname && _.castArray(opts.hostname)
+  opts.port = opts.port && _.castArray(opts.port)
+  opts.proxy = opts.proxy && _.castArray(opts.proxy)
 
   /**
    * @type {import("express-serve-static-core").Express}
@@ -79,12 +84,19 @@ export default function consoleLogServer (opts) {
   return {
     app,
     start: (callback = function () {}) => {
-      const server = app.listen(opts.port, opts.hostname, () => {
-        cnsl.log(
-          `console-log-server listening on http://${opts.hostname}:${opts.port}`
+      const servers = _.flow(
+        _.zipWith(
+          (host, port) => [host, port || opts.port[0]],
+          /** @type {string[]} */ (opts.hostname)
+        ),
+        _.map(([host, port]) =>
+          app.listen(port, host, () => {
+            cnsl.log(`console-log-server listening on http://${host}:${port}`)
+            callback()
+          })
         )
-        callback()
-      })
+      )(/** @type {number[]} */ (opts.port))
+
       if (opts.ignoreUncaughtErrors) {
         process.on('uncaughtException', function (err) {
           cnsl.log(
@@ -93,7 +105,11 @@ export default function consoleLogServer (opts) {
           cnsl.log(err)
         })
       }
-      return server
+      if (isMultiServer) {
+        return servers
+      } else {
+        return servers[0]
+      }
     }
   }
 }

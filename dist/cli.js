@@ -109,6 +109,8 @@ if (unknownArgs) {
     proxy: parseProxies(cli.flags.proxy),
     logResponse: parseOnOff(cli.flags.logResponse, '--log-response'),
     defaultCors: parseOnOff(cli.flags.defaultCors, '--default-cors'),
+    responseHeader: cli.flags.responseHeader,
+    hostname: cli.flags.hostname,
     ignoreUncaughtErrors: true
   })).start();
 }
