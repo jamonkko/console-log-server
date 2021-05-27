@@ -65,7 +65,6 @@ export default function consoleLogServer (opts) {
     opts
   )
   const cnsl = opts.console
-  opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
 
   /**
    * @type {import("express-serve-static-core").Express}

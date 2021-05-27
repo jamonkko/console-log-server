@@ -153,6 +153,7 @@ if (unknownArgs) {
     proxy: parseProxies(cli.flags.proxy),
     logResponse: parseOnOff(cli.flags.logResponse, '--log-response'),
     defaultCors: parseOnOff(cli.flags.defaultCors, '--default-cors'),
+    responseHeader: _.castArray(cli.flags.responseHeader),
     ignoreUncaughtErrors: true
   }).start()
 }
