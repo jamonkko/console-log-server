@@ -14,7 +14,7 @@ const cli = meow(
 
   Options
     --port, -p Port Number
-    --hostname, -h Host name
+    --hostname, -h Host name. You can provide multiple hostname flags (with optional matching port flags) to listen many hostnames. 
     --proxy, -P Host(s) to proxy the request to using https://www.npmjs.com/package/express-http-proxy. Syntax: [<path>>]<url>. You can provide different proxies for separate paths.
     --response-code, -c Response response code (ignored if proxied)
     --response-body, -b Response content (ignored if proxied)
@@ -54,6 +54,9 @@ const cli = meow(
 
     # Don't add default (allow all) cors headers at all
     $ console-log-server -C no
+
+    # Start server to your local IP and locahost. Might be useful when debugging devices connected to your own machine. Ports can be given for each hostname with --port flag(s).
+    $ console-log-server -h localhost -h 192.168.0.2 
 `,
   {
     alias: {
