@@ -7,7 +7,6 @@
 import router from './router'
 import _ from 'lodash/fp'
 import express from 'express'
-import mime from 'mime-types'
 
 /**
  * @param { CLSOptions } opts
@@ -17,12 +16,6 @@ import mime from 'mime-types'
  * }}
  */
 export default function consoleLogServer (opts) {
-  const mimeExtensions = _.flow(
-    _.values,
-    _.flatten,
-    _.without(['json'])
-  )(mime.extensions)
-
   opts = _.defaults(
     {
       port: 3000,
@@ -33,24 +26,32 @@ export default function consoleLogServer (opts) {
       console: console,
       dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
       ignoreUncaughtErrors: false,
-      defaultRoute: (req, res) => {
-        const negotiatedType = req.accepts(mimeExtensions)
-        const defaultHandler = () =>
-          opts.responseBody ? res.send(opts.responseBody) : res.end()
+      defaultRoute: (
+        /** @type {RequestExt} */ req,
+        /** @type {ResponseExt} */ res
+      ) => {
         const headers = _.flow(
           _.map(h => h.split(':', 2)),
           _.fromPairs
         )(opts.responseHeader)
         res
           .set(headers)
-          .status(opts.responseCode)
+          .status(res.locals.responseCode || opts.responseCode)
           .format({
-            json: () =>
-              opts.responseBody
-                ? res.jsonp(JSON.parse(opts.responseBody))
-                : res.end(),
-            [negotiatedType]: defaultHandler,
-            default: defaultHandler
+            json: () => {
+              if (opts.responseBody) {
+                try {
+                  res.jsonp(JSON.parse(opts.responseBody))
+                } catch (e) {
+                  res.send(opts.responseBody)
+                  res.locals.defaultBodyError = e
+                }
+              } else {
+                res.end()
+              }
+            },
+            default: () =>
+              opts.responseBody ? res.send(opts.responseBody) : res.end()
           })
       },
       addRouter: app => {

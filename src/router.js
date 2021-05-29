@@ -1,7 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import xmlParser from 'express-xml-bodyparser'
-import { logRequest, logResponse } from './logging'
+import { logDefaultBodyError, logRequest, logResponse } from './logging'
 import proxy from 'express-http-proxy'
 import _ from 'lodash/fp'
 import cors from 'cors'
@@ -76,20 +76,30 @@ export default opts => {
     })
   )
 
-  router.use(function logInvalidRequest (
+  router.use(function handleInvalidRequest (
     err,
+    /** @type {RequestExt} */ req,
+    /** @type {ResponseExt} */ res,
+    next
+  ) {
+    if (
+      req.locals.rawBodyBuffer?.length > 0 &&
+      _.isEmpty(req.body) &&
+      (req.locals.bodyType !== 'json' ||
+        req.locals.rawBodyBuffer.replace(/\s/g, '') !== '{}')
+    ) {
+      req.locals.bodyType = 'error'
+    }
+    req.locals.bodyError = err
+    res.locals.responseCode = 400
+    next()
+  })
+
+  router.use(function logRequestAndResponse (
     /** @type {RequestExt} */ req,
     res,
     next
   ) {
-    if (!req.locals.bodyType) {
-      req.locals.bodyType = 'error'
-    }
-    logRequest(err, req, res, opts)
-    res.status(400).end()
-  })
-
-  router.use(function logOkRequest (/** @type {RequestExt} */ req, res, next) {
     res.on('finish', () => {
       if (
         req.locals.rawBodyBuffer === undefined ||
@@ -97,7 +107,12 @@ export default opts => {
       ) {
         req.locals.bodyType ||= 'empty'
       }
-      logRequest(null, req, res, opts)
+      logRequest(req, res, opts)
+
+      if (opts.logResponse !== true && !req.locals?.proxyUrl) {
+        logDefaultBodyError(req, res, opts)
+      }
+
       if (
         opts.logResponse === true ||
         (!!req.locals?.proxyUrl && opts.logResponse !== false)
@@ -105,7 +120,7 @@ export default opts => {
         if (_.isFunction(cnsl.group)) {
           cnsl.group()
         }
-        logResponse(null, req, res, opts)
+        logResponse(req, res, opts)
         if (_.isFunction(cnsl.groupEnd)) {
           cnsl.groupEnd()
         }
@@ -174,19 +189,28 @@ export default opts => {
         const oldWrite = res.write
         const oldEnd = res.end
 
-        const chunks = []
+        let chunks
+
+        const appendBody = chunk => {
+          if (chunks === undefined) {
+            chunks = []
+          }
+          chunks.push(Buffer.from(chunk))
+        }
 
         res.write = (...restArgs) => {
-          chunks.push(Buffer.from(restArgs[0]))
+          appendBody(restArgs[0])
           return oldWrite.apply(res, restArgs)
         }
 
         res.end = (...restArgs) => {
-          if (restArgs[0]) {
-            chunks.push(Buffer.from(restArgs[0]))
+          if (restArgs[0] && !_.isFunction(restArgs[0])) {
+            appendBody(restArgs[0])
           }
-          const body = Buffer.concat(chunks).toString('utf8')
-          res.locals.body = body
+          if (chunks !== undefined) {
+            const body = Buffer.concat(chunks).toString('utf8')
+            res.locals.body = body
+          }
           return oldEnd.apply(res, restArgs)
         }
       }

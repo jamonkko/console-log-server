@@ -11,8 +11,6 @@ var _fp = _interopRequireDefault(require("lodash/fp"));
 
 var _express = _interopRequireDefault(require("express"));
 
-var _mimeTypes = _interopRequireDefault(require("mime-types"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -41,8 +39,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * }}
  */
 function consoleLogServer(opts) {
-  var mimeExtensions = _fp["default"].flow(_fp["default"].values, _fp["default"].flatten, _fp["default"].without(['json']))(_mimeTypes["default"].extensions);
-
   opts = _fp["default"].defaults({
     port: 3000,
     hostname: 'localhost',
@@ -52,24 +48,32 @@ function consoleLogServer(opts) {
     console: console,
     dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
     ignoreUncaughtErrors: false,
-    defaultRoute: function defaultRoute(req, res) {
-      var _res$set$status$forma;
-
-      var negotiatedType = req.accepts(mimeExtensions);
-
-      var defaultHandler = function defaultHandler() {
-        return opts.responseBody ? res.send(opts.responseBody) : res.end();
-      };
-
+    defaultRoute: function defaultRoute(
+    /** @type {RequestExt} */
+    req,
+    /** @type {ResponseExt} */
+    res) {
       var headers = _fp["default"].flow(_fp["default"].map(function (h) {
         return h.split(':', 2);
       }), _fp["default"].fromPairs)(opts.responseHeader);
 
-      res.set(headers).status(opts.responseCode).format((_res$set$status$forma = {
+      res.set(headers).status(res.locals.responseCode || opts.responseCode).format({
         json: function json() {
-          return opts.responseBody ? res.jsonp(JSON.parse(opts.responseBody)) : res.end();
+          if (opts.responseBody) {
+            try {
+              res.jsonp(JSON.parse(opts.responseBody));
+            } catch (e) {
+              res.send(opts.responseBody);
+              res.locals.defaultBodyError = e;
+            }
+          } else {
+            res.end();
+          }
+        },
+        "default": function _default() {
+          return opts.responseBody ? res.send(opts.responseBody) : res.end();
         }
-      }, _defineProperty(_res$set$status$forma, negotiatedType, defaultHandler), _defineProperty(_res$set$status$forma, "default", defaultHandler), _res$set$status$forma));
+      });
     },
     addRouter: function addRouter(app) {
       if (opts.router) {

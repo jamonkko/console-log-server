@@ -34,7 +34,8 @@
  *       bodyType?: string,
  *       rawBodyBuffer?: any,
  *       rawBody?: import("es6-promise").Promise<any>,
- *       proxyUrl?: string
+ *       proxyUrl?: string,
+ *       bodyError?: Error
  *     }
  *   }
  * } RequestExt

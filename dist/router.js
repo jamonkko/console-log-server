@@ -99,21 +99,26 @@ var _default = function _default(opts) {
       req.locals.bodyType = 'raw';
     }
   }));
-  router.use(function logInvalidRequest(err,
+  router.use(function handleInvalidRequest(err,
   /** @type {RequestExt} */
-  req, res, next) {
-    if (!req.locals.bodyType) {
+  req,
+  /** @type {ResponseExt} */
+  res, next) {
+    var _req$locals$rawBodyBu;
+
+    if (((_req$locals$rawBodyBu = req.locals.rawBodyBuffer) === null || _req$locals$rawBodyBu === void 0 ? void 0 : _req$locals$rawBodyBu.length) > 0 && _fp["default"].isEmpty(req.body) && (req.locals.bodyType !== 'json' || req.locals.rawBodyBuffer.replace(/\s/g, '') !== '{}')) {
       req.locals.bodyType = 'error';
     }
 
-    (0, _logging.logRequest)(err, req, res, opts);
-    res.status(400).end();
+    req.locals.bodyError = err;
+    res.locals.responseCode = 400;
+    next();
   });
-  router.use(function logOkRequest(
+  router.use(function logRequestAndResponse(
   /** @type {RequestExt} */
   req, res, next) {
     res.on('finish', function () {
-      var _req$locals2;
+      var _req$locals2, _req$locals3;
 
       if (req.locals.rawBodyBuffer === undefined || req.locals.rawBodyBuffer.length === 0) {
         var _req$locals;
@@ -121,14 +126,18 @@ var _default = function _default(opts) {
         (_req$locals = req.locals).bodyType || (_req$locals.bodyType = 'empty');
       }
 
-      (0, _logging.logRequest)(null, req, res, opts);
+      (0, _logging.logRequest)(req, res, opts);
 
-      if (opts.logResponse === true || !!((_req$locals2 = req.locals) !== null && _req$locals2 !== void 0 && _req$locals2.proxyUrl) && opts.logResponse !== false) {
+      if (opts.logResponse !== true && !((_req$locals2 = req.locals) !== null && _req$locals2 !== void 0 && _req$locals2.proxyUrl)) {
+        (0, _logging.logDefaultBodyError)(req, res, opts);
+      }
+
+      if (opts.logResponse === true || !!((_req$locals3 = req.locals) !== null && _req$locals3 !== void 0 && _req$locals3.proxyUrl) && opts.logResponse !== false) {
         if (_fp["default"].isFunction(cnsl.group)) {
           cnsl.group();
         }
 
-        (0, _logging.logResponse)(null, req, res, opts);
+        (0, _logging.logResponse)(req, res, opts);
 
         if (_fp["default"].isFunction(cnsl.groupEnd)) {
           cnsl.groupEnd();
@@ -197,14 +206,22 @@ var _default = function _default(opts) {
       if (opts.logResponse === true) {
         var oldWrite = res.write;
         var oldEnd = res.end;
-        var chunks = [];
+        var chunks;
+
+        var appendBody = function appendBody(chunk) {
+          if (chunks === undefined) {
+            chunks = [];
+          }
+
+          chunks.push(Buffer.from(chunk));
+        };
 
         res.write = function () {
           for (var _len = arguments.length, restArgs = new Array(_len), _key = 0; _key < _len; _key++) {
             restArgs[_key] = arguments[_key];
           }
 
-          chunks.push(Buffer.from(restArgs[0]));
+          appendBody(restArgs[0]);
           return oldWrite.apply(res, restArgs);
         };
 
@@ -213,12 +230,15 @@ var _default = function _default(opts) {
             restArgs[_key2] = arguments[_key2];
           }
 
-          if (restArgs[0]) {
-            chunks.push(Buffer.from(restArgs[0]));
+          if (restArgs[0] && !_fp["default"].isFunction(restArgs[0])) {
+            appendBody(restArgs[0]);
           }
 
-          var body = Buffer.concat(chunks).toString('utf8');
-          res.locals.body = body;
+          if (chunks !== undefined) {
+            var body = Buffer.concat(chunks).toString('utf8');
+            res.locals.body = body;
+          }
+
           return oldEnd.apply(res, restArgs);
         };
       }
