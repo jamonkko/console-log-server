@@ -238,9 +238,14 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
         cnsl.log(chalk.white(res.locals.body))
         break
       default:
-        throw new Error(
-          `Internal Error! Unknown response bodyType: ${bodyType}`
+        cnsl.log(
+          chalk.magenta('body: ') +
+            chalk.yellow(
+              `(${bodyType} - as raw string, no formatting support yet)`
+            )
         )
+        cnsl.log(chalk.white(res.locals.body.toString()))
+        break
     }
   } catch (e) {
     cnsl.log(

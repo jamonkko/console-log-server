@@ -228,7 +228,9 @@ req, res, opts) {
         break;
 
       default:
-        throw new Error("Internal Error! Unknown response bodyType: ".concat(bodyType));
+        cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(".concat(bodyType, " - as raw string, no formatting support yet)")));
+        cnsl.log(_chalk["default"].white(res.locals.body.toString()));
+        break;
     }
   } catch (e) {
     cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(raw - error when trying to pretty-print as '".concat(bodyType, "')")));
