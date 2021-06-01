@@ -7,6 +7,7 @@
 import router from './router'
 import _ from 'lodash/fp'
 import express from 'express'
+import { polyfill } from 'es6-promise'
 
 /**
  * @param { CLSOptions } opts
@@ -151,5 +152,6 @@ export default function consoleLogServer (opts) {
 }
 
 if (!module.parent) {
+  polyfill()
   consoleLogServer({ ignoreUncaughtErrors: true }).start()
 }
