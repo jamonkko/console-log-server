@@ -4,6 +4,9 @@
   "description": "Logs all http requests to console",
   "main": "dist",
   "jsnext:main": "src",
+  "engines": {
+    "node": ">=0.10"
+  },
   "files": [
     "dist",
     "src",
