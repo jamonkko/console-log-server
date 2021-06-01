@@ -182,12 +182,11 @@ var _default = function _default(opts) {
           return proxyResData;
         } : undefined,
         proxyErrorHandler: function proxyErrorHandler(err, res, next) {
-          res.status(500).json({
-            message: err.toString()
-          });
-          res.locals.body = {
+          var msg = {
             message: err.toString()
           };
+          res.status(500).json(msg);
+          res.locals.body = JSON.stringify(msg);
         }
       }));
     },

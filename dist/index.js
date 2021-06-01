@@ -11,6 +11,8 @@ var _fp = _interopRequireDefault(require("lodash/fp"));
 
 var _express = _interopRequireDefault(require("express"));
 
+var _es6Promise = require("es6-promise");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -168,6 +170,7 @@ function consoleLogServer(opts) {
 }
 
 if (!module.parent) {
+  (0, _es6Promise.polyfill)();
   consoleLogServer({
     ignoreUncaughtErrors: true
   }).start();
