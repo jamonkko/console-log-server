@@ -97,9 +97,9 @@ function parseProxies (proxiesArg) {
       const parsedHost = url.URL
         ? new URL(prependHttp(proxyHost))
         : url.parse(prependHttp(proxyHost)) // eslint-disable-line node/no-deprecated-api
-      const protocol = proxyHost.startsWith('https')
+      const protocol = _.startsWith('https', proxyHost)
         ? 'https'
-        : proxyHost.startsWith('http')
+        : _.startsWith('http', proxyHost)
         ? 'http'
         : undefined
       return {
