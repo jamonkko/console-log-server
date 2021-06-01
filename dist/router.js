@@ -212,7 +212,7 @@ var _default = function _default(opts) {
             chunks = [];
           }
 
-          chunks.push(Buffer.from(chunk));
+          chunks.push(new Buffer(chunk)); // eslint-disable-line node/no-deprecated-api
         };
 
         res.write = function () {

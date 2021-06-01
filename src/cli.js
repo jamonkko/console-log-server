@@ -4,9 +4,8 @@ import consoleLogServer from './'
 import _ from 'lodash/fp'
 import prependHttp from 'prepend-http'
 import url from 'url'
-import { polyfill as polyfillPromise } from 'es6-promise'
 
-polyfillPromise()
+require('core-js')
 
 let unknownArgs = false
 
