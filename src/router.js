@@ -196,7 +196,11 @@ export default opts => {
           if (chunks === undefined) {
             chunks = []
           }
-          chunks.push(new Buffer(chunk)) // eslint-disable-line node/no-deprecated-api
+          if (_.isFunction(Buffer.from)) {
+            chunks.push(Buffer.from(chunk))
+          } else {
+            chunks.push(new Buffer(chunk)) // eslint-disable-line node/no-deprecated-api
+          }
         }
 
         res.write = (...restArgs) => {
