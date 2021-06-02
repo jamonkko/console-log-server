@@ -185,7 +185,7 @@ req, res, opts) {
 
   cnsl.log(_chalk["default"].magenta('headers' + ':'));
   cnsl.log(renderParams((0, _parseHeaders["default"])(res._header)));
-  var contentType = res.getHeader('content-type');
+  var contentType = res.get('content-type');
   var bodyType = res.locals.body === undefined ? 'empty' : _fp["default"].isString(contentType) ? _mimeTypes["default"].extension(contentType) : 'raw';
 
   try {
@@ -228,7 +228,7 @@ req, res, opts) {
         break;
 
       default:
-        cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(".concat(bodyType, " - as raw string, no formatting support yet)")));
+        cnsl.log(_chalk["default"].magenta('body: ') + (bodyType ? _chalk["default"].yellow("(".concat(bodyType, " - as raw string, no formatting support yet)")) : _chalk["default"].yellow('(as raw string)')));
         cnsl.log(_chalk["default"].white(res.locals.body.toString()));
         break;
     }

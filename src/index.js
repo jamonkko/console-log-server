@@ -7,6 +7,7 @@
 import router from './router'
 import _ from 'lodash/fp'
 import express from 'express'
+import mime from 'mime-types'
 
 /**
  * @param { CLSOptions } opts
@@ -34,25 +35,41 @@ export default function consoleLogServer (opts) {
           _.map(h => h.split(':', 2)),
           _.fromPairs
         )(opts.responseHeader)
-        res
-          .set(headers)
-          .status(res.locals.responseCode || opts.responseCode)
-          .format({
-            json: () => {
-              if (opts.responseBody) {
-                try {
-                  res.jsonp(JSON.parse(opts.responseBody))
-                } catch (e) {
-                  res.send(opts.responseBody)
-                  res.locals.defaultBodyError = e
-                }
-              } else {
-                res.end()
-              }
-            },
-            default: () =>
-              opts.responseBody ? res.send(opts.responseBody) : res.end()
+
+        res.set(headers).status(res.locals.responseCode || opts.responseCode)
+
+        let contentType = res.get('content-type')
+        if (!contentType) {
+          res.format({
+            text: () => {},
+            json: () => {},
+            xml: () => {},
+            html: () => {},
+            js: () => {},
+            css: () => {},
+            default: () => {}
           })
+        }
+        contentType = res.get('content-type')
+        const ext = mime.extension(contentType)
+        switch (ext) {
+          case 'json': {
+            if (opts.responseBody) {
+              try {
+                res.jsonp(JSON.parse(opts.responseBody))
+              } catch (e) {
+                res.send(opts.responseBody)
+                res.locals.defaultBodyError = e
+              }
+            } else {
+              res.end()
+            }
+            break
+          }
+          default:
+            opts.responseBody ? res.send(opts.responseBody) : res.end()
+            break
+        }
       },
       addRouter: app => {
         if (opts.router) {

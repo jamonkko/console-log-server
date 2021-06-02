@@ -11,6 +11,8 @@ var _fp = _interopRequireDefault(require("lodash/fp"));
 
 var _express = _interopRequireDefault(require("express"));
 
+var _mimeTypes = _interopRequireDefault(require("mime-types"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -57,23 +59,46 @@ function consoleLogServer(opts) {
         return h.split(':', 2);
       }), _fp["default"].fromPairs)(opts.responseHeader);
 
-      res.set(headers).status(res.locals.responseCode || opts.responseCode).format({
-        json: function json() {
-          if (opts.responseBody) {
-            try {
-              res.jsonp(JSON.parse(opts.responseBody));
-            } catch (e) {
-              res.send(opts.responseBody);
-              res.locals.defaultBodyError = e;
+      res.set(headers).status(res.locals.responseCode || opts.responseCode);
+      var contentType = res.get('content-type');
+
+      if (!contentType) {
+        res.format({
+          text: function text() {},
+          json: function json() {},
+          xml: function xml() {},
+          html: function html() {},
+          js: function js() {},
+          css: function css() {},
+          "default": function _default() {}
+        });
+      }
+
+      contentType = res.get('content-type');
+
+      var ext = _mimeTypes["default"].extension(contentType);
+
+      switch (ext) {
+        case 'json':
+          {
+            if (opts.responseBody) {
+              try {
+                res.jsonp(JSON.parse(opts.responseBody));
+              } catch (e) {
+                res.send(opts.responseBody);
+                res.locals.defaultBodyError = e;
+              }
+            } else {
+              res.end();
             }
-          } else {
-            res.end();
+
+            break;
           }
-        },
-        "default": function _default() {
-          return opts.responseBody ? res.send(opts.responseBody) : res.end();
-        }
-      });
+
+        default:
+          opts.responseBody ? res.send(opts.responseBody) : res.end();
+          break;
+      }
     },
     addRouter: function addRouter(app) {
       if (opts.router) {

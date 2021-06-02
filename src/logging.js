@@ -191,7 +191,7 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
   cnsl.log(chalk.magenta('headers' + ':'))
   cnsl.log(renderParams(parseHeaders(res._header)))
 
-  const contentType = res.getHeader('content-type')
+  const contentType = res.get('content-type')
   const bodyType =
     res.locals.body === undefined
       ? 'empty'
@@ -240,9 +240,11 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
       default:
         cnsl.log(
           chalk.magenta('body: ') +
-            chalk.yellow(
-              `(${bodyType} - as raw string, no formatting support yet)`
-            )
+            (bodyType
+              ? chalk.yellow(
+                  `(${bodyType} - as raw string, no formatting support yet)`
+                )
+              : chalk.yellow('(as raw string)'))
         )
         cnsl.log(chalk.white(res.locals.body.toString()))
         break

@@ -212,7 +212,11 @@ var _default = function _default(opts) {
             chunks = [];
           }
 
-          chunks.push(new Buffer(chunk)); // eslint-disable-line node/no-deprecated-api
+          if (_fp["default"].isFunction(Buffer.from)) {
+            chunks.push(Buffer.from(chunk));
+          } else {
+            chunks.push(new Buffer(chunk)); // eslint-disable-line node/no-deprecated-api
+          }
         };
 
         res.write = function () {
