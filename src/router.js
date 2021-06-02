@@ -165,8 +165,8 @@ export default opts => {
               : undefined,
           proxyErrorHandler: function (err, res, next) {
             const msg = { message: err.toString() }
-            res.status(500).json(msg)
             res.locals.body = JSON.stringify(msg)
+            res.status(500).json(msg)
           }
         })
       )

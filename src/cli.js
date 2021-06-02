@@ -43,7 +43,7 @@ const cli = meow(
     $ console-log-server -P http://api.example.com
 
     # Proxy the requests to multiple hosts based on paths.
-    $ console-log-server --proxy="/api/1>http://api-1.example.com" -proxy="/api/2>http://api-2.example.com"
+    $ console-log-server --proxy="/api/1>http://api-1.example.com" --proxy="/api/2>http://api-2.example.com"
 
     # Proxy the request to path under other host. Response will be the actual response (with cors headers injected) from the proxy.
     $ console-log-server -P http://api.example.com/v1/cats -C yes

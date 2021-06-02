@@ -185,8 +185,8 @@ var _default = function _default(opts) {
           var msg = {
             message: err.toString()
           };
-          res.status(500).json(msg);
           res.locals.body = JSON.stringify(msg);
+          res.status(500).json(msg);
         }
       }));
     },
