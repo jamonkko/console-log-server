@@ -6,11 +6,12 @@ Useful for quickly viewing what kind of requests your app is sending.
 
 ## Usage
 
+If you have **npm** >= `v5.2` (comes bundled with node >= `v8.2.0`) you can use `npx` to run it directly:
 ```sh
 $ npx console-log-server -p 8000
 ```
 
-or using the old fashioned way
+If you have older node (all version >= `v0.10` supported!) or just prefer the old fashioned way:
 
 ```sh
 $ npm install console-log-server --global
@@ -74,4 +75,32 @@ $ console-log-server -p 8000
 
     # Start server to your local IP and localhost. Might be useful when debugging devices connected to your own machine. Ports can be given for each hostname with --port flag(s).
     $ console-log-server -h localhost -h 192.168.0.2 
+```
+
+## Legacy Node.js support
+
+Stuck with old unmaintained node.js version filled with security holes? You know you should upgrade, but you have your reasons. Don't worry, _console-log-server_ is not here to judge, but to help (although you should really upgrade and definitely not run anything unmaintained in production, so judging a little bit here)
+
+Currently all node.js version `>= v0.10` are supported. This is done by transpiling to ES5 using babel and requiring [core-js](https://www.npmjs.com/package/core-js) for missing types on standalone mode.
+## Only for debugging/development use
+
+Only use this tool for ad-hoc local testing. **NEVER** run console-log-server **in production** for multiple reasons:
+* It logs **all** data as is without filters. Including passwords, tokens, user names etc
+* It will make performance lot worse
+* It might use old/deprecated libraries or node.js version with vulnerabilities
+
+## Library use
+If you are using `console-log-server`as a library and use very old node without newer JS types like Map or Promise you need to polyfill them. Otherwise you get errors like:
+
+```
+"ReferenceError: Promise is not defined"
+```
+
+This is mainly problem with node `0.10` but you could in theory get some errors with node `< v6`.
+
+Easiest way to fix these is to just load  [core-js](https://www.npmjs.com/package/core-js) before `console-log-server`
+
+```
+require('core-js');
+var consoleLogServer = require('console-log-server');
 ```
