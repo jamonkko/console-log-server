@@ -79,9 +79,11 @@ $ console-log-server -p 8000
 
 ## Legacy Node.js support
 
-Stuck with old unmaintained node.js version filled with security holes? You know you should upgrade, but you have your reasons. Don't worry, _console-log-server_ is not here to judge, but to help (although you should really upgrade and definitely not run anything unmaintained in production, so judging a little bit here)
+Are you stuck with old unmaintained node.js version filled with security holes? You know you should upgrade, but you have your reasons. Don't worry, _console-log-server_ is not here to judge, but to help (although you should really upgrade and definitely not run anything unmaintained in production, so judging a little bit here).
 
 Currently all node.js version `>= v0.10` are supported. This is done by transpiling to ES5 using babel and requiring [core-js](https://www.npmjs.com/package/core-js) for missing types on standalone mode.
+
+Development/forking/building of `console-log-server` itself requires node >= v10 though and you should always use latest stable node for that.
 ## Only for debugging/development use
 
 Only use this tool for ad-hoc local testing. **NEVER** run console-log-server **in production** for multiple reasons:
