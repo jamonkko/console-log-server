@@ -16,7 +16,7 @@ export default opts => {
 
   let reqCounter = 0
   router.use(function addLocals (/** @type {RequestExt} */ req, res, next) {
-    req.locals ||= {}
+    req.locals || (req.locals = {})
     const requestId =
       req.header('X-Request-ID') || req.header('X-Correlation-ID')
     req.locals.id = `${++reqCounter}` + (requestId ? `:${requestId}` : '')
@@ -105,7 +105,7 @@ export default opts => {
         req.locals.rawBodyBuffer === undefined ||
         req.locals.rawBodyBuffer.length === 0
       ) {
-        req.locals.bodyType ||= 'empty'
+        req.locals.bodyType || (req.locals.bodyType = 'empty')
       }
       logRequest(req, res, opts)
 
