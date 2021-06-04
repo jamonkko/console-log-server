@@ -25,5 +25,5 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm run build
-      - run: npm test:coverage
+      - run: npm run test:coverage
       - run: node dist/cli.js --help
