@@ -23,6 +23,9 @@
  *  @property {any} [addRouter]
  *  @property {number | number[]} [port]
  *  @property {string | string[]} [hostname]
+ *  @property {boolean} [silentStart]
+ *  @property {string | number | Date} [mockDate]
+ *  @property {boolean} [color]
  */
 
 /**
@@ -48,5 +51,23 @@
  *     _header?: Object,
  *   }
  * } ResponseExt
+ */
+
+/**
+ * A number, or a string containing a number.
+ * @typedef {import("http").Server &
+ *   {
+ *     promise: Promise<import("http").Server, Error & {server: import('http').Server}>,
+ *   }
+ * } ServerWithPromise
+ */
+
+/**
+ * A number, or a string containing a number.
+ * @typedef {ServerWithPromise[] &
+ *   {
+ *     promise: Promise<import("http").Server[]>,
+ *   }
+ * } ServersWithPromise
  */
 "use strict";

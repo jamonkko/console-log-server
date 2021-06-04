@@ -13,6 +13,8 @@ var _express = _interopRequireDefault(require("express"));
 
 var _mimeTypes = _interopRequireDefault(require("mime-types"));
 
+var _mockdate = _interopRequireDefault(require("mockdate"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -36,8 +38,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /**
  * @param { CLSOptions } opts
  * @return {{
- *  app: import("express-serve-static-core").Express;
- *  start: (callback?: () => void) => import('http').Server | import('http').Server[];
+ *  app: import("express-serve-static-core").Express,
+ *  startAll: (callback?: (err: Error, server: import('http').Server) => void) => {
+ *    server: import('http').Server[],
+ *    ready: Promise<import("http").Server[]>
+ *  },
+ *  start: (callback?: (err: Error) => void) => {
+ *    server: import('http').Server,
+ *    ready: Promise<import("http").Server>
+ *  }
  * }}
  */
 function consoleLogServer(opts) {
@@ -110,11 +119,14 @@ function consoleLogServer(opts) {
       }
     }
   }, opts);
+
+  if (opts.mockDate !== undefined) {
+    _mockdate["default"].set(opts.mockDate);
+  }
+
   var cnsl = opts.console;
   opts.responseHeader = opts.responseHeader && _fp["default"].castArray(opts.responseHeader);
-
-  var isMultiServer = _fp["default"].isArray(opts.hostname);
-
+  var isMultiServer = _fp["default"].isArray(opts.hostname) && opts.hostname.length > 1;
   opts.hostname = opts.hostname && _fp["default"].castArray(opts.hostname);
   opts.port = opts.port && _fp["default"].castArray(opts.port);
   opts.proxy = opts.proxy && _fp["default"].castArray(opts.proxy);
@@ -154,40 +166,82 @@ function consoleLogServer(opts) {
     opts.addRouter(app);
   }
 
+  function startAll() {
+    var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
+
+    var servers = _fp["default"].flow(_fp["default"].zipWith(function (host, port) {
+      return [host, port || opts.port[0]];
+    },
+    /** @type {string[]} */
+    opts.hostname), _fp["default"].map(function (_ref2) {
+      var _ref3 = _slicedToArray(_ref2, 2),
+          host = _ref3[0],
+          port = _ref3[1];
+
+      var resolvePromise, rejectPromise;
+
+      function onReady(err) {
+        if (!err) {
+          if (!opts.silentStart) {
+            cnsl.log("console-log-server listening on http://".concat(host, ":").concat(this.address().port));
+          }
+
+          resolvePromise(server);
+        } else {
+          err.server = server;
+          rejectPromise(err);
+        }
+
+        callback(err, server);
+      }
+
+      var ready = new Promise(function (resolve, reject) {
+        resolvePromise = resolve;
+        rejectPromise = reject;
+      });
+      var server = app.listen(port, host, onReady);
+      return {
+        server: server,
+        ready: ready
+      };
+    }))(
+    /** @type {number[]} */
+    opts.port);
+
+    if (opts.ignoreUncaughtErrors) {
+      process.on('uncaughtException', function (err) {
+        cnsl.log('Unhandled error. Set ignoreUncaughtErrors to pass these through');
+        cnsl.log(err);
+      });
+    }
+
+    return {
+      server: _fp["default"].map(function (s) {
+        return s.server;
+      }, servers),
+      ready: Promise.all(_fp["default"].map(function (s) {
+        return s.ready;
+      }, servers))
+    };
+  }
+
   return {
     app: app,
+    startAll: startAll,
     start: function start() {
       var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
 
-      var servers = _fp["default"].flow(_fp["default"].zipWith(function (host, port) {
-        return [host, port || opts.port[0]];
-      },
-      /** @type {string[]} */
-      opts.hostname), _fp["default"].map(function (_ref2) {
-        var _ref3 = _slicedToArray(_ref2, 2),
-            host = _ref3[0],
-            port = _ref3[1];
-
-        return app.listen(port, host, function () {
-          cnsl.log("console-log-server listening on http://".concat(host, ":").concat(port));
-          callback();
-        });
-      }))(
-      /** @type {number[]} */
-      opts.port);
-
-      if (opts.ignoreUncaughtErrors) {
-        process.on('uncaughtException', function (err) {
-          cnsl.log('Unhandled error. Set ignoreUncaughtErrors to pass these through');
-          cnsl.log(err);
-        });
-      }
-
       if (isMultiServer) {
-        return servers;
-      } else {
-        return servers[0];
+        throw new Error('Call startAll instead of start when providing multiple hostnames to listen');
       }
+
+      var res = startAll(callback);
+      return {
+        server: res.server[0],
+        ready: res.ready.then(function (servers) {
+          return servers[0];
+        })
+      };
     }
   };
 }
@@ -197,5 +251,5 @@ if (!module.parent) {
 
   consoleLogServer({
     ignoreUncaughtErrors: true
-  }).start();
+  }).start().ready.then(function () {});
 }

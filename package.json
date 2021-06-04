@@ -24,7 +24,14 @@
     "start": "nodemon --exec npm run babel-node -- ./src/index.js",
     "prettier": "prettier-standard ./src/**/*.js",
     "format": "npm run prettier",
-    "check": "npm run prettier -- --lint --check && tsc"
+    "check": "npm run prettier -- --lint --check && tsc",
+    "test": "ava",
+    "test:coverage": "nyc --require esm-wallaby ava"
+  },
+  "ava": {
+    "require": [
+      "esm-wallaby"
+    ]
   },
   "repository": {
     "type": "git",
@@ -63,11 +70,16 @@
     "@types/mime-types": "^2.1.0",
     "@types/pretty-data": "^0.40.0",
     "@types/prettyjson": "0.0.29",
+    "ava": "^3.15.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.14.0",
+    "esm-wallaby": "^3.2.25",
     "module-header": "github:jamonkko/module-header#replace-existing",
     "nodemon": "^1.10.2",
+    "nyc": "^15.1.0",
     "prettier-standard": "^16.4.1",
+    "stream-buffers": "^3.0.2",
+    "supertest": "^6.1.3",
     "typescript": "^4.2.4"
   },
   "dependencies": {
@@ -83,6 +95,7 @@
     "lodash": "^4.17.21",
     "meow": "^3.7.0",
     "mime-types": "^2.1.12",
+    "mockdate": "^3.0.5",
     "parse-headers": "^2.0.3",
     "prepend-http": "1.0.4",
     "pretty-data": "^0.40.0",

@@ -134,12 +134,16 @@ export default opts => {
   }
 
   if (!_.isEmpty(opts.proxy)) {
-    cnsl.log('Using proxies:')
+    if (!opts.silentStart) {
+      cnsl.log('Using proxies:')
+    }
     _.each(({ path, host, hostPath, protocol }) => {
       const https =
         protocol === 'https' ? true : protocol === 'http' ? false : undefined
       const protocolPrefix = protocol ? `${protocol}://` : ''
-      cnsl.log(`  '${path}' -> ${protocolPrefix}${host}${hostPath || ''}`)
+      if (!opts.silentStart) {
+        cnsl.log(`  '${path}' -> ${protocolPrefix}${host}${hostPath || ''}`)
+      }
       router.use(
         path,
         proxy(host, {

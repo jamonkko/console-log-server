@@ -8,12 +8,20 @@ import router from './router'
 import _ from 'lodash/fp'
 import express from 'express'
 import mime from 'mime-types'
+import MockDate from 'mockdate'
 
 /**
  * @param { CLSOptions } opts
  * @return {{
- *  app: import("express-serve-static-core").Express;
- *  start: (callback?: () => void) => import('http').Server | import('http').Server[];
+ *  app: import("express-serve-static-core").Express,
+ *  startAll: (callback?: (err: Error, server: import('http').Server) => void) => {
+ *    server: import('http').Server[],
+ *    ready: Promise<import("http").Server[]>
+ *  },
+ *  start: (callback?: (err: Error) => void) => {
+ *    server: import('http').Server,
+ *    ready: Promise<import("http").Server>
+ *  }
  * }}
  */
 export default function consoleLogServer (opts) {
@@ -82,9 +90,12 @@ export default function consoleLogServer (opts) {
     },
     opts
   )
+  if (opts.mockDate !== undefined) {
+    MockDate.set(opts.mockDate)
+  }
   const cnsl = opts.console
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
-  const isMultiServer = _.isArray(opts.hostname)
+  const isMultiServer = _.isArray(opts.hostname) && opts.hostname.length > 1
   opts.hostname = opts.hostname && _.castArray(opts.hostname)
   opts.port = opts.port && _.castArray(opts.port)
   opts.proxy = opts.proxy && _.castArray(opts.proxy)
@@ -134,34 +145,73 @@ export default function consoleLogServer (opts) {
   if (_.isFunction(opts.addRouter)) {
     opts.addRouter(app)
   }
+
+  function startAll (
+    /** @type {(err: Error, server: import('http').Server) => void} */ callback = () => {}
+  ) {
+    const servers = _.flow(
+      _.zipWith(
+        (host, port) => [host, port || opts.port[0]],
+        /** @type {string[]} */ (opts.hostname)
+      ),
+      _.map(([host, port]) => {
+        let resolvePromise, rejectPromise
+        function onReady (err) {
+          if (!err) {
+            if (!opts.silentStart) {
+              cnsl.log(
+                `console-log-server listening on http://${host}:${
+                  this.address().port
+                }`
+              )
+            }
+            resolvePromise(server)
+          } else {
+            err.server = server
+            rejectPromise(err)
+          }
+          callback(err, server)
+        }
+
+        const ready = new Promise((resolve, reject) => {
+          resolvePromise = resolve
+          rejectPromise = reject
+        })
+        const server = app.listen(port, host, onReady)
+        return {
+          server,
+          ready
+        }
+      })
+    )(/** @type {number[]} */ (opts.port))
+
+    if (opts.ignoreUncaughtErrors) {
+      process.on('uncaughtException', function (err) {
+        cnsl.log(
+          'Unhandled error. Set ignoreUncaughtErrors to pass these through'
+        )
+        cnsl.log(err)
+      })
+    }
+    return {
+      server: _.map(s => s.server, servers),
+      ready: Promise.all(_.map(s => s.ready, servers))
+    }
+  }
+
   return {
     app,
-    start: (callback = function () {}) => {
-      const servers = _.flow(
-        _.zipWith(
-          (host, port) => [host, port || opts.port[0]],
-          /** @type {string[]} */ (opts.hostname)
-        ),
-        _.map(([host, port]) =>
-          app.listen(port, host, () => {
-            cnsl.log(`console-log-server listening on http://${host}:${port}`)
-            callback()
-          })
-        )
-      )(/** @type {number[]} */ (opts.port))
-
-      if (opts.ignoreUncaughtErrors) {
-        process.on('uncaughtException', function (err) {
-          cnsl.log(
-            'Unhandled error. Set ignoreUncaughtErrors to pass these through'
-          )
-          cnsl.log(err)
-        })
-      }
+    startAll,
+    start: (callback = () => {}) => {
       if (isMultiServer) {
-        return servers
-      } else {
-        return servers[0]
+        throw new Error(
+          'Call startAll instead of start when providing multiple hostnames to listen'
+        )
+      }
+      const res = startAll(callback)
+      return {
+        server: res.server[0],
+        ready: res.ready.then(servers => servers[0])
       }
     }
   }
@@ -169,5 +219,7 @@ export default function consoleLogServer (opts) {
 
 if (!module.parent) {
   require('core-js')
-  consoleLogServer({ ignoreUncaughtErrors: true }).start()
+  consoleLogServer({ ignoreUncaughtErrors: true })
+    .start()
+    .ready.then(() => {})
 }

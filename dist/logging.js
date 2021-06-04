@@ -26,17 +26,39 @@ var _mimeTypes = _interopRequireDefault(require("mime-types"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 /**
+ * @param {CLSOptions} opts
+ */
+function createChalk(opts) {
+  return new _chalk["default"].constructor(opts.color !== false ? undefined : {
+    enabled: false
+  });
+}
+/**
+ * @param {CLSOptions} opts
+ */
+
+
+function prettyJsonOptions(opts) {
+  return {
+    defaultIndentation: 2,
+    noColor: opts.color !== false ? undefined : true
+  };
+}
+/**
  * @param {RequestExt} req
  * @param {ResponseExt} res
  * @param {CLSOptions} opts
  */
+
+
 function logRequest(req, res, opts) {
+  var ctx = createChalk(opts);
+  var prettyJsonOpts = prettyJsonOptions(opts);
   var cnsl = opts.console;
   var now = (0, _dateformat["default"])(new Date(), opts.dateFormat);
 
   function divider(text) {
-    var divLine = _chalk["default"].white.dim.bold(">> [req:".concat(req.locals.id, "] [").concat(now, "]"));
-
+    var divLine = ctx.white.dim.bold(">> [req:".concat(req.locals.id, "] [").concat(now, "]"));
     return {
       begin: function begin() {
         cnsl.log(divLine);
@@ -51,44 +73,40 @@ function logRequest(req, res, opts) {
 
   var err = req.locals.bodyError;
   var proxyUrl = req.locals.proxyUrl || '';
-
-  var proxyArrow = _chalk["default"].white.bold(' --> ');
-
+  var proxyArrow = ctx.white.bold(' --> ');
   var pathLine = "".concat(req.method, " ").concat(req.originalUrl);
-  var div = !err ? divider(_chalk["default"].yellow.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].yellow.bold(proxyUrl) : '')) : divider(_chalk["default"].red.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].red.bold(proxyUrl) : '') + _chalk["default"].red.bold('  *error*'));
+  var div = !err ? divider(ctx.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')) : divider(ctx.red.bold(pathLine) + (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : '') + ctx.red.bold('  *error*'));
   cnsl.log();
   div.begin();
 
   var renderParams = function renderParams(obj) {
-    return _prettyjson["default"].render(obj, {
-      defaultIndentation: 2
-    }, 2);
+    return _prettyjson["default"].render(obj, prettyJsonOpts, prettyJsonOpts.defaultIndentation);
   };
 
   var headers = req.headers;
-  cnsl.log(_chalk["default"].magenta('headers' + ':'));
+  cnsl.log(ctx.magenta('headers' + ':'));
   cnsl.log(renderParams(headers));
 
   if (_fp["default"].isEmpty(req.query)) {
-    cnsl.log(_chalk["default"].magenta('query: (empty)'));
+    cnsl.log(ctx.magenta('query: (empty)'));
   } else {
-    cnsl.log(_chalk["default"].magenta('query:'));
+    cnsl.log(ctx.magenta('query:'));
     cnsl.log(renderParams(req.query));
   }
 
   switch (req.locals.bodyType) {
     case 'empty':
-      cnsl.log(_chalk["default"].magenta('body: (empty)'));
+      cnsl.log(ctx.magenta('body: (empty)'));
       break;
 
     case 'raw':
-      cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(parsed as raw string by console-log-server since content-type is '".concat(headers['content-type'], "'. Forgot to set it correctly?)")));
-      cnsl.log(_chalk["default"].white(req.body.toString()));
+      cnsl.log(ctx.magenta('body: ') + ctx.yellow("(parsed as raw string by console-log-server since content-type is '".concat(headers['content-type'], "'. Forgot to set it correctly?)")));
+      cnsl.log(ctx.white(req.body.toString()));
       break;
 
     case 'json':
-      cnsl.log(_chalk["default"].magenta('body (json): '));
-      cnsl.log(_chalk["default"].green((0, _neatJson.neatJSON)(req.body, {
+      cnsl.log(ctx.magenta('body (json): '));
+      cnsl.log(ctx.green((0, _neatJson.neatJSON)(req.body, {
         wrap: 40,
         aligned: true,
         afterComma: 1,
@@ -98,25 +116,25 @@ function logRequest(req, res, opts) {
       break;
 
     case 'url':
-      cnsl.log(_chalk["default"].magenta('body (url): '));
+      cnsl.log(ctx.magenta('body (url): '));
       cnsl.log(renderParams(req.body));
       break;
 
     case 'xml':
-      cnsl.log(_chalk["default"].magenta('body (xml): '));
-      cnsl.log(_chalk["default"].green(_prettyData.pd.xml(req.locals.rawBodyBuffer)));
+      cnsl.log(ctx.magenta('body (xml): '));
+      cnsl.log(ctx.green(_prettyData.pd.xml(req.locals.rawBodyBuffer)));
       break;
 
     case 'text':
-      cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(parsed as plain text since content-type is '".concat(headers['content-type'], "'. Forgot to set it correctly?)")));
-      cnsl.log(_chalk["default"].white(req.body));
+      cnsl.log(ctx.magenta('body: ') + ctx.yellow("(parsed as plain text since content-type is '".concat(headers['content-type'], "'. Forgot to set it correctly?)")));
+      cnsl.log(ctx.white(req.body));
       break;
 
     case 'error':
-      cnsl.log(_chalk["default"].red('body (error): ') + _chalk["default"].yellow('(failed to handle request. Body printed below as plain text if at all...)'));
+      cnsl.log(ctx.red('body (error): ') + ctx.yellow('(failed to handle request. Body printed below as plain text if at all...)'));
 
       if (req.body) {
-        cnsl.log(_chalk["default"].white(req.locals.rawBodyBuffer));
+        cnsl.log(ctx.white(req.locals.rawBodyBuffer));
       }
 
       break;
@@ -149,12 +167,13 @@ function logDefaultBodyError(req, res, opts) {
 function logResponse(
 /** @type {RequestExt} */
 req, res, opts) {
+  var ctx = createChalk(opts);
+  var prettyJsonOpts = prettyJsonOptions(opts);
   var cnsl = opts.console;
   var now = (0, _dateformat["default"])(new Date(), opts.dateFormat);
 
   function divider(text) {
-    var divLine = _chalk["default"].white.dim.bold("<< [res:".concat(req.locals.id, "] [").concat(now, "]"));
-
+    var divLine = ctx.white.dim.bold("<< [res:".concat(req.locals.id, "] [").concat(now, "]"));
     return {
       begin: function begin() {
         cnsl.log(divLine);
@@ -168,22 +187,18 @@ req, res, opts) {
   }
 
   var proxyUrl = req.locals.proxyUrl || '';
-
-  var proxyArrow = _chalk["default"].white.bold(' <-- ');
-
+  var proxyArrow = ctx.white.bold(' <-- ');
   var statusPreFix = "".concat(res.statusCode);
   var pathLine = " <- ".concat(req.method, " ").concat(req.originalUrl);
-  var div = res.statusCode < 400 ? divider(_chalk["default"].green.bold(statusPreFix) + _chalk["default"].yellow.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].yellow.bold(proxyUrl) : '')) : divider(_chalk["default"].red.bold(statusPreFix) + _chalk["default"].red.bold(pathLine) + (proxyUrl ? proxyArrow + _chalk["default"].red.bold(proxyUrl) : ''));
+  var div = res.statusCode < 400 ? divider(ctx.green.bold(statusPreFix) + ctx.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')) : divider(ctx.red.bold(statusPreFix) + ctx.red.bold(pathLine) + (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : ''));
   cnsl.log();
   div.begin();
 
   var renderParams = function renderParams(obj) {
-    return _prettyjson["default"].render(obj, {
-      defaultIndentation: 2
-    }, 2);
+    return _prettyjson["default"].render(obj, prettyJsonOpts, prettyJsonOpts.defaultIndentation);
   };
 
-  cnsl.log(_chalk["default"].magenta('headers' + ':'));
+  cnsl.log(ctx.magenta('headers' + ':'));
   cnsl.log(renderParams((0, _parseHeaders["default"])(res._header)));
   var contentType = res.get('content-type');
   var bodyType = res.locals.body === undefined ? 'empty' : _fp["default"].isString(contentType) ? _mimeTypes["default"].extension(contentType) : 'raw';
@@ -191,19 +206,19 @@ req, res, opts) {
   try {
     switch (bodyType) {
       case 'empty':
-        cnsl.log(_chalk["default"].magenta('body: (empty)'));
+        cnsl.log(ctx.magenta('body: (empty)'));
         break;
 
       case 'raw':
-        cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(raw - could not resolve type)"));
-        cnsl.log(_chalk["default"].white(res.locals.body.toString()));
+        cnsl.log(ctx.magenta('body: ') + ctx.yellow("(raw - could not resolve type)"));
+        cnsl.log(ctx.white(res.locals.body.toString()));
         break;
 
       case 'json':
         {
           var json = JSON.parse(res.locals.body);
-          cnsl.log(_chalk["default"].magenta("body: (".concat(bodyType, ")")));
-          cnsl.log(_chalk["default"].green((0, _neatJson.neatJSON)(json, {
+          cnsl.log(ctx.magenta("body: (".concat(bodyType, ")")));
+          cnsl.log(ctx.green((0, _neatJson.neatJSON)(json, {
             wrap: 40,
             aligned: true,
             afterComma: 1,
@@ -217,24 +232,24 @@ req, res, opts) {
         {
           var xml = _prettyData.pd.xml(res.locals.body);
 
-          cnsl.log(_chalk["default"].magenta("body: (".concat(bodyType, ")")));
-          cnsl.log(_chalk["default"].green(xml));
+          cnsl.log(ctx.magenta("body: (".concat(bodyType, ")")));
+          cnsl.log(ctx.green(xml));
           break;
         }
 
       case 'text':
-        cnsl.log(_chalk["default"].magenta("body: (".concat(bodyType, ")")));
-        cnsl.log(_chalk["default"].white(res.locals.body));
+        cnsl.log(ctx.magenta("body: (".concat(bodyType, ")")));
+        cnsl.log(ctx.white(res.locals.body));
         break;
 
       default:
-        cnsl.log(_chalk["default"].magenta('body: ') + (bodyType ? _chalk["default"].yellow("(".concat(bodyType, " - as raw string, no formatting support yet)")) : _chalk["default"].yellow('(as raw string)')));
-        cnsl.log(_chalk["default"].white(res.locals.body.toString()));
+        cnsl.log(ctx.magenta('body: ') + (bodyType ? ctx.yellow("(".concat(bodyType, " - as raw string, no formatting support yet)")) : ctx.yellow('(as raw string)')));
+        cnsl.log(ctx.white(res.locals.body.toString()));
         break;
     }
   } catch (e) {
-    cnsl.log(_chalk["default"].magenta('body: ') + _chalk["default"].yellow("(raw - error when trying to pretty-print as '".concat(bodyType, "')")));
-    cnsl.log(_chalk["default"].white(res.locals.body.toString()));
+    cnsl.log(ctx.magenta('body: ') + ctx.yellow("(raw - error when trying to pretty-print as '".concat(bodyType, "')")));
+    cnsl.log(ctx.white(res.locals.body.toString()));
     printParseError(e, res.locals.body, 'Warning! Response body is invalid', opts);
   }
 
@@ -250,6 +265,7 @@ req, res, opts) {
 
 
 function printParseError(err, data, message, opts) {
+  var ctx = createChalk(opts);
   var cnsl = opts.console;
 
   if (err) {
@@ -263,10 +279,10 @@ function printParseError(err, data, message, opts) {
 
       var contentBeforeError = data.substring(index - 80, index);
       var contentAfterError = data.substring(index, index + 80);
-      cnsl.error(_chalk["default"].yellow("Check the position near ".concat(index, " below (marked with '!'):")));
-      cnsl.error(_chalk["default"].yellow('...'));
-      cnsl.error("".concat(contentBeforeError).concat(_chalk["default"].red('!')).concat(contentAfterError, "\""));
-      cnsl.error(_chalk["default"].yellow('...'));
+      cnsl.error(ctx.yellow("Check the position near ".concat(index, " below (marked with '!'):")));
+      cnsl.error(ctx.yellow('...'));
+      cnsl.error("".concat(contentBeforeError).concat(ctx.red('!')).concat(contentAfterError, "\""));
+      cnsl.error(ctx.yellow('...'));
       return true;
     };
 
@@ -287,17 +303,17 @@ function printParseError(err, data, message, opts) {
       }
 
       errorTitle += ' (see below)';
-      cnsl.error(_chalk["default"].yellow(errorTitle));
+      cnsl.error(ctx.yellow(errorTitle));
       cnsl.error(lineWithError);
 
       if (column) {
-        cnsl.error(_fp["default"].repeat(column - 1, ' ') + _chalk["default"].bold.red('^'));
+        cnsl.error(_fp["default"].repeat(column - 1, ' ') + ctx.bold.red('^'));
       }
 
       return true;
     };
 
-    cnsl.error(_chalk["default"].red("".concat(message, ": ").concat(err.message)));
-    logJsonParseError() || logXmlParseError() || cnsl.error(_chalk["default"].red(err.stack));
+    cnsl.error(ctx.red("".concat(message, ": ").concat(err.message)));
+    logJsonParseError() || logXmlParseError() || cnsl.error(ctx.red(err.stack));
   }
 }

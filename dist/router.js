@@ -118,21 +118,19 @@ var _default = function _default(opts) {
   /** @type {RequestExt} */
   req, res, next) {
     res.on('finish', function () {
-      var _req$locals2, _req$locals3;
+      var _req$locals, _req$locals2;
 
       if (req.locals.rawBodyBuffer === undefined || req.locals.rawBodyBuffer.length === 0) {
-        var _req$locals;
-
-        (_req$locals = req.locals).bodyType || (_req$locals.bodyType = 'empty');
+        req.locals.bodyType || (req.locals.bodyType = 'empty');
       }
 
       (0, _logging.logRequest)(req, res, opts);
 
-      if (opts.logResponse !== true && !((_req$locals2 = req.locals) !== null && _req$locals2 !== void 0 && _req$locals2.proxyUrl)) {
+      if (opts.logResponse !== true && !((_req$locals = req.locals) !== null && _req$locals !== void 0 && _req$locals.proxyUrl)) {
         (0, _logging.logDefaultBodyError)(req, res, opts);
       }
 
-      if (opts.logResponse === true || !!((_req$locals3 = req.locals) !== null && _req$locals3 !== void 0 && _req$locals3.proxyUrl) && opts.logResponse !== false) {
+      if (opts.logResponse === true || !!((_req$locals2 = req.locals) !== null && _req$locals2 !== void 0 && _req$locals2.proxyUrl) && opts.logResponse !== false) {
         if (_fp["default"].isFunction(cnsl.group)) {
           cnsl.group();
         }
@@ -152,7 +150,9 @@ var _default = function _default(opts) {
   }
 
   if (!_fp["default"].isEmpty(opts.proxy)) {
-    cnsl.log('Using proxies:');
+    if (!opts.silentStart) {
+      cnsl.log('Using proxies:');
+    }
 
     _fp["default"].each(function (_ref) {
       var path = _ref.path,
@@ -161,7 +161,11 @@ var _default = function _default(opts) {
           protocol = _ref.protocol;
       var https = protocol === 'https' ? true : protocol === 'http' ? false : undefined;
       var protocolPrefix = protocol ? "".concat(protocol, "://") : '';
-      cnsl.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
+
+      if (!opts.silentStart) {
+        cnsl.log("  '".concat(path, "' -> ").concat(protocolPrefix).concat(host).concat(hostPath || ''));
+      }
+
       router.use(path, (0, _expressHttpProxy["default"])(host, {
         https: https,
         parseReqBody: false,

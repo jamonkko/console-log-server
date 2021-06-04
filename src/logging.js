@@ -8,16 +8,36 @@ import parseHeaders from 'parse-headers'
 import mime from 'mime-types'
 
 /**
+ * @param {CLSOptions} opts
+ */
+function createChalk (opts) {
+  return new chalk.constructor(
+    opts.color !== false ? undefined : { enabled: false }
+  )
+}
+
+/**
+ * @param {CLSOptions} opts
+ */
+function prettyJsonOptions (opts) {
+  return {
+    defaultIndentation: 2,
+    noColor: opts.color !== false ? undefined : true
+  }
+}
+/**
  * @param {RequestExt} req
  * @param {ResponseExt} res
  * @param {CLSOptions} opts
  */
 export function logRequest (req, res, opts) {
+  const ctx = createChalk(opts)
+  const prettyJsonOpts = prettyJsonOptions(opts)
   const cnsl = opts.console
   const now = dateFormat(new Date(), opts.dateFormat)
 
   function divider (text) {
-    const divLine = chalk.white.dim.bold(`>> [req:${req.locals.id}] [${now}]`)
+    const divLine = ctx.white.dim.bold(`>> [req:${req.locals.id}] [${now}]`)
     return {
       begin: () => {
         cnsl.log(divLine)
@@ -32,50 +52,50 @@ export function logRequest (req, res, opts) {
 
   const err = req.locals.bodyError
   const proxyUrl = req.locals.proxyUrl || ''
-  const proxyArrow = chalk.white.bold(' --> ')
+  const proxyArrow = ctx.white.bold(' --> ')
   const pathLine = `${req.method} ${req.originalUrl}`
   const div = !err
     ? divider(
-        chalk.yellow.bold(pathLine) +
-          (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : '')
+        ctx.yellow.bold(pathLine) +
+          (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')
       )
     : divider(
-        chalk.red.bold(pathLine) +
-          (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '') +
-          chalk.red.bold('  *error*')
+        ctx.red.bold(pathLine) +
+          (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : '') +
+          ctx.red.bold('  *error*')
       )
   cnsl.log()
   div.begin()
   const renderParams = obj =>
-    prettyjson.render(obj, { defaultIndentation: 2 }, 2)
+    prettyjson.render(obj, prettyJsonOpts, prettyJsonOpts.defaultIndentation)
   const headers = req.headers
-  cnsl.log(chalk.magenta('headers' + ':'))
+  cnsl.log(ctx.magenta('headers' + ':'))
   cnsl.log(renderParams(headers))
 
   if (_.isEmpty(req.query)) {
-    cnsl.log(chalk.magenta('query: (empty)'))
+    cnsl.log(ctx.magenta('query: (empty)'))
   } else {
-    cnsl.log(chalk.magenta('query:'))
+    cnsl.log(ctx.magenta('query:'))
     cnsl.log(renderParams(req.query))
   }
 
   switch (req.locals.bodyType) {
     case 'empty':
-      cnsl.log(chalk.magenta('body: (empty)'))
+      cnsl.log(ctx.magenta('body: (empty)'))
       break
     case 'raw':
       cnsl.log(
-        chalk.magenta('body: ') +
-          chalk.yellow(
+        ctx.magenta('body: ') +
+          ctx.yellow(
             `(parsed as raw string by console-log-server since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`
           )
       )
-      cnsl.log(chalk.white(req.body.toString()))
+      cnsl.log(ctx.white(req.body.toString()))
       break
     case 'json':
-      cnsl.log(chalk.magenta('body (json): '))
+      cnsl.log(ctx.magenta('body (json): '))
       cnsl.log(
-        chalk.green(
+        ctx.green(
           neatJSON(req.body, {
             wrap: 40,
             aligned: true,
@@ -87,31 +107,31 @@ export function logRequest (req, res, opts) {
       )
       break
     case 'url':
-      cnsl.log(chalk.magenta('body (url): '))
+      cnsl.log(ctx.magenta('body (url): '))
       cnsl.log(renderParams(req.body))
       break
     case 'xml':
-      cnsl.log(chalk.magenta('body (xml): '))
-      cnsl.log(chalk.green(pd.xml(req.locals.rawBodyBuffer)))
+      cnsl.log(ctx.magenta('body (xml): '))
+      cnsl.log(ctx.green(pd.xml(req.locals.rawBodyBuffer)))
       break
     case 'text':
       cnsl.log(
-        chalk.magenta('body: ') +
-          chalk.yellow(
+        ctx.magenta('body: ') +
+          ctx.yellow(
             `(parsed as plain text since content-type is '${headers['content-type']}'. Forgot to set it correctly?)`
           )
       )
-      cnsl.log(chalk.white(req.body))
+      cnsl.log(ctx.white(req.body))
       break
     case 'error':
       cnsl.log(
-        chalk.red('body (error): ') +
-          chalk.yellow(
+        ctx.red('body (error): ') +
+          ctx.yellow(
             '(failed to handle request. Body printed below as plain text if at all...)'
           )
       )
       if (req.body) {
-        cnsl.log(chalk.white(req.locals.rawBodyBuffer))
+        cnsl.log(ctx.white(req.locals.rawBodyBuffer))
       }
       break
     default:
@@ -151,11 +171,13 @@ export function logDefaultBodyError (req, res, opts) {
  * @param {CLSOptions} opts
  */
 export function logResponse (/** @type {RequestExt} */ req, res, opts) {
+  const ctx = createChalk(opts)
+  const prettyJsonOpts = prettyJsonOptions(opts)
   const cnsl = opts.console
   const now = dateFormat(new Date(), opts.dateFormat)
 
   function divider (text) {
-    const divLine = chalk.white.dim.bold(`<< [res:${req.locals.id}] [${now}]`)
+    const divLine = ctx.white.dim.bold(`<< [res:${req.locals.id}] [${now}]`)
     return {
       begin: () => {
         cnsl.log(divLine)
@@ -169,26 +191,26 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
   }
 
   const proxyUrl = req.locals.proxyUrl || ''
-  const proxyArrow = chalk.white.bold(' <-- ')
+  const proxyArrow = ctx.white.bold(' <-- ')
   const statusPreFix = `${res.statusCode}`
   const pathLine = ` <- ${req.method} ${req.originalUrl}`
   const div =
     res.statusCode < 400
       ? divider(
-          chalk.green.bold(statusPreFix) +
-            chalk.yellow.bold(pathLine) +
-            (proxyUrl ? proxyArrow + chalk.yellow.bold(proxyUrl) : '')
+          ctx.green.bold(statusPreFix) +
+            ctx.yellow.bold(pathLine) +
+            (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')
         )
       : divider(
-          chalk.red.bold(statusPreFix) +
-            chalk.red.bold(pathLine) +
-            (proxyUrl ? proxyArrow + chalk.red.bold(proxyUrl) : '')
+          ctx.red.bold(statusPreFix) +
+            ctx.red.bold(pathLine) +
+            (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : '')
         )
   cnsl.log()
   div.begin()
   const renderParams = obj =>
-    prettyjson.render(obj, { defaultIndentation: 2 }, 2)
-  cnsl.log(chalk.magenta('headers' + ':'))
+    prettyjson.render(obj, prettyJsonOpts, prettyJsonOpts.defaultIndentation)
+  cnsl.log(ctx.magenta('headers' + ':'))
   cnsl.log(renderParams(parseHeaders(res._header)))
 
   const contentType = res.get('content-type')
@@ -202,20 +224,19 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
   try {
     switch (bodyType) {
       case 'empty':
-        cnsl.log(chalk.magenta('body: (empty)'))
+        cnsl.log(ctx.magenta('body: (empty)'))
         break
       case 'raw':
         cnsl.log(
-          chalk.magenta('body: ') +
-            chalk.yellow(`(raw - could not resolve type)`)
+          ctx.magenta('body: ') + ctx.yellow(`(raw - could not resolve type)`)
         )
-        cnsl.log(chalk.white(res.locals.body.toString()))
+        cnsl.log(ctx.white(res.locals.body.toString()))
         break
       case 'json': {
         const json = JSON.parse(res.locals.body)
-        cnsl.log(chalk.magenta(`body: (${bodyType})`))
+        cnsl.log(ctx.magenta(`body: (${bodyType})`))
         cnsl.log(
-          chalk.green(
+          ctx.green(
             neatJSON(json, {
               wrap: 40,
               aligned: true,
@@ -229,34 +250,32 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
       }
       case 'xml': {
         const xml = pd.xml(res.locals.body)
-        cnsl.log(chalk.magenta(`body: (${bodyType})`))
-        cnsl.log(chalk.green(xml))
+        cnsl.log(ctx.magenta(`body: (${bodyType})`))
+        cnsl.log(ctx.green(xml))
         break
       }
       case 'text':
-        cnsl.log(chalk.magenta(`body: (${bodyType})`))
-        cnsl.log(chalk.white(res.locals.body))
+        cnsl.log(ctx.magenta(`body: (${bodyType})`))
+        cnsl.log(ctx.white(res.locals.body))
         break
       default:
         cnsl.log(
-          chalk.magenta('body: ') +
+          ctx.magenta('body: ') +
             (bodyType
-              ? chalk.yellow(
+              ? ctx.yellow(
                   `(${bodyType} - as raw string, no formatting support yet)`
                 )
-              : chalk.yellow('(as raw string)'))
+              : ctx.yellow('(as raw string)'))
         )
-        cnsl.log(chalk.white(res.locals.body.toString()))
+        cnsl.log(ctx.white(res.locals.body.toString()))
         break
     }
   } catch (e) {
     cnsl.log(
-      chalk.magenta('body: ') +
-        chalk.yellow(
-          `(raw - error when trying to pretty-print as '${bodyType}')`
-        )
+      ctx.magenta('body: ') +
+        ctx.yellow(`(raw - error when trying to pretty-print as '${bodyType}')`)
     )
-    cnsl.log(chalk.white(res.locals.body.toString()))
+    cnsl.log(ctx.white(res.locals.body.toString()))
 
     printParseError(
       e,
@@ -277,6 +296,7 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
  * @param {CLSOptions} opts
  */
 function printParseError (err, data, message, opts) {
+  const ctx = createChalk(opts)
   const cnsl = opts.console
   if (err) {
     cnsl.log()
@@ -287,13 +307,11 @@ function printParseError (err, data, message, opts) {
       const contentBeforeError = data.substring(index - 80, index)
       const contentAfterError = data.substring(index, index + 80)
       cnsl.error(
-        chalk.yellow(
-          `Check the position near ${index} below (marked with '!'):`
-        )
+        ctx.yellow(`Check the position near ${index} below (marked with '!'):`)
       )
-      cnsl.error(chalk.yellow('...'))
-      cnsl.error(`${contentBeforeError}${chalk.red('!')}${contentAfterError}"`)
-      cnsl.error(chalk.yellow('...'))
+      cnsl.error(ctx.yellow('...'))
+      cnsl.error(`${contentBeforeError}${ctx.red('!')}${contentAfterError}"`)
+      cnsl.error(ctx.yellow('...'))
       return true
     }
     const logXmlParseError = () => {
@@ -308,17 +326,15 @@ function printParseError (err, data, message, opts) {
         errorTitle += ` column:${column}`
       }
       errorTitle += ' (see below)'
-      cnsl.error(chalk.yellow(errorTitle))
+      cnsl.error(ctx.yellow(errorTitle))
       cnsl.error(lineWithError)
       if (column) {
-        cnsl.error(_.repeat(column - 1, ' ') + chalk.bold.red('^'))
+        cnsl.error(_.repeat(column - 1, ' ') + ctx.bold.red('^'))
       }
       return true
     }
 
-    cnsl.error(chalk.red(`${message}: ${err.message}`))
-    logJsonParseError() ||
-      logXmlParseError() ||
-      cnsl.error(chalk.red(err.stack))
+    cnsl.error(ctx.red(`${message}: ${err.message}`))
+    logJsonParseError() || logXmlParseError() || cnsl.error(ctx.red(err.stack))
   }
 }
