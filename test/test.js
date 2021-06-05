@@ -17,9 +17,10 @@ test('request and response logging works', t => {
     meow: {
       argv: [
         '--log-response=yes',
-        '--mock-date=2020-03-23T02:00:00+0000',
+        '--mock-date=2020-03-23T02:00:00Z',
         '--no-color',
-        '--silent-start'
+        '--silent-start',
+        '--date-format=isoUtcDateTime'
       ]
     },
     cls: { console }
