@@ -23,6 +23,14 @@ export default opts => {
     next()
   })
 
+  if (opts.mockDate) {
+    // For some reason Date cannot be mocked in Node 15/16, so just override the date header when using static date
+    router.use(function mockDate (/** @type {RequestExt} */ req, res, next) {
+      res.set('date', new Date().toUTCString())
+      next()
+    })
+  }
+
   router.use(function saveRawBody (/** @type {RequestExt} */ req, res, next) {
     req.locals.rawBody = new Promise(resolve => {
       req.once('end', () => {
