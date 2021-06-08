@@ -23,37 +23,17 @@ var _parseHeaders = _interopRequireDefault(require("parse-headers"));
 
 var _mimeTypes = _interopRequireDefault(require("mime-types"));
 
+var _sortedObject = _interopRequireDefault(require("sorted-object"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-/**
- * @param {CLSOptions} opts
- */
-function createChalk(opts) {
-  return new _chalk["default"].constructor(opts.color !== false ? undefined : {
-    enabled: false
-  });
-}
-/**
- * @param {CLSOptions} opts
- */
-
-
-function prettyJsonOptions(opts) {
-  return {
-    defaultIndentation: 2,
-    noColor: opts.color !== false ? undefined : true
-  };
-}
 /**
  * @param {RequestExt} req
  * @param {ResponseExt} res
  * @param {CLSOptions} opts
  */
-
-
 function logRequest(req, res, opts) {
   var ctx = createChalk(opts);
-  var prettyJsonOpts = prettyJsonOptions(opts);
   var cnsl = opts.console;
   var now = (0, _dateformat["default"])(new Date(), opts.dateFormat);
 
@@ -78,20 +58,15 @@ function logRequest(req, res, opts) {
   var div = !err ? divider(ctx.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')) : divider(ctx.red.bold(pathLine) + (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : '') + ctx.red.bold('  *error*'));
   cnsl.log();
   div.begin();
-
-  var renderParams = function renderParams(obj) {
-    return _prettyjson["default"].render(obj, prettyJsonOpts, prettyJsonOpts.defaultIndentation);
-  };
-
   var headers = req.headers;
   cnsl.log(ctx.magenta('headers' + ':'));
-  cnsl.log(renderParams(headers));
+  cnsl.log(renderParams(headers, opts));
 
   if (_fp["default"].isEmpty(req.query)) {
     cnsl.log(ctx.magenta('query: (empty)'));
   } else {
     cnsl.log(ctx.magenta('query:'));
-    cnsl.log(renderParams(req.query));
+    cnsl.log(renderParams(req.query, opts));
   }
 
   switch (req.locals.bodyType) {
@@ -117,7 +92,7 @@ function logRequest(req, res, opts) {
 
     case 'url':
       cnsl.log(ctx.magenta('body (url): '));
-      cnsl.log(renderParams(req.body));
+      cnsl.log(renderParams(req.body, opts));
       break;
 
     case 'xml':
@@ -168,7 +143,6 @@ function logResponse(
 /** @type {RequestExt} */
 req, res, opts) {
   var ctx = createChalk(opts);
-  var prettyJsonOpts = prettyJsonOptions(opts);
   var cnsl = opts.console;
   var now = (0, _dateformat["default"])(new Date(), opts.dateFormat);
 
@@ -193,13 +167,8 @@ req, res, opts) {
   var div = res.statusCode < 400 ? divider(ctx.green.bold(statusPreFix) + ctx.yellow.bold(pathLine) + (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')) : divider(ctx.red.bold(statusPreFix) + ctx.red.bold(pathLine) + (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : ''));
   cnsl.log();
   div.begin();
-
-  var renderParams = function renderParams(obj) {
-    return _prettyjson["default"].render(obj, prettyJsonOpts, prettyJsonOpts.defaultIndentation);
-  };
-
   cnsl.log(ctx.magenta('headers' + ':'));
-  cnsl.log(renderParams((0, _parseHeaders["default"])(res._header)));
+  cnsl.log(renderParams((0, _parseHeaders["default"])(res._header), opts));
   var contentType = res.get('content-type');
   var bodyType = res.locals.body === undefined ? 'empty' : _fp["default"].isString(contentType) ? _mimeTypes["default"].extension(contentType) : 'raw';
 
@@ -255,6 +224,35 @@ req, res, opts) {
 
   div.end();
   cnsl.log();
+}
+/**
+ * @param {CLSOptions} opts
+ */
+
+
+function createChalk(opts) {
+  return new _chalk["default"].constructor(opts.color !== false ? undefined : {
+    enabled: false
+  });
+}
+/**
+ * @param {CLSOptions} opts
+ * @param {object} obj
+ */
+
+
+function renderParams(obj, opts) {
+  var result = _prettyjson["default"].render(opts.sortFields ? (0, _sortedObject["default"])(obj) : obj, {
+    defaultIndentation: 2,
+    noColor: opts.color !== false ? undefined : true
+  }, 2);
+
+  if (opts.sortFields && _fp["default"].startsWith('v0.10.', process.version)) {
+    // Node 0.10 does not support sorted object fields, need to do some manual sorting for it
+    return _fp["default"].flow(_fp["default"].split('\n'), _fp["default"].sortBy(_fp["default"].identity), _fp["default"].join('\n'))(result);
+  } else {
+    return result;
+  }
 }
 /**
  * @param {Error} err

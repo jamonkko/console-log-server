@@ -142,13 +142,13 @@ var _default = function _default(opts) {
       }
 
       if (opts.logResponse === true || !!((_req$locals2 = req.locals) !== null && _req$locals2 !== void 0 && _req$locals2.proxyUrl) && opts.logResponse !== false) {
-        if (_fp["default"].isFunction(cnsl.group)) {
+        if (opts.indentResponse !== false && _fp["default"].isFunction(cnsl.group)) {
           cnsl.group();
         }
 
         (0, _logging.logResponse)(req, res, opts);
 
-        if (_fp["default"].isFunction(cnsl.groupEnd)) {
+        if (opts.indentResponse !== false && _fp["default"].isFunction(cnsl.groupEnd)) {
           cnsl.groupEnd();
         }
       }
