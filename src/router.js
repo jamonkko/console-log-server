@@ -125,11 +125,11 @@ export default opts => {
         opts.logResponse === true ||
         (!!req.locals?.proxyUrl && opts.logResponse !== false)
       ) {
-        if (_.isFunction(cnsl.group)) {
+        if (opts.indentResponse !== false && _.isFunction(cnsl.group)) {
           cnsl.group()
         }
         logResponse(req, res, opts)
-        if (_.isFunction(cnsl.groupEnd)) {
+        if (opts.indentResponse !== false && _.isFunction(cnsl.groupEnd)) {
           cnsl.groupEnd()
         }
       }

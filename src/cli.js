@@ -29,6 +29,7 @@ export default function run (opts = {}) {
       --default-cors, -C Add "default" cors using https://www.npmjs.com/package/cors default values. By default only enabled for non-proxied responses. Turn on to enable also for proxy responses, turn off to disable completely.
       --silent-start, Do not log "listening", proxy mapping or any other status on start. Only requests and responses.
       --mock-date, Use mocked date value for value of "now". https://www.npmjs.com/package/mockdate
+      --indent-response, On by default. Indents response with console.group() when using node >= v8.5.0
       --sort-fields, Off by default. Pretty print headers, query parameters and url-form body fields in sorted order. Does not apply to json bodies.
     Examples
 
@@ -77,6 +78,7 @@ export default function run (opts = {}) {
         C: 'default-cors',
         S: 'silent-start',
         D: 'mock-date',
+        i: 'indent-response',
         s: 'sort-fields'
       },
       unknown: arg => {
@@ -144,6 +146,7 @@ export default function run (opts = {}) {
       logResponse: parseOnOff(cli.flags.logResponse, '--log-response'),
       defaultCors: parseOnOff(cli.flags.defaultCors, '--default-cors'),
       silentStart: parseOnOff(cli.flags.silentStart, '--silent-start'),
+      indentResponse: parseOnOff(cli.flags.indentResponse, '--indent-response'),
       sortFields: parseOnOff(cli.flags.sortFields, '--sort-fields'),
       responseHeader: cli.flags.responseHeader,
       hostname: cli.flags.hostname,
