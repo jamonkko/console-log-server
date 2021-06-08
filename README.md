@@ -7,13 +7,14 @@ Useful for quickly viewing what kind of requests your app is sending.
 ## Usage
 
 If you have **npm** >= `v5.2` (comes bundled with node >= `v8.2.0`) you can use `npx` to run it directly:
-```sh
+
+```bash
 $ npx console-log-server -p 8000
 ```
 
 If you have older node (all version >= `v0.10` supported!) or just prefer the old fashioned way:
 
-```sh
+```bash
 $ npm install console-log-server --global
 $ console-log-server -p 8000
 ```
@@ -24,7 +25,7 @@ $ console-log-server -p 8000
 
 ## Command line options
 
-```sh
+```bash
   Logs all http requests to console
 
   Usage
@@ -83,7 +84,7 @@ Are you stuck with old unmaintained node.js version filled with security holes? 
 
 Currently all node.js version `>= v0.10` are supported. This is done by transpiling to ES5 using babel and requiring [core-js](https://www.npmjs.com/package/core-js) for missing types on standalone mode.
 
-Development/forking/building of `console-log-server` itself requires node >= v10 though and you should always use latest stable node for that.
+Development/forking/building of `console-log-server` itself requires node >= v15 though and you should always use latest stable node for that.
 ## Only for debugging/development use
 
 Only use this tool for ad-hoc local testing. **NEVER** run console-log-server **in production** for multiple reasons:
@@ -94,7 +95,7 @@ Only use this tool for ad-hoc local testing. **NEVER** run console-log-server **
 ## Library use
 If you are using `console-log-server`as a library and use very old node without newer JS types like Map or Promise you need to polyfill them. Otherwise you get errors like:
 
-```
+```bash
 "ReferenceError: Promise is not defined"
 ```
 
@@ -102,7 +103,15 @@ This is mainly problem with node `0.10` but you could in theory get some errors 
 
 Easiest way to fix these is to just load  [core-js](https://www.npmjs.com/package/core-js) before `console-log-server`
 
-```
+```js
 require('core-js');
 var consoleLogServer = require('console-log-server');
+```
+
+## Running tests
+
+Updating snapshots:
+
+```bash
+npm test -- --update-snapshots
 ```
