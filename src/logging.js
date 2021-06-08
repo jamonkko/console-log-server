@@ -6,25 +6,8 @@ import { pd } from 'pretty-data'
 import dateFormat from 'dateformat'
 import parseHeaders from 'parse-headers'
 import mime from 'mime-types'
+import sortObject from 'sorted-object'
 
-/**
- * @param {CLSOptions} opts
- */
-function createChalk (opts) {
-  return new chalk.constructor(
-    opts.color !== false ? undefined : { enabled: false }
-  )
-}
-
-/**
- * @param {CLSOptions} opts
- */
-function prettyJsonOptions (opts) {
-  return {
-    defaultIndentation: 2,
-    noColor: opts.color !== false ? undefined : true
-  }
-}
 /**
  * @param {RequestExt} req
  * @param {ResponseExt} res
@@ -32,7 +15,6 @@ function prettyJsonOptions (opts) {
  */
 export function logRequest (req, res, opts) {
   const ctx = createChalk(opts)
-  const prettyJsonOpts = prettyJsonOptions(opts)
   const cnsl = opts.console
   const now = dateFormat(new Date(), opts.dateFormat)
 
@@ -66,17 +48,15 @@ export function logRequest (req, res, opts) {
       )
   cnsl.log()
   div.begin()
-  const renderParams = obj =>
-    prettyjson.render(obj, prettyJsonOpts, prettyJsonOpts.defaultIndentation)
   const headers = req.headers
   cnsl.log(ctx.magenta('headers' + ':'))
-  cnsl.log(renderParams(headers))
+  cnsl.log(renderParams(headers, opts))
 
   if (_.isEmpty(req.query)) {
     cnsl.log(ctx.magenta('query: (empty)'))
   } else {
     cnsl.log(ctx.magenta('query:'))
-    cnsl.log(renderParams(req.query))
+    cnsl.log(renderParams(req.query, opts))
   }
 
   switch (req.locals.bodyType) {
@@ -108,7 +88,7 @@ export function logRequest (req, res, opts) {
       break
     case 'url':
       cnsl.log(ctx.magenta('body (url): '))
-      cnsl.log(renderParams(req.body))
+      cnsl.log(renderParams(req.body, opts))
       break
     case 'xml':
       cnsl.log(ctx.magenta('body (xml): '))
@@ -172,7 +152,6 @@ export function logDefaultBodyError (req, res, opts) {
  */
 export function logResponse (/** @type {RequestExt} */ req, res, opts) {
   const ctx = createChalk(opts)
-  const prettyJsonOpts = prettyJsonOptions(opts)
   const cnsl = opts.console
   const now = dateFormat(new Date(), opts.dateFormat)
 
@@ -208,10 +187,9 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
         )
   cnsl.log()
   div.begin()
-  const renderParams = obj =>
-    prettyjson.render(obj, prettyJsonOpts, prettyJsonOpts.defaultIndentation)
+
   cnsl.log(ctx.magenta('headers' + ':'))
-  cnsl.log(renderParams(parseHeaders(res._header)))
+  cnsl.log(renderParams(parseHeaders(res._header), opts))
 
   const contentType = res.get('content-type')
   const bodyType =
@@ -287,6 +265,36 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
 
   div.end()
   cnsl.log()
+}
+
+/**
+ * @param {CLSOptions} opts
+ */
+function createChalk (opts) {
+  return new chalk.constructor(
+    opts.color !== false ? undefined : { enabled: false }
+  )
+}
+
+/**
+ * @param {CLSOptions} opts
+ * @param {object} obj
+ */
+function renderParams (obj, opts) {
+  const result = prettyjson.render(
+    opts.sortFields ? sortObject(obj) : obj,
+    {
+      defaultIndentation: 2,
+      noColor: opts.color !== false ? undefined : true
+    },
+    2
+  )
+  if (opts.sortFields && _.startsWith('v0.10.', process.version)) {
+    // Node 0.10 does not support sorted object fields, need to do some manual sorting for it
+    return _.flow(_.split('\n'), _.sortBy(_.identity), _.join('\n'))(result)
+  } else {
+    return result
+  }
 }
 
 /**

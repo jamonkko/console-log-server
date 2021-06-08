@@ -29,6 +29,7 @@ export default function run (opts = {}) {
       --default-cors, -C Add "default" cors using https://www.npmjs.com/package/cors default values. By default only enabled for non-proxied responses. Turn on to enable also for proxy responses, turn off to disable completely.
       --silent-start, Do not log "listening", proxy mapping or any other status on start. Only requests and responses.
       --mock-date, Use mocked date value for value of "now". https://www.npmjs.com/package/mockdate
+      --sort-fields, Off by default. Pretty print headers, query parameters and url-form body fields in sorted order. Does not apply to json bodies.
     Examples
 
       # basic usage
@@ -74,8 +75,9 @@ export default function run (opts = {}) {
         P: 'proxy',
         r: 'log-response',
         C: 'default-cors',
-        s: 'silent-start',
-        D: 'mock-date'
+        S: 'silent-start',
+        D: 'mock-date',
+        s: 'sort-fields'
       },
       unknown: arg => {
         unknownArgs = !_.includes(arg, ['--no-color', '--version'])
@@ -141,6 +143,8 @@ export default function run (opts = {}) {
       proxy: parseProxies(cli.flags.proxy),
       logResponse: parseOnOff(cli.flags.logResponse, '--log-response'),
       defaultCors: parseOnOff(cli.flags.defaultCors, '--default-cors'),
+      silentStart: parseOnOff(cli.flags.silentStart, '--silent-start'),
+      sortFields: parseOnOff(cli.flags.sortFields, '--sort-fields'),
       responseHeader: cli.flags.responseHeader,
       hostname: cli.flags.hostname,
       ignoreUncaughtErrors: true,

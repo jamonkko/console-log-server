@@ -26,6 +26,7 @@
  *  @property {boolean} [silentStart]
  *  @property {string | number | Date} [mockDate]
  *  @property {boolean} [color]
+ *  @property {boolean} [sortFields]
  */
 
 /**
