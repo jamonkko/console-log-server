@@ -21,5 +21,8 @@ jobs:
         uses: jamonkko/setup-node-nvm@master
         with:
           node-version: ${{ matrix.host-node-version }}
+      - run: npm install
       - run: npm run build
       - run: npm run test:compatibility ${{ matrix.comp-node-version }}
+        env:
+          NVM_DIR: /home/runner/mynvm
