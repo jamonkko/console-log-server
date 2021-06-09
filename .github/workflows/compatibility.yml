@@ -1,0 +1,25 @@
+name: Node.js compatibility test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        host-node-version: [v16]
+        comp-node-version: [v0.10, v0.12, v2, v4, v6, v8, v10, v12, v14]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NVM and host Node.js ${{ matrix.host-node-version }}
+        uses: jamonkko/setup-node-nvm@master
+        with:
+          node-version: ${{ matrix.host-node-version }}
+      - run: npm run build
+      - run: npm run test:compatibility ${{ matrix.comp-node-version }}

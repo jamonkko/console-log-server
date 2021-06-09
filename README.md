@@ -110,8 +110,20 @@ var consoleLogServer = require('console-log-server');
 
 ## Running tests
 
+All tests with installed node version:
+
+```bash
+npm test
+```
+
 Updating snapshots:
 
 ```bash
 npm test -- --update-snapshots
+```
+
+Compatibility tests for older node versions
+
+```bash
+npm test:compatibility:all
 ```

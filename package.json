@@ -26,7 +26,9 @@
     "format": "npm run prettier",
     "check": "npm run prettier -- --lint --check && tsc",
     "test": "ava",
-    "test:coverage": "nyc --require esm-wallaby ava"
+    "test:coverage": "nyc --require esm-wallaby ava",
+    "test:compatibility": "./test/bootstrap_compatibility_test.sh",
+    "test:compatibility:all": "npm run test:compatibility -- v0.10 && npm run test:compatibility -- v0.12 && npm run test:compatibility -- v2 && npm run test:compatibility -- v4 && npm run test:compatibility -- v6 && npm run test:compatibility -- v8 && npm run test:compatibility -- v10 && npm run test:compatibility -- v12 && npm run test:compatibility -- v14"
   },
   "ava": {
     "require": [
