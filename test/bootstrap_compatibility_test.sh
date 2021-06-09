@@ -39,8 +39,6 @@ cp "$SRC_DIR/package.json" "$TMP_DIR/"
 
 pushd "$TMP_DIR" > /dev/null
 
-. /usr/local/opt/nvm/nvm.sh # This loads nvm
-
 nvm install $TEST_WITH_NODE_VERSION
 nvm use $TEST_WITH_NODE_VERSION
 npm install --production
