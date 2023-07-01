@@ -29,6 +29,7 @@ export default function run (opts = {}) {
       --default-cors, -C Add "default" cors using https://www.npmjs.com/package/cors default values. By default only enabled for non-proxied responses. Turn on to enable also for proxy responses, turn off to disable completely.
       --silent-start, Do not log "listening", proxy mapping or any other status on start. Only requests and responses.
       --mock-date, Use mocked date value for value of "now". https://www.npmjs.com/package/mockdate
+      --raw-body-limit, Max size of raw body supported. Number of bytes or string parseable by bytes library. Default is '5Mb'.
       --indent-response, On by default. Indents response with console.group() when using node >= v8.5.0
       --sort-fields, Off by default. Pretty print headers, query parameters and url-form body fields in sorted order. Does not apply to json bodies.
     Examples
@@ -54,6 +55,9 @@ export default function run (opts = {}) {
       # Turn off response logging
       $ console-log-server -r no
 
+      # Receive and log raw bodies up to 10Mb
+      $ console-log-server -l "10Mb"
+
       # Turn on response logging for all requests
       $ console-log-server -r yes
 
@@ -78,6 +82,7 @@ export default function run (opts = {}) {
         C: 'default-cors',
         S: 'silent-start',
         D: 'mock-date',
+        l: 'raw-body-limit',
         i: 'indent-response',
         s: 'sort-fields'
       },

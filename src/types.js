@@ -25,6 +25,7 @@
  *  @property {string | string[]} [hostname]
  *  @property {boolean} [silentStart]
  *  @property {string | number | Date} [mockDate]
+ *  @property {string | number} [rawBodyLimit]
  *  @property {boolean} [indentResponse]
  *  @property {boolean} [color]
  *  @property {boolean} [sortFields]
