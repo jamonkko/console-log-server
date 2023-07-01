@@ -99,7 +99,15 @@ function consoleLogServer(opts) {
         app.use(opts.router);
       }
       if (_fp["default"].isFunction(opts.defaultRoute)) {
-        app.all('*', opts.defaultRoute);
+        var delayedRoute = function delayedRoute() {
+          for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          return setTimeout.apply(void 0, [opts.defaultRoute, opts.responseDelay].concat(args));
+        };
+
+        app.all('*', !opts.responseDelay ? opts.defaultRoute : delayedRoute);
       }
     }
   }, opts);
