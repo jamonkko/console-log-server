@@ -109,7 +109,7 @@ export default opts => {
     res,
     next
   ) {
-    res.on('finish', () => {
+    req.locals.rawBody.finally(() => {
       if (
         req.locals.rawBodyBuffer === undefined ||
         req.locals.rawBodyBuffer.length === 0
@@ -117,7 +117,9 @@ export default opts => {
         req.locals.bodyType || (req.locals.bodyType = 'empty')
       }
       logRequest(req, res, opts)
+    })
 
+    res.on('finish', () => {
       if (opts.logResponse !== true && !req.locals?.proxyUrl) {
         logDefaultBodyError(req, res, opts)
       }
