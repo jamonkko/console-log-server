@@ -89,7 +89,9 @@ export default function consoleLogServer (opts) {
           app.use(opts.router)
         }
         if (_.isFunction(opts.defaultRoute)) {
-          app.all('*', opts.defaultRoute)
+          const delayedRoute = (...args) =>
+            setTimeout(opts.defaultRoute, opts.responseDelay, ...args)
+          app.all('*', !opts.responseDelay ? opts.defaultRoute : delayedRoute)
         }
       }
     },

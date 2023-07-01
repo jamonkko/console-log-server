@@ -4,6 +4,7 @@ import consoleLogServer from './'
 import _ from 'lodash/fp'
 import prependHttp from 'prepend-http'
 import url from 'url'
+import parseDuration from 'parse-duration'
 
 export default function run (opts = {}) {
   let unknownArgs = false
@@ -21,6 +22,7 @@ export default function run (opts = {}) {
       --response-code, -c Response response code (ignored if proxied)
       --response-body, -b Response content (ignored if proxied)
       --response-header, -H Response header (ignored if proxied)
+      --response-delay, -t Response delay (ignored if proxied). Duration as string or ms value. e.g. 1000 or 1s.
       --log-response, -r Log also the response. Enabled by default only for proxied requests. Logged response is fully read to a buffer which might change your api behaviour since response is not streamed directly to client, consider turning off if that is a problem.
       --no-color
       --version
@@ -58,6 +60,9 @@ export default function run (opts = {}) {
       # Receive and log raw bodies up to 10Mb
       $ console-log-server -l "10Mb"
 
+      # Delay response for 5 seconds
+      $ console-log-server -t "5s"
+
       # Turn on response logging for all requests
       $ console-log-server -r yes
 
@@ -76,6 +81,7 @@ export default function run (opts = {}) {
         c: 'response-code',
         b: 'response-body',
         H: 'response-header',
+        t: 'response-delay',
         d: 'date-format',
         P: 'proxy',
         r: 'log-response',
@@ -154,6 +160,7 @@ export default function run (opts = {}) {
       indentResponse: parseOnOff(cli.flags.indentResponse, '--indent-response'),
       sortFields: parseOnOff(cli.flags.sortFields, '--sort-fields'),
       responseHeader: cli.flags.responseHeader,
+      responseDelay: parseDuration(cli.flags.responseDelay),
       hostname: cli.flags.hostname,
       ignoreUncaughtErrors: true,
       ...(opts.cls || {})
