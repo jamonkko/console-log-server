@@ -77,6 +77,7 @@ export default opts => {
   )
   router.use(
     bodyParser.raw({
+      limit: opts.rawBodyLimit === undefined ? '5Mb' : opts.rawBodyLimit,
       type: () => true,
       verify: (/** @type {RequestExt} */ req) => {
         req.locals.bodyType = 'raw'
