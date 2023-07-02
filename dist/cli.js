@@ -93,7 +93,7 @@ function run() {
       indentResponse: parseOnOff(cli.flags.indentResponse, '--indent-response'),
       sortFields: parseOnOff(cli.flags.sortFields, '--sort-fields'),
       responseHeader: cli.flags.responseHeader,
-      responseDelay: (0, _parseDuration["default"])(cli.flags.responseDelay),
+      responseDelay: cli.flags.responseDelay && (0, _parseDuration["default"])(cli.flags.responseDelay),
       hostname: cli.flags.hostname,
       ignoreUncaughtErrors: true
     }, opts.cls || {})).startAll();
