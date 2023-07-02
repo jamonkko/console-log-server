@@ -160,7 +160,8 @@ export default function run (opts = {}) {
       indentResponse: parseOnOff(cli.flags.indentResponse, '--indent-response'),
       sortFields: parseOnOff(cli.flags.sortFields, '--sort-fields'),
       responseHeader: cli.flags.responseHeader,
-      responseDelay: parseDuration(cli.flags.responseDelay),
+      responseDelay:
+        cli.flags.responseDelay && parseDuration(cli.flags.responseDelay),
       hostname: cli.flags.hostname,
       ignoreUncaughtErrors: true,
       ...(opts.cls || {})
