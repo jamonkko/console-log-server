@@ -1,7 +1,7 @@
 /*!
  * @license
  * console-log-server v0.3.0 (https://github.com/jamonkko/console-log-server#readme)
- * Copyright 2021 Jarkko Mönkkönen <jamonkko@gmail.com>
+ * Copyright 2023 Jarkko Mönkkönen <jamonkko@gmail.com>
  * Licensed under MIT
  */
 import router from './router'
@@ -84,7 +84,9 @@ export default function consoleLogServer (opts) {
           app.use(opts.router)
         }
         if (_.isFunction(opts.defaultRoute)) {
-          app.all('*', opts.defaultRoute)
+          const delayedRoute = (...args) =>
+            setTimeout(opts.defaultRoute, opts.responseDelay, ...args)
+          app.all('*', !opts.responseDelay ? opts.defaultRoute : delayedRoute)
         }
       }
     },
@@ -92,6 +94,8 @@ export default function consoleLogServer (opts) {
   )
   if (opts.mockDate !== undefined) {
     MockDate.set(opts.mockDate)
+  } else {
+    MockDate.reset()
   }
   const cnsl = opts.console
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
@@ -107,13 +111,13 @@ export default function consoleLogServer (opts) {
       hostPath: _.startsWith('/', hostPath)
         ? hostPath
         : hostPath === undefined
-        ? '/'
-        : '/' + hostPath,
+          ? '/'
+          : '/' + hostPath,
       path: (path === undefined
         ? '/'
         : _.startsWith('/', path)
-        ? path
-        : `/${path || ''}`
+          ? path
+          : `/${path || ''}`
       ).trim()
     }
   }, /** @type {CLSProxy[]} */ (opts.proxy))

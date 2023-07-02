@@ -18,6 +18,7 @@
  *  @property {any} [router]
  *  @property {string} [dateFormat]
  *  @property {any} [defaultRoute]
+ *  @property {number} [responseDelay]
  *  @property {any} [console]
  *  @property {import("express-serve-static-core").Express} [app]
  *  @property {any} [addRouter]

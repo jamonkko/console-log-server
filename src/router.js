@@ -109,7 +109,7 @@ export default opts => {
     res,
     next
   ) {
-    res.on('finish', () => {
+    req.locals.rawBody.finally(() => {
       if (
         req.locals.rawBodyBuffer === undefined ||
         req.locals.rawBodyBuffer.length === 0
@@ -117,7 +117,9 @@ export default opts => {
         req.locals.bodyType || (req.locals.bodyType = 'empty')
       }
       logRequest(req, res, opts)
+    })
 
+    res.on('finish', () => {
       if (opts.logResponse !== true && !req.locals?.proxyUrl) {
         logDefaultBodyError(req, res, opts)
       }
@@ -172,9 +174,9 @@ export default opts => {
           userResDecorator:
             opts.logResponse !== false
               ? function (proxyRes, proxyResData, userReq, userRes) {
-                  userRes.locals.body = proxyResData.toString('utf8')
-                  return proxyResData
-                }
+                userRes.locals.body = proxyResData.toString('utf8')
+                return proxyResData
+              }
               : undefined,
           proxyErrorHandler: function (err, res, next) {
             const msg = { message: err.toString() }
@@ -212,7 +214,7 @@ export default opts => {
           if (_.isFunction(Buffer.from)) {
             chunks.push(Buffer.from(chunk))
           } else {
-            chunks.push(new Buffer(chunk)) // eslint-disable-line node/no-deprecated-api
+            chunks.push(new Buffer(chunk)) // eslint-disable-line n/no-deprecated-api
           }
         }
 

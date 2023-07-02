@@ -8,6 +8,7 @@ set -u
 pushd "$TMP_DIR" > /dev/null
 
 NVM_DIR=${NVM_DIR:-$HOME/.nvm}
+unset npm_config_prefix
 
 if [ -f "$NVM_DIR/nvm.sh" ]; then
     echo "Loading nvm from $NVM_DIR/nvm.sh"
