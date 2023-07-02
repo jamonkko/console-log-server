@@ -174,9 +174,9 @@ export default opts => {
           userResDecorator:
             opts.logResponse !== false
               ? function (proxyRes, proxyResData, userReq, userRes) {
-                  userRes.locals.body = proxyResData.toString('utf8')
-                  return proxyResData
-                }
+                userRes.locals.body = proxyResData.toString('utf8')
+                return proxyResData
+              }
               : undefined,
           proxyErrorHandler: function (err, res, next) {
             const msg = { message: err.toString() }
@@ -214,7 +214,7 @@ export default opts => {
           if (_.isFunction(Buffer.from)) {
             chunks.push(Buffer.from(chunk))
           } else {
-            chunks.push(new Buffer(chunk)) // eslint-disable-line node/no-deprecated-api
+            chunks.push(new Buffer(chunk)) // eslint-disable-line n/no-deprecated-api
           }
         }
 

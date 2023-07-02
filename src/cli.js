@@ -115,12 +115,12 @@ export default function run (opts = {}) {
 
         const parsedHost = url.URL
           ? new URL(prependHttp(proxyHost))
-          : url.parse(prependHttp(proxyHost)) // eslint-disable-line node/no-deprecated-api
+          : url.parse(prependHttp(proxyHost)) // eslint-disable-line n/no-deprecated-api
         const protocol = _.startsWith('https', proxyHost)
           ? 'https'
           : _.startsWith('http', proxyHost)
-          ? 'http'
-          : undefined
+            ? 'http'
+            : undefined
         return {
           path: proxyPart === undefined ? undefined : pathPart,
           host: parsedHost.host,
@@ -143,10 +143,10 @@ export default function run (opts = {}) {
     value === undefined
       ? undefined
       : /^(?:y|yes|true|1|on)$/i.test(value)
-      ? true
-      : /^(?:n|no|false|0|off)$/i.test(value)
-      ? false
-      : showMessageAndExit(`Invalid value '${value}' for ${flagName}`)
+        ? true
+        : /^(?:n|no|false|0|off)$/i.test(value)
+          ? false
+          : showMessageAndExit(`Invalid value '${value}' for ${flagName}`)
 
   if (unknownArgs) {
     cli.showHelp(1)
