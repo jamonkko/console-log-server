@@ -5,39 +5,25 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = run;
-
 var _meow = _interopRequireDefault(require("meow"));
-
 var _2 = _interopRequireDefault(require("./"));
-
 var _fp = _interopRequireDefault(require("lodash/fp"));
-
 var _prependHttp = _interopRequireDefault(require("prepend-http"));
-
 var _url = _interopRequireDefault(require("url"));
-
 var _parseDuration = _interopRequireDefault(require("parse-duration"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 function run() {
   var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var unknownArgs = false;
@@ -66,24 +52,18 @@ function run() {
       return true;
     }
   });
-
   function parseProxies(proxiesArg) {
     if (!proxiesArg) return undefined;
-
     var proxies = _fp["default"].flow(_fp["default"].castArray, _fp["default"].map(_fp["default"].trim), _fp["default"].compact, _fp["default"].map(function (proxyArg) {
       var _$split = _fp["default"].split('>', proxyArg),
-          _$split2 = _slicedToArray(_$split, 2),
-          pathPart = _$split2[0],
-          proxyPart = _$split2[1];
-
+        _$split2 = _slicedToArray(_$split, 2),
+        pathPart = _$split2[0],
+        proxyPart = _$split2[1];
       var proxyHost = proxyPart !== null && proxyPart !== void 0 ? proxyPart : pathPart;
-
       if (!proxyHost) {
         throw Error("Invalid proxy arguments: ".concat(proxyArg));
       }
-
       var parsedHost = _url["default"].URL ? new URL((0, _prependHttp["default"])(proxyHost)) : _url["default"].parse((0, _prependHttp["default"])(proxyHost)); // eslint-disable-line node/no-deprecated-api
-
       var protocol = _fp["default"].startsWith('https', proxyHost) ? 'https' : _fp["default"].startsWith('http', proxyHost) ? 'http' : undefined;
       return {
         path: proxyPart === undefined ? undefined : pathPart,
@@ -92,20 +72,16 @@ function run() {
         hostPath: parsedHost.pathname
       };
     }))(proxiesArg);
-
     return proxies;
   }
-
   function showMessageAndExit(message) {
     console.log(message);
     cli.showHelp(1);
     return undefined;
   }
-
   var parseOnOff = function parseOnOff(value, flagName) {
     return value === undefined ? undefined : /^(?:y|yes|true|1|on)$/i.test(value) ? true : /^(?:n|no|false|0|off)$/i.test(value) ? false : showMessageAndExit("Invalid value '".concat(value, "' for ").concat(flagName));
   };
-
   if (unknownArgs) {
     cli.showHelp(1);
   } else {
@@ -123,9 +99,7 @@ function run() {
     }, opts.cls || {})).startAll();
   }
 }
-
 if (!module.parent) {
   require('core-js');
-
   run().ready.then(function () {});
 }

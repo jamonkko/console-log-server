@@ -9,24 +9,24 @@ var _fp = _interopRequireDefault(require("lodash/fp"));
 var _express = _interopRequireDefault(require("express"));
 var _mimeTypes = _interopRequireDefault(require("mime-types"));
 var _mockdate = _interopRequireDefault(require("mockdate"));
-function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
-function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } /*!
- * @license
- * console-log-server v0.4.0 (https://github.com/jamonkko/console-log-server#readme)
- * Copyright 2024 Jarkko Mönkkönen <jamonkko@gmail.com>
- * Licensed under MIT
- */
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*!
+                                                                                                                                                                                                                                                                                                                                                                                               * @license
+                                                                                                                                                                                                                                                                                                                                                                                               * console-log-server v0.3.0 (https://github.com/jamonkko/console-log-server#readme)
+                                                                                                                                                                                                                                                                                                                                                                                               * Copyright 2023 Jarkko Mönkkönen <jamonkko@gmail.com>
+                                                                                                                                                                                                                                                                                                                                                                                               * Licensed under MIT
+                                                                                                                                                                                                                                                                                                                                                                                               */
 /**
  * @param { CLSOptions } opts
  * @return {{
@@ -51,7 +51,7 @@ function consoleLogServer(opts) {
     console: console,
     dateFormat: "yyyy-mm-dd'T'HH:MM:sso",
     ignoreUncaughtErrors: false,
-    defaultRoute: function defaultRoute(/** @type {RequestExt} */req, /** @type {ResponseExt} */res) {
+    defaultRoute: function defaultRoute( /** @type {RequestExt} */req, /** @type {ResponseExt} */res) {
       var headers = _fp["default"].flow(_fp["default"].map(function (h) {
         return h.split(':', 2);
       }), _fp["default"].fromPairs)(opts.responseHeader);
@@ -70,10 +70,6 @@ function consoleLogServer(opts) {
       }
       contentType = res.get('content-type');
       var ext = _mimeTypes["default"].extension(contentType);
-      // Prevent express automatically converting sent response content to status code if it's a number
-      var ensureNonNumeric = function ensureNonNumeric(value) {
-        return _fp["default"].isNumber(value) ? "".concat(value) : value;
-      };
       switch (ext) {
         case 'json':
           {
@@ -81,7 +77,7 @@ function consoleLogServer(opts) {
               try {
                 res.jsonp(JSON.parse(opts.responseBody));
               } catch (e) {
-                res.send(ensureNonNumeric(opts.responseBody));
+                res.send(opts.responseBody);
                 res.locals.defaultBodyError = e;
               }
             } else {
@@ -90,7 +86,7 @@ function consoleLogServer(opts) {
             break;
           }
         default:
-          opts.responseBody ? res.send(ensureNonNumeric(opts.responseBody)) : res.end();
+          opts.responseBody ? res.send(opts.responseBody) : res.end();
           break;
       }
     },
@@ -103,10 +99,8 @@ function consoleLogServer(opts) {
           for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
             args[_key] = arguments[_key];
           }
-
           return setTimeout.apply(void 0, [opts.defaultRoute, opts.responseDelay].concat(args));
         };
-
         app.all('*', !opts.responseDelay ? opts.defaultRoute : delayedRoute);
       }
     }
@@ -134,7 +128,7 @@ function consoleLogServer(opts) {
     var path = _ref.path,
       host = _ref.host;
     return "'".concat(path, "' -> ").concat(host);
-  }), _fp["default"].join(' vs. '))), _fp["default"].values, _fp["default"].join(', '))(/** @type {CLSProxy[]} */opts.proxy);
+  }), _fp["default"].join(' vs. '))), _fp["default"].values, _fp["default"].join(', '))( /** @type {CLSProxy[]} */opts.proxy);
   if (duplicates) {
     throw Error("Multiple proxies for same path(s): ".concat(duplicates));
   }
@@ -177,7 +171,7 @@ function consoleLogServer(opts) {
         server: server,
         ready: ready
       };
-    }))(/** @type {number[]} */opts.port);
+    }))( /** @type {number[]} */opts.port);
     if (opts.ignoreUncaughtErrors) {
       process.on('uncaughtException', function (err) {
         cnsl.log('Unhandled error. Set ignoreUncaughtErrors to pass these through');

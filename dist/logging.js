@@ -15,7 +15,7 @@ var _dateformat = _interopRequireDefault(require("dateformat"));
 var _parseHeaders = _interopRequireDefault(require("parse-headers"));
 var _mimeTypes = _interopRequireDefault(require("mime-types"));
 var _sortedObject = _interopRequireDefault(require("sorted-object"));
-function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 /**
  * @param {RequestExt} req
  * @param {ResponseExt} res
@@ -112,7 +112,7 @@ function logDefaultBodyError(req, res, opts) {
  * @param {ResponseExt} res
  * @param {CLSOptions} opts
  */
-function logResponse(/** @type {RequestExt} */req, res, opts) {
+function logResponse( /** @type {RequestExt} */req, res, opts) {
   var ctx = createChalk(opts);
   var cnsl = opts.console;
   var now = (0, _dateformat["default"])(new Date(), opts.dateFormat);
