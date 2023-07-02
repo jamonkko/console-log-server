@@ -99,6 +99,8 @@ export default function consoleLogServer (opts) {
   )
   if (opts.mockDate !== undefined) {
     MockDate.set(opts.mockDate)
+  } else {
+    MockDate.reset()
   }
   const cnsl = opts.console
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)
