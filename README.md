@@ -33,7 +33,7 @@ $ console-log-server -p 8000
 
   Options
     --port, -p Port Number
-    --hostname, -h Host name. You can provide multiple hostname flags (with optional matching port flags) to listen many hostnames. 
+    --hostname, -h Host name. You can provide multiple hostname flags (with optional matching port flags) to listen many hostnames.
     --proxy, -P Host(s) to proxy the request to using https://www.npmjs.com/package/express-http-proxy. Syntax: [<path>>]<url>. You can provide different proxies for separate paths.
     --response-code, -c Response response code (ignored if proxied)
     --response-body, -b Response content (ignored if proxied)
@@ -44,7 +44,11 @@ $ console-log-server -p 8000
     --date-format, -d Date format supported by https://www.npmjs.com/package/dateformat (default "yyyy-mm-dd'T'HH:MM:sso")
     --help
     --default-cors, -C Add "default" cors using https://www.npmjs.com/package/cors default values. By default only enabled for non-proxied responses. Turn on to enable also for proxy responses, turn off to disable completely.
-
+    --silent-start, Do not log "listening", proxy mapping or any other status on start. Only requests and responses.
+    --mock-date, Use mocked date value for value of "now". https://www.npmjs.com/package/mockdate
+    --raw-body-limit, Max size of raw body supported. Number of bytes or string parseable by bytes library. Default is '5Mb'.
+    --indent-response, On by default. Indents response with console.group() when using node >= v8.5.0
+    --sort-fields, Off by default. Pretty print headers, query parameters and url-form body fields in sorted order. Does not apply to json bodies.
   Examples
 
     # basic usage
@@ -56,7 +60,7 @@ $ console-log-server -p 8000
     # Log date with UTC date format instead of local with offset
     $ console-log-server -d "isoUtcDateTime"
 
-    # Proxy the request to other host. Response will be the actual response from the proxy. 
+    # Proxy the request to other host. Response will be the actual response from the proxy.
     $ console-log-server -P http://api.example.com
 
     # Proxy the requests to multiple hosts based on paths.
@@ -68,6 +72,9 @@ $ console-log-server -p 8000
     # Turn off response logging
     $ console-log-server -r no
 
+    # Receive and log raw bodies up to 10Mb
+    $ console-log-server -l "10Mb"
+
     # Turn on response logging for all requests
     $ console-log-server -r yes
 
@@ -75,7 +82,7 @@ $ console-log-server -p 8000
     $ console-log-server -C no
 
     # Start server to your local IP and localhost. Might be useful when debugging devices connected to your own machine. Ports can be given for each hostname with --port flag(s).
-    $ console-log-server -h localhost -h 192.168.0.2 
+    $ console-log-server -h localhost -h 192.168.0.2
 ```
 
 ## Legacy Node.js support
