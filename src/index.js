@@ -1,7 +1,7 @@
 /*!
  * @license
  * console-log-server v0.3.0 (https://github.com/jamonkko/console-log-server#readme)
- * Copyright 2021 Jarkko Mönkkönen <jamonkko@gmail.com>
+ * Copyright 2024 Jarkko Mönkkönen <jamonkko@gmail.com>
  * Licensed under MIT
  */
 import router from './router'
@@ -112,13 +112,13 @@ export default function consoleLogServer (opts) {
       hostPath: _.startsWith('/', hostPath)
         ? hostPath
         : hostPath === undefined
-        ? '/'
-        : '/' + hostPath,
+          ? '/'
+          : '/' + hostPath,
       path: (path === undefined
         ? '/'
         : _.startsWith('/', path)
-        ? path
-        : `/${path || ''}`
+          ? path
+          : `/${path || ''}`
       ).trim()
     }
   }, /** @type {CLSProxy[]} */ (opts.proxy))
