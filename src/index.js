@@ -60,13 +60,16 @@ export default function consoleLogServer (opts) {
         }
         contentType = res.get('content-type')
         const ext = mime.extension(contentType)
+        // Prevent express automatically converting sent response content to status code if it's a number
+        const ensureNonNumeric = value =>
+          _.isNumber(value) ? `${value}` : value
         switch (ext) {
           case 'json': {
             if (opts.responseBody) {
               try {
                 res.jsonp(JSON.parse(opts.responseBody))
               } catch (e) {
-                res.send(opts.responseBody)
+                res.send(ensureNonNumeric(opts.responseBody))
                 res.locals.defaultBodyError = e
               }
             } else {
@@ -75,7 +78,9 @@ export default function consoleLogServer (opts) {
             break
           }
           default:
-            opts.responseBody ? res.send(opts.responseBody) : res.end()
+            opts.responseBody
+              ? res.send(ensureNonNumeric(opts.responseBody))
+              : res.end()
             break
         }
       },
