@@ -12,15 +12,15 @@ var _expressHttpProxy = _interopRequireDefault(require("express-http-proxy"));
 var _fp = _interopRequireDefault(require("lodash/fp"));
 var _cors = _interopRequireDefault(require("cors"));
 var _es6Promise = require("es6-promise");
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 /**
  * @param {CLSOptions} opts
  */
-var _default = function _default(opts) {
+var _default = exports["default"] = function _default(opts) {
   var cnsl = opts.console;
   var router = _express["default"].Router();
   var reqCounter = 0;
-  router.use(function addLocals( /** @type {RequestExt} */req, res, next) {
+  router.use(function addLocals(/** @type {RequestExt} */req, res, next) {
     req.locals || (req.locals = {});
     var requestId = req.header('X-Request-ID') || req.header('X-Correlation-ID');
     req.locals.id = "".concat(++reqCounter) + (requestId ? ":".concat(requestId) : '');
@@ -28,12 +28,12 @@ var _default = function _default(opts) {
   });
   if (opts.mockDate) {
     // For some reason Date cannot be mocked in Node 15/16, so just override the date header when using static date
-    router.use(function mockDate( /** @type {RequestExt} */req, res, next) {
+    router.use(function mockDate(/** @type {RequestExt} */req, res, next) {
       res.set('date', new Date().toUTCString());
       next();
     });
   }
-  router.use(function saveRawBody( /** @type {RequestExt} */req, res, next) {
+  router.use(function saveRawBody(/** @type {RequestExt} */req, res, next) {
     req.locals.rawBody = new _es6Promise.Promise(function (resolve) {
       req.once('end', function () {
         resolve(req.locals.rawBodyBuffer);
@@ -48,25 +48,25 @@ var _default = function _default(opts) {
     next();
   });
   router.use(_bodyParser["default"].json({
-    verify: function verify( /** @type {RequestExt} */req) {
+    verify: function verify(/** @type {RequestExt} */req) {
       req.locals.bodyType = 'json';
     }
   }));
   router.use(_bodyParser["default"].urlencoded({
     extended: true,
-    verify: function verify( /** @type {RequestExt} */req) {
+    verify: function verify(/** @type {RequestExt} */req) {
       req.locals.bodyType = 'url';
     }
   }));
   router.use((0, _expressXmlBodyparser["default"])());
-  router.use(function markBodyAsXml( /** @type {RequestExt} */req, res, next) {
+  router.use(function markBodyAsXml(/** @type {RequestExt} */req, res, next) {
     if (!req.locals.bodyType && !_fp["default"].isEmpty(req.body)) {
       req.locals.bodyType = 'xml';
     }
     next();
   });
   router.use(_bodyParser["default"].text({
-    verify: function verify( /** @type {RequestExt} */req) {
+    verify: function verify(/** @type {RequestExt} */req) {
       req.locals.bodyType = 'text';
     }
   }));
@@ -75,7 +75,7 @@ var _default = function _default(opts) {
     type: function type() {
       return true;
     },
-    verify: function verify( /** @type {RequestExt} */req) {
+    verify: function verify(/** @type {RequestExt} */req) {
       req.locals.bodyType = 'raw';
     }
   }));
@@ -88,7 +88,7 @@ var _default = function _default(opts) {
     res.locals.responseCode = 400;
     next();
   });
-  router.use(function logRequestAndResponse( /** @type {RequestExt} */req, res, next) {
+  router.use(function logRequestAndResponse(/** @type {RequestExt} */req, res, next) {
     req.locals.rawBody["finally"](function () {
       if (req.locals.rawBodyBuffer === undefined || req.locals.rawBodyBuffer.length === 0) {
         req.locals.bodyType || (req.locals.bodyType = 'empty');
@@ -132,7 +132,7 @@ var _default = function _default(opts) {
       router.use(path, (0, _expressHttpProxy["default"])(host, {
         https: https,
         parseReqBody: false,
-        proxyReqPathResolver: function proxyReqPathResolver( /** @type {RequestExt} */req) {
+        proxyReqPathResolver: function proxyReqPathResolver(/** @type {RequestExt} */req) {
           var resolvedPath = hostPath === '/' ? req.url : hostPath + req.url;
           req.locals.proxyUrl = "".concat(protocolPrefix).concat(host).concat(resolvedPath);
           return resolvedPath;
@@ -158,7 +158,7 @@ var _default = function _default(opts) {
     router.use((0, _cors["default"])());
   }
   if (opts.logResponse === true || !_fp["default"].isEmpty(opts.proxy) && opts.logResponse !== false) {
-    router.use(function captureResponse( /** @type {RequestExt} */req, res, next) {
+    router.use(function captureResponse(/** @type {RequestExt} */req, res, next) {
       if (opts.logResponse === true) {
         var oldWrite = res.write;
         var oldEnd = res.end;
@@ -170,10 +170,9 @@ var _default = function _default(opts) {
           if (_fp["default"].isFunction(Buffer.from)) {
             chunks.push(Buffer.from(chunk));
           } else {
-            chunks.push(new Buffer(chunk)); // eslint-disable-line n/no-deprecated-api
+            chunks.push(new Buffer(chunk)); // eslint-disable-line
           }
         };
-
         res.write = function () {
           for (var _len = arguments.length, restArgs = new Array(_len), _key = 0; _key < _len; _key++) {
             restArgs[_key] = arguments[_key];
@@ -200,4 +199,3 @@ var _default = function _default(opts) {
   }
   return router;
 };
-exports["default"] = _default;
