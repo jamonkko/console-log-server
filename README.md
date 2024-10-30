@@ -132,5 +132,5 @@ npm test -- --update-snapshots
 Compatibility tests for older node versions
 
 ```bash
-npm test:compatibility:all
+npm run test:compatibility:all
 ```
