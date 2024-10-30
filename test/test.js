@@ -22,21 +22,6 @@ function createCLS (opts) {
 
   const testArgs = minimist(process.argv.slice(2))
 
-  const argv = [
-    '--log-response',
-    'yes',
-    '--mock-date',
-    '2020-03-23T02:00:00Z',
-    '--no-color',
-    '--date-format',
-    'isoUtcDateTime',
-    '--port',
-    '0',
-    '--indent-response',
-    'off',
-    '--sort-fields',
-    'on'
-  ]
   if (!testArgs.distpath) {
     const console = new Console({
       stdout: out,
@@ -45,7 +30,7 @@ function createCLS (opts) {
 
     const cls = cli({
       meow: {
-        argv: _.concat(argv, ['--silent-start'])
+        argv: _.concat(opts.argv, ['--silent-start'])
       },
       cls: { console }
     })
@@ -63,7 +48,7 @@ function createCLS (opts) {
     const { spawn } = require('child_process')
     const child = spawn(
       './test/run_dist.sh',
-      _.concat([testArgs.distpath, testArgs.nodeversion], argv)
+      _.concat([testArgs.distpath, testArgs.nodeversion], opts.argv)
     )
     child.stdout.setEncoding('utf8')
 
@@ -114,8 +99,25 @@ function createCLS (opts) {
   }
 }
 
-test('request and response logging works', t => {
-  return createCLS({ expectResCount: 1 }).then(
+test.serial('request and response logging works', t => {
+  const argv = [
+    '--log-response',
+    'yes',
+    '--mock-date',
+    '2020-03-23T02:00:00Z',
+    '--no-color',
+    '--date-format',
+    'isoUtcDateTime',
+    '--hostname',
+    '127.0.0.1',
+    '--port',
+    '0',
+    '--indent-response',
+    'off',
+    '--sort-fields',
+    'on'
+  ]
+  return createCLS({ expectResCount: 1, argv }).then(
     ({ out, err, server, child, finished }) => {
       return request(server)
         .get('/dog')
@@ -131,6 +133,58 @@ test('request and response logging works', t => {
         .then(res => {
           t.snapshot(out.getCLSOuput({ normalizeHeaders: true }), 'out')
           t.is(err.size(), 0)
+        })
+    }
+  )
+})
+
+test.serial('Response delay works', t => {
+  const argv = [
+    '--log-response',
+    'yes',
+    '--date-format',
+    "yyyy-mm-dd HH:MM:ss.l'Z'",
+    '--hostname',
+    '127.0.0.1',
+    '--port',
+    '0',
+    '--response-delay',
+    '501ms'
+  ]
+  return createCLS({ expectResCount: 1, argv }).then(
+    ({ out, err, server, child, finished }) => {
+      return request(server)
+        .get('/dog')
+        .set('Host', 'localhost')
+        .expect(200)
+        .then(() => finished)
+        .then(() => {
+          if (child) {
+            child.kill(9)
+            return new Promise(resolve => child.on('exit', () => resolve()))
+          }
+        })
+        .then(res => {
+          const output = out.getCLSOuput({ normalizeHeaders: true })
+          const reReqTimestamp = /\[req.*\] \[(.*)\]/i
+          const reqMatch = output.match(reReqTimestamp)
+          console.log(reqMatch[1])
+          t.truthy(reqMatch)
+          const reqStamp = reqMatch[1]
+          t.truthy(reqStamp)
+          const received = Date.parse(reqStamp)
+          t.truthy(received)
+          const reResTimestamp = /\[res.*\] \[(.*)\]/i
+          const resMatch = output.match(reResTimestamp)
+          t.truthy(resMatch)
+          const resStamp = resMatch[1]
+          t.truthy(resStamp)
+          const responded = Date.parse(resStamp)
+          t.truthy(responded)
+          t.assert(
+            responded - received > 500,
+            `Expected response timestamp: '${resStamp}' to be over 500ms older than req timestamp: '${reqStamp}'}`
+          )
         })
     }
   )

@@ -89,7 +89,9 @@ export default function consoleLogServer (opts) {
           app.use(opts.router)
         }
         if (_.isFunction(opts.defaultRoute)) {
-          app.all('*', opts.defaultRoute)
+          const delayedRoute = (...args) =>
+            setTimeout(opts.defaultRoute, opts.responseDelay, ...args)
+          app.all('*', !opts.responseDelay ? opts.defaultRoute : delayedRoute)
         }
       }
     },
@@ -97,6 +99,8 @@ export default function consoleLogServer (opts) {
   )
   if (opts.mockDate !== undefined) {
     MockDate.set(opts.mockDate)
+  } else {
+    MockDate.reset()
   }
   const cnsl = opts.console
   opts.responseHeader = opts.responseHeader && _.castArray(opts.responseHeader)

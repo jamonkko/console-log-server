@@ -89,12 +89,14 @@ var _default = exports["default"] = function _default(opts) {
     next();
   });
   router.use(function logRequestAndResponse(/** @type {RequestExt} */req, res, next) {
-    res.on('finish', function () {
-      var _req$locals, _req$locals2;
+    req.locals.rawBody["finally"](function () {
       if (req.locals.rawBodyBuffer === undefined || req.locals.rawBodyBuffer.length === 0) {
         req.locals.bodyType || (req.locals.bodyType = 'empty');
       }
       (0, _logging.logRequest)(req, res, opts);
+    });
+    res.on('finish', function () {
+      var _req$locals, _req$locals2;
       if (opts.logResponse !== true && !((_req$locals = req.locals) !== null && _req$locals !== void 0 && _req$locals.proxyUrl)) {
         (0, _logging.logDefaultBodyError)(req, res, opts);
       }

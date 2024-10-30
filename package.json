@@ -98,6 +98,7 @@
     "meow": "^3.7.0",
     "mime-types": "^2.1.12",
     "mockdate": "^3.0.5",
+    "parse-duration": "^1.1.0",
     "parse-headers": "^2.0.3",
     "prepend-http": "1.0.4",
     "pretty-data": "^0.40.0",

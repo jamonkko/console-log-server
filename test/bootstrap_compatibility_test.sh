@@ -11,7 +11,7 @@ TEST_WITH_NODE_VERSION=$1
 set -u
 
 NVM_DIR=${NVM_DIR:-$HOME/.nvm}
-
+unset npm_config_prefix
 if [ -f "$NVM_DIR/nvm.sh" ]; then
     echo "Loading nvm from $NVM_DIR/nvm.sh"
     . "$NVM_DIR/nvm.sh"
