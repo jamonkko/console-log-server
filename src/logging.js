@@ -38,14 +38,14 @@ export function logRequest (req, res, opts) {
   const pathLine = `${req.method} ${req.originalUrl}`
   const div = !err
     ? divider(
-      ctx.yellow.bold(pathLine) +
-        (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')
-    )
+        ctx.yellow.bold(pathLine) +
+          (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')
+      )
     : divider(
-      ctx.red.bold(pathLine) +
-        (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : '') +
-        ctx.red.bold('  *error*')
-    )
+        ctx.red.bold(pathLine) +
+          (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : '') +
+          ctx.red.bold('  *error*')
+      )
   cnsl.log()
   div.begin()
   const headers = req.headers
@@ -176,15 +176,15 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
   const div =
     res.statusCode < 400
       ? divider(
-        ctx.green.bold(statusPreFix) +
-          ctx.yellow.bold(pathLine) +
-          (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')
-      )
+          ctx.green.bold(statusPreFix) +
+            ctx.yellow.bold(pathLine) +
+            (proxyUrl ? proxyArrow + ctx.yellow.bold(proxyUrl) : '')
+        )
       : divider(
-        ctx.red.bold(statusPreFix) +
-          ctx.red.bold(pathLine) +
-          (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : '')
-      )
+          ctx.red.bold(statusPreFix) +
+            ctx.red.bold(pathLine) +
+            (proxyUrl ? proxyArrow + ctx.red.bold(proxyUrl) : '')
+        )
   cnsl.log()
   div.begin()
 
@@ -196,8 +196,8 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
     res.locals.body === undefined
       ? 'empty'
       : _.isString(contentType)
-        ? mime.extension(contentType)
-        : 'raw'
+      ? mime.extension(contentType)
+      : 'raw'
 
   try {
     switch (bodyType) {
@@ -241,8 +241,8 @@ export function logResponse (/** @type {RequestExt} */ req, res, opts) {
           ctx.magenta('body: ') +
             (bodyType
               ? ctx.yellow(
-                `(${bodyType} - as raw string, no formatting support yet)`
-              )
+                  `(${bodyType} - as raw string, no formatting support yet)`
+                )
               : ctx.yellow('(as raw string)'))
         )
         cnsl.log(ctx.white(res.locals.body.toString()))

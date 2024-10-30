@@ -172,9 +172,9 @@ export default opts => {
           userResDecorator:
             opts.logResponse !== false
               ? function (proxyRes, proxyResData, userReq, userRes) {
-                userRes.locals.body = proxyResData.toString('utf8')
-                return proxyResData
-              }
+                  userRes.locals.body = proxyResData.toString('utf8')
+                  return proxyResData
+                }
               : undefined,
           proxyErrorHandler: function (err, res, next) {
             const msg = { message: err.toString() }

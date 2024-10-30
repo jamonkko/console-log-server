@@ -112,13 +112,13 @@ export default function consoleLogServer (opts) {
       hostPath: _.startsWith('/', hostPath)
         ? hostPath
         : hostPath === undefined
-          ? '/'
-          : '/' + hostPath,
+        ? '/'
+        : '/' + hostPath,
       path: (path === undefined
         ? '/'
         : _.startsWith('/', path)
-          ? path
-          : `/${path || ''}`
+        ? path
+        : `/${path || ''}`
       ).trim()
     }
   }, /** @type {CLSProxy[]} */ (opts.proxy))
