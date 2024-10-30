@@ -1,6 +1,6 @@
 {
   "name": "console-log-server",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Logs all http requests to console",
   "main": "dist",
   "jsnext:main": "src",
