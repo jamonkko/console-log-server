@@ -168,7 +168,7 @@ var _default = exports["default"] = function _default(opts) {
           if (_fp["default"].isFunction(Buffer.from)) {
             chunks.push(Buffer.from(chunk));
           } else {
-            chunks.push(new Buffer(chunk)); // eslint-disable-line node/no-deprecated-api
+            chunks.push(new Buffer(chunk)); // eslint-disable-line
           }
         };
         res.write = function () {

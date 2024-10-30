@@ -61,7 +61,7 @@ function run() {
       if (!proxyHost) {
         throw Error("Invalid proxy arguments: ".concat(proxyArg));
       }
-      var parsedHost = _url["default"].URL ? new URL((0, _prependHttp["default"])(proxyHost)) : _url["default"].parse((0, _prependHttp["default"])(proxyHost)); // eslint-disable-line node/no-deprecated-api
+      var parsedHost = _url["default"].URL ? new URL((0, _prependHttp["default"])(proxyHost)) : _url["default"].parse((0, _prependHttp["default"])(proxyHost)); // eslint-disable-line
       var protocol = _fp["default"].startsWith('https', proxyHost) ? 'https' : _fp["default"].startsWith('http', proxyHost) ? 'http' : undefined;
       return {
         path: proxyPart === undefined ? undefined : pathPart,

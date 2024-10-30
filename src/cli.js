@@ -109,7 +109,7 @@ export default function run (opts = {}) {
 
         const parsedHost = url.URL
           ? new URL(prependHttp(proxyHost))
-          : url.parse(prependHttp(proxyHost)) // eslint-disable-line node/no-deprecated-api
+          : url.parse(prependHttp(proxyHost)) // eslint-disable-line
         const protocol = _.startsWith('https', proxyHost)
           ? 'https'
           : _.startsWith('http', proxyHost)
